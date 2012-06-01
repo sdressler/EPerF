@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <iomanip>
 
 namespace ENHANCE {
 
@@ -74,10 +75,10 @@ public:
 	 * @retval std::ostream The returning stream
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
-		out << "CPU Time: " << d.cputime << "s, "
-			<< "Wall Clock Time: " << d.wclock << "s, "
-			<< "Data in: " << d.inBytes << " Byte, "
-			<< "Data out: " << d.outBytes;
+                out << std::scientific << std::setw(16) << std::setprecision(9);
+                out << "CPU Time[s]: " << d.cputime << ", " << "Wall Clock Time[s]: " << d.wclock << ", ";
+                out << std::fixed << std::setprecision(0);
+                out << "Data in[byte]: " << d.inBytes << ", " << "Data out[byte]: " << d.outBytes;
 		return out;
 	}
 };
