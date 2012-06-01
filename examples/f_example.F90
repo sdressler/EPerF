@@ -48,7 +48,7 @@ program fibonacci
       ! Generate some numbers
       print '(a)', "Generating timings and datavolumes"
       do i = 1,4
-        err = EPerfAddKernelDataVolumes(eperf, i, 0, 1024_8, 512_8)
+        err = EPerfAddKernelDataVolumes(eperf, i, 0, 8_8, 8_8)
         err = EPerfStartTimer(eperf, i, 0)
         fNum = fib(i * 10)  
         err = EPerfStopTimer(eperf, i, 0)
