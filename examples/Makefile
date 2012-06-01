@@ -2,10 +2,14 @@ include ../Makefile.inc
 
 TARGET_CPP	= cpp_example
 TARGET_C	= c_example
+TARGET_F90	= f_example
 LLIB		= -L../lib -leperf
+
+CFFLAGS		+= -I../include/eperf
 
 OBJ_CPP		= cpp_example.o
 OBJ_C		= c_example.o
+OBJ_F90		= f_example.o
 
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
@@ -13,17 +17,25 @@ OBJ_C		= c_example.o
 %.o : %.c
 	$(CC) $(CXXFLAGS) -c $<
 
-all: $(TARGET_CPP) $(TARGET_C)
+%.o : %.F90
+	$(CF) $(CFFLAGS) -c $<
+
+all: $(TARGET_CPP) $(TARGET_C) $(TARGET_F90)
 
 only-c: $(TARGET_C)
 
 only-cpp: $(TARGET_CPP)
+
+only-f90: $(TARGET_F90)
 
 $(TARGET_CPP) : $(OBJ_CPP)
 	$(CXX) $(LDFLAGS) $(OBJ_CPP) -o $(TARGET_CPP) $(LLIB) 
 
 $(TARGET_C) : $(OBJ_C)
 	$(CC) $(LDFLAGS) $(OBJ_C) -o $(TARGET_C) $(LLIB)
+
+$(TARGET_F90) : $(OBJ_F90)
+	$(CF) $(CFFLAGS) $(OBJ_F90) -o $(TARGET_F90) $(LLIB)
 
 run: $(TARGET_CPP) $(TARGET_C)
 	@echo "==========="
@@ -34,6 +46,10 @@ run: $(TARGET_CPP) $(TARGET_C)
 	@echo "C Example"
 	@echo "=========\n"
 	LD_LIBRARY_PATH=../lib ./$(TARGET_C)
+	@echo "==============="
+	@echo "FORTRAN Example"
+	@echo "===============\n"
+	LD_LIBRARY_PATH=../lib ./$(TARGET_F90)
 
 clean:
-	rm -f $(TARGET_CPP) $(TARGET_C) $(OBJ_CPP) $(OBJ_C)
+	rm -f $(TARGET_CPP) $(TARGET_C) $(OBJ_CPP) $(OBJ_C) $(TARGET_F90) $(OBJ_F90) $(MOD_F90)

@@ -1,3 +1,5 @@
+CF			= gfortran
+CFFLAGS		= -std=f2003
 CC			= gcc
 CXX			= g++
-CXXFLAGS	= -Wall -O2
+CXXFLAGS	= -Wall -O0 -g

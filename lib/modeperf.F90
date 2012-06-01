@@ -1,0 +1,92 @@
+MODULE modeperf
+!
+! #include "../include/eperf/ceperf.h"
+!
+    IMPLICIT NONE
+
+    ENUM, BIND(C)
+        ENUMERATOR ::   E_OK = 0,   & ! No error, success
+&                       E_DUPK,     & ! Kernel already exists
+&                       E_DUPD,     & ! Device already exists
+&                       E_NOK,      & ! Kernel not found
+&                       E_NOD,      & ! Device not found
+&                       E_TMR,      & ! Timer error
+&                       E_RES         ! Error in results
+    END ENUM
+
+    INTERFACE
+        FUNCTION EPerfInit() &
+&           BIND(C, NAME="EPerfInit")
+
+            USE, INTRINSIC :: ISO_C_BINDING
+            IMPLICIT NONE
+            TYPE(C_PTR) :: EPerfInit
+        END FUNCTION EPerfInit
+        
+        FUNCTION EPerfAddKernel(e, ID, kName) &
+&           BIND(C, NAME="EPerfAddKernel")
+
+            USE, INTRINSIC :: ISO_C_BINDING
+            IMPLICIT NONE
+            TYPE(C_PTR), VALUE :: e
+            INTEGER(C_INT), VALUE :: ID
+            CHARACTER(LEN=1, KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: kName
+            INTEGER(C_INT) :: EPerfAddKernel
+        END FUNCTION EPerfAddKernel
+        
+        FUNCTION EPerfAddDevice(e, ID, dName) &
+&           BIND(C, NAME="EPerfAddDevice")
+
+            USE, INTRINSIC :: ISO_C_BINDING
+            IMPLICIT NONE
+            TYPE(C_PTR), VALUE :: e
+            INTEGER(C_INT), VALUE :: ID
+            CHARACTER(LEN=1, KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: dName
+            INTEGER(C_INT) :: EPerfAddDevice
+        END FUNCTION EPerfAddDevice
+
+        FUNCTION EPerfStartTimer(e, KernelID, DeviceID) &
+&           BIND(C, NAME="EPerfStartTimer")
+
+            USE, INTRINSIC :: ISO_C_BINDING
+            IMPLICIT NONE
+            TYPE(C_PTR), VALUE :: e
+            INTEGER(C_INT), VALUE :: KernelID
+            INTEGER(C_INT), VALUE :: DeviceID
+            INTEGER(C_INT) :: EPerfStartTimer
+        END FUNCTION EPerfStartTimer
+        
+        FUNCTION EPerfStopTimer(e, KernelID, DeviceID)&
+&           BIND(C, NAME="EPerfStopTimer")
+
+            USE, INTRINSIC :: ISO_C_BINDING
+            IMPLICIT NONE
+            TYPE(C_PTR), VALUE :: e
+            INTEGER(C_INT), VALUE :: KernelID
+            INTEGER(C_INT), VALUE :: DeviceID
+            INTEGER(C_INT) :: EPerfStopTimer
+        END FUNCTION EPerfStopTimer
+
+        FUNCTION EPerfAddKernelDataVolumes(e, KernelID, DeviceID, inBytes, outBytes) &
+&           BIND(C, NAME="EPerfAddKernelDataVolumes")
+
+            USE, INTRINSIC :: ISO_C_BINDING
+            IMPLICIT NONE
+            TYPE(C_PTR), VALUE :: e
+            INTEGER(C_INT), VALUE :: KernelID
+            INTEGER(C_INT), VALUE :: DeviceID
+            INTEGER(C_LONG_LONG), VALUE :: inBytes
+            INTEGER(C_LONG_LONG), VALUE :: outBytes
+            INTEGER(C_INT) :: EPerfAddKernelDataVolumes
+        END FUNCTION EPerfAddKernelDataVolumes
+
+        SUBROUTINE EPerfPrintResults(e) &
+&           BIND(C, NAME="EPerfPrintResults")
+
+            USE, INTRINSIC :: ISO_C_BINDING
+            IMPLICIT NONE
+            TYPE(C_PTR), VALUE :: e
+        END SUBROUTINE EPerfPrintResults
+    END INTERFACE
+
+END MODULE modeperf

@@ -179,6 +179,7 @@ public:
 
 #else
 typedef struct EPerf EPerf;
+typedef struct EPerf eperf;
 #endif
 
 #endif /* EPERF_H */

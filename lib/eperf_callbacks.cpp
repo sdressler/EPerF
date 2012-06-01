@@ -15,6 +15,7 @@ EPerf* cpp_callback_EPerfInit() {
 	} catch (...) {
 		return NULL;
 	}
+
 	return e;
 }
 
