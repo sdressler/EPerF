@@ -1,4 +1,4 @@
-MODULE modeperf
+MODULE m_eperf
 !
 ! #include "../include/eperf/ceperf.h"
 !
@@ -18,7 +18,7 @@ MODULE modeperf
         FUNCTION EPerfInit() &
 &           BIND(C, NAME="EPerfInit")
 
-            USE, INTRINSIC :: ISO_C_BINDING
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR
             IMPLICIT NONE
             TYPE(C_PTR) :: EPerfInit
         END FUNCTION EPerfInit
@@ -26,7 +26,7 @@ MODULE modeperf
         FUNCTION EPerfAddKernel(e, ID, kName) &
 &           BIND(C, NAME="EPerfAddKernel")
 
-            USE, INTRINSIC :: ISO_C_BINDING
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT, C_CHAR
             IMPLICIT NONE
             TYPE(C_PTR), VALUE :: e
             INTEGER(C_INT), VALUE :: ID
@@ -37,7 +37,7 @@ MODULE modeperf
         FUNCTION EPerfAddDevice(e, ID, dName) &
 &           BIND(C, NAME="EPerfAddDevice")
 
-            USE, INTRINSIC :: ISO_C_BINDING
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT, C_CHAR
             IMPLICIT NONE
             TYPE(C_PTR), VALUE :: e
             INTEGER(C_INT), VALUE :: ID
@@ -48,7 +48,7 @@ MODULE modeperf
         FUNCTION EPerfStartTimer(e, KernelID, DeviceID) &
 &           BIND(C, NAME="EPerfStartTimer")
 
-            USE, INTRINSIC :: ISO_C_BINDING
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT
             IMPLICIT NONE
             TYPE(C_PTR), VALUE :: e
             INTEGER(C_INT), VALUE :: KernelID
@@ -59,7 +59,7 @@ MODULE modeperf
         FUNCTION EPerfStopTimer(e, KernelID, DeviceID)&
 &           BIND(C, NAME="EPerfStopTimer")
 
-            USE, INTRINSIC :: ISO_C_BINDING
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT
             IMPLICIT NONE
             TYPE(C_PTR), VALUE :: e
             INTEGER(C_INT), VALUE :: KernelID
@@ -70,7 +70,7 @@ MODULE modeperf
         FUNCTION EPerfAddKernelDataVolumes(e, KernelID, DeviceID, inBytes, outBytes) &
 &           BIND(C, NAME="EPerfAddKernelDataVolumes")
 
-            USE, INTRINSIC :: ISO_C_BINDING
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT, C_LONG_LONG
             IMPLICIT NONE
             TYPE(C_PTR), VALUE :: e
             INTEGER(C_INT), VALUE :: KernelID
@@ -83,10 +83,10 @@ MODULE modeperf
         SUBROUTINE EPerfPrintResults(e) &
 &           BIND(C, NAME="EPerfPrintResults")
 
-            USE, INTRINSIC :: ISO_C_BINDING
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR
             IMPLICIT NONE
             TYPE(C_PTR), VALUE :: e
         END SUBROUTINE EPerfPrintResults
     END INTERFACE
 
-END MODULE modeperf
+END MODULE m_eperf

@@ -28,6 +28,7 @@ clean: $(CLEANDIRS)
 $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 	$(MAKE) -C doc clean
+	-rm -f include/eperf/*.mod
 
 .PHONY: subdirs $(SUBDIRS)
 .PHONY: subdirs $(CLEANDIRS)

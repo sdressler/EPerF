@@ -5,7 +5,7 @@ TARGET_C	= c_example
 TARGET_F90	= f_example
 LLIB		= -L../lib -leperf
 
-CFFLAGS		+= -I../include/eperf
+FFLAGS		+= -I../include/eperf
 
 OBJ_CPP		= cpp_example.o
 OBJ_C		= c_example.o
@@ -18,7 +18,7 @@ OBJ_F90		= f_example.o
 	$(CC) $(CXXFLAGS) -c $<
 
 %.o : %.F90
-	$(CF) $(CFFLAGS) -c $<
+	$(FC) $(FFLAGS) -c $<
 
 all: $(TARGET_CPP) $(TARGET_C) $(TARGET_F90)
 
@@ -35,7 +35,7 @@ $(TARGET_C) : $(OBJ_C)
 	$(CC) $(LDFLAGS) $(OBJ_C) -o $(TARGET_C) $(LLIB)
 
 $(TARGET_F90) : $(OBJ_F90)
-	$(CF) $(CFFLAGS) $(OBJ_F90) -o $(TARGET_F90) $(LLIB)
+	$(FC) $(FFLAGS) $(OBJ_F90) -o $(TARGET_F90) $(LLIB)
 
 run: $(TARGET_CPP) $(TARGET_C)
 	@echo "==========="
@@ -52,4 +52,4 @@ run: $(TARGET_CPP) $(TARGET_C)
 	LD_LIBRARY_PATH=../lib ./$(TARGET_F90)
 
 clean:
-	rm -f $(TARGET_CPP) $(TARGET_C) $(OBJ_CPP) $(OBJ_C) $(TARGET_F90) $(OBJ_F90) $(MOD_F90)
+	rm -f $(TARGET_CPP) $(TARGET_C) $(OBJ_CPP) $(OBJ_C) $(TARGET_F90) $(OBJ_F90)

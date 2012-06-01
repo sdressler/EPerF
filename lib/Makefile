@@ -17,9 +17,9 @@ INC = $(wildcard ../include/eperf/*.h)
 
 all: $(OBJ)
 	$(CXX) $(LDFLAGS) $(OBJ) -o lib$(TARGET).so $(LLIB)
-	# FORTRAN Module
-	$(CF) $(CFFLAGS) -c modeperf.F90
-	mv modeperf.mod ../include/eperf
+# FORTRAN Module
+	$(FC) $(FFLAGS) -c feperf.F90
+#	$(MV) feperf.mod ../include/eperf
 
 clean:
-	rm -f lib$(TARGET).so $(OBJ) modeperf.o
+	rm -f lib$(TARGET).so $(OBJ) feperf.o
