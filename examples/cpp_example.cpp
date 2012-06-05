@@ -1,4 +1,4 @@
-#include "../include/eperf/eperf.h"
+#include "../include/eperf/EPerf.h"
 
 #include <iostream>
 
