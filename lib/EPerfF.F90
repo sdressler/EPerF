@@ -1,6 +1,6 @@
 MODULE m_eperf
 !
-! #include "../include/eperf/ceperf.h"
+! #include "../include/eperf/EPerfC.h"
 !
     IMPLICIT NONE
 
@@ -11,7 +11,8 @@ MODULE m_eperf
 &                       E_NOK,      & ! Kernel not found
 &                       E_NOD,      & ! Device not found
 &                       E_TMR,      & ! Timer error
-&                       E_RES         ! Error in results
+&                       E_RES,      & ! Error in results
+&                       E_EQU         ! Two ID's were equal
     END ENUM
 
     INTERFACE
@@ -44,6 +45,17 @@ MODULE m_eperf
             CHARACTER(LEN=1, KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: dName
             INTEGER(C_INT) :: EPerfAddDevice
         END FUNCTION EPerfAddDevice
+
+        FUNCTION EPerfAddSubDeviceToDevice(e, ID, sID) &
+&           BIND(C, NAME="EPerfAddSubDeviceToDevice")
+
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT
+            IMPLICIT NONE
+            TYPE(C_PTR), VALUE :: e
+            INTEGER(C_INT), VALUE :: ID
+            INTEGER(C_INT), VALUE :: sID
+            INTEGER(C_INT) :: EPerfAddSubDeviceToDevice
+        END FUNCTION EPerfAddSubDeviceToDevice
 
         FUNCTION EPerfStartTimer(e, KernelID, DeviceID) &
 &           BIND(C, NAME="EPerfStartTimer")

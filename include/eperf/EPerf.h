@@ -75,12 +75,59 @@ public:
 	 * @retval std::ostream The returning stream
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
-                out << std::scientific << std::setw(16) << std::setprecision(9);
-                out << "CPU Time[s]: " << d.cputime << ", " << "Wall Clock Time[s]: " << d.wclock << ", ";
-                out << std::fixed << std::setprecision(0);
-                out << "Data in[byte]: " << d.inBytes << ", " << "Data out[byte]: " << d.outBytes;
+		out << std::scientific << std::setw(16) << std::setprecision(9);
+		out << "CPU Time[s]: " << d.cputime << ", " << "Wall Clock Time[s]: " << d.wclock << ", ";
+		out << std::fixed << std::setprecision(0);
+		out << "Data in[byte]: " << d.inBytes << ", " << "Data out[byte]: " << d.outBytes;
 		return out;
 	}
+};
+
+class EPerfDevice {
+private:
+	std::string name;				///< Device name
+	std::vector<int> subDevices;	///< Vector of subdevices
+
+public:
+	/**
+	 *
+	 * Default constructor. Optionally sets a device name
+	 *
+	 * @param[in] n The optional device name
+	 * */
+	EPerfDevice(std::string n = std::string()) : name(n) { }
+
+	/**
+	 *
+	 * Add a new subdevice, identified by it's ID.
+	 *
+	 * @param[in] s The ID of the subdevice to be added.
+	 * */
+	void addSubDevice(int s) {
+		subDevices.push_back(s);
+	}
+
+	/**
+	 *
+	 * Print the device name to a stream
+	 *
+	 * @param[in,out] out The corresponding stream
+	 * @param[in] d A reference to the data
+	 * @retval std::ostream The returning stream
+	 * */
+	friend std::ostream& operator<<(std::ostream &out, const EPerfDevice &d) {
+		out << d.name;
+
+		if (d.subDevices.size() != 0) {
+			out << " Subdevices: ";
+			for (std::vector<int>::const_iterator it = d.subDevices.begin(); it != d.subDevices.end(); ++it) {
+				out << *it << " ";
+			}
+		}
+
+		return out;
+	}
+
 };
 
 class EPerf {
@@ -88,7 +135,7 @@ private:
 	static const clockid_t CPU_clockid = CLOCK_PROCESS_CPUTIME_ID; ///< Holds the clockid for CPU_CLOCK
 	static const clockid_t WCLK_clockid = CLOCK_MONOTONIC; ///< Holds the clockid for Wall Clock
 	std::map<int, std::string> kernels; ///< Holds the kernels with ID and name
-	std::map<int, std::string> devices; ///< Holds the devices with ID and name
+	std::map<int, EPerfDevice> devices; ///< Holds the devices with ID and name
 	std::map<std::pair<int, int>, std::vector<struct timespec> > ttimes; ///< Temporary placeholder for timespecs
 	std::map<std::pair<int, int>, EPerfData> data; ///< Holds the performance data
 	
@@ -134,6 +181,18 @@ public:
 	 * @param[in] dName The (optional) name of the device
 	 * */
 	void addDevice(int ID, const std::string &dName = std::string());
+
+	/**
+	 * Adds a new subdevice to an existing device.
+	 *
+	 * @exception std::runtime_error If the subdevice to be added or the device
+	 * where the subdevice shall be added does not exist
+	 * @exception std::invalid_argument If both ID's are the same.
+	 *
+	 * @param[in] ID The unique ID of the device where the subdevice shall be added
+	 * @param[in] sID The unique ID of the subdevice to be added to the device
+	 * */
+	void addSubDeviceToDevice(const int ID, const int sID);
 
 	/**
 	 * Starts the time measurement for a specific kernel / device combination

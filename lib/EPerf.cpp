@@ -42,8 +42,8 @@ void EPerf::addKernel(int ID, const std::string &kName) {
 // Add a new device with unique ID and optional device name
 void EPerf::addDevice(int ID, const std::string &dName) {
 	// Try to insert
-	std::pair<std::map<int, std::string>::iterator, bool> r = devices.insert(
-		std::pair<int, std::string>(ID, dName)
+	std::pair<std::map<int, EPerfDevice>::iterator, bool> r = devices.insert(
+		std::pair<int, EPerfDevice>(ID, EPerfDevice(dName))
 	);
 
 	// Check for overwrite attempt
@@ -51,23 +51,21 @@ void EPerf::addDevice(int ID, const std::string &dName) {
 		throw std::runtime_error("Device already exists.");
 	}
 }
-/*
-// Set the name of a kernel
-void EPerf::setKernelName(int ID, const std::string &kName) {
-	// Check if ID is valid
-	checkKernelExistance(ID);
-	// Write
-	kernels[ID] = kName;
-}
 
-// Set the name of a device
-void EPerf::setDeviceName(int ID, const std::string &dName) {
-	// Check if ID is valid
+// Add a subdevice to another device
+void EPerf::addSubDeviceToDevice(const int ID, const int sID) {
+	// Check if both ID's are the same
+	if (ID == sID) {
+		throw std::invalid_argument("ID == sID!");
+	};
+
+	// Check if both devices exist
 	checkDeviceExistance(ID);
-	// Write
-	devices[ID] = dName;
+	checkDeviceExistance(sID);
+
+	// Add sID to ID
+	devices[ID].addSubDevice(sID);
 }
-*/
 
 // Take a TimeSpec structure and convert it to double, seconds
 double EPerf::convTimeSpecToDoubleSeconds(const struct timespec &t) {
@@ -157,24 +155,24 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, long long inBytes,	
 
 std::ostream& operator<<(std::ostream &out, const EPerf &e) {
 
-	std::map<int, std::string>::const_iterator it;
-
+	std::map<int, EPerfDevice>::const_iterator dit;
 	out << "Devices:\n";
-	for (it = e.devices.begin(); it != e.devices.end(); ++it) {
-		out << "\tID: " << it->first << " Name: " << it->second << "\n";
+	for (dit = e.devices.begin(); dit != e.devices.end(); ++dit) {
+		out << "\tID: " << dit->first << " Name: " << dit->second << "\n";
 	}
 	out << "\n";
 
+	std::map<int, std::string>::const_iterator kit;
 	out << "Kernels:\n";
-	for (it = e.kernels.begin(); it != e.kernels.end(); ++it) {
-		out << "\tID: " << it->first << " Name: " << it->second << "\n";
+	for (kit = e.kernels.begin(); kit != e.kernels.end(); ++kit) {
+		out << "\tID: " << kit->first << " Name: " << kit->second << "\n";
 	}
 	out << "\n";
 
 	out << "Timings & Data volumes:\n";
-	std::map<std::pair<int, int>, EPerfData>::const_iterator dit;
-	for (dit = e.data.begin(); dit != e.data.end(); ++dit) {
-		out << "K: " << dit->first.first << " D: " << dit->first.second << " " << dit->second << "\n";
+	std::map<std::pair<int, int>, EPerfData>::const_iterator vit;
+	for (vit = e.data.begin(); vit != e.data.end(); ++vit) {
+		out << "K: " << vit->first.first << " D: " << vit->first.second << " " << vit->second << "\n";
 	}
 	
 	return out;

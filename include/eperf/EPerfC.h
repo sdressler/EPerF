@@ -57,6 +57,20 @@ int EPerfAddDevice(EPerf *e, int ID, const char *dName);
 int cpp_callback_EPerfAddDevice(EPerf *e, int ID, const char *dName);
 
 /**
+ * Adds a subdevice to an existing device.
+ *
+ * @param[in] e Pointer to the instantiated EPerf object
+ * @param[in] ID The unique ID of the device where the subdevice shall be added
+ * @param[in] sID The unique ID of the subdevice to be added
+ * @retval #ERR
+ * 			E_OK for success,
+ * 			E_NOD if one of the devices does not exist,
+ * 			E_EQU if both ID's are the same
+ * */
+int EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID);
+int cpp_callback_EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID);
+
+/**
  * Starts the time measurement for a specific kernel / device combination
  *
  * @param[in] e Pointer to the instantiated EPerf object

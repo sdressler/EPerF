@@ -24,7 +24,8 @@ enum ERR {
 	E_NOK,	///< Kernel not found
 	E_NOD,	///< Device not found
 	E_TMR,	///< Timer error
-	E_RES	///< Error in results
+	E_RES,	///< Error in results
+	E_EQU	///< Two given ID's are equal
 };
 
 #ifdef __cplusplus

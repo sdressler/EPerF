@@ -37,6 +37,17 @@ int cpp_callback_EPerfAddDevice(EPerf *e, int ID, const char *dName) {
 	return E_OK;
 }
 
+int cpp_callback_EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID) {
+	try {
+		e->addSubDeviceToDevice(ID, sID);
+	} catch (std::runtime_error &e) {
+		return E_NOD;
+	} catch (std::invalid_argument &e) {
+		return E_EQU;
+	}
+	return E_OK;
+}
+
 int cpp_callback_EPerfStartTimer(EPerf *e, int KernelID, int DeviceID) {
 	try {
 		e->startTimer(KernelID, DeviceID);

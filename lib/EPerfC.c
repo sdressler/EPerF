@@ -13,6 +13,10 @@ int EPerfAddDevice(EPerf *e, int ID, const char *dName) {
 	return cpp_callback_EPerfAddDevice(e, ID, dName);
 }
 
+int EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID) {
+	return cpp_callback_EPerfAddSubDeviceToDevice(e, ID, sID);
+}
+
 int EPerfStartTimer(EPerf *e, int KernelID, int DeviceID) {
 	return cpp_callback_EPerfStartTimer(e, KernelID, DeviceID);
 }
