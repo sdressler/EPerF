@@ -6,7 +6,7 @@ CXXFLAGS	+= -fPIC
 LDFLAGS		+= -shared -g
 LLIB 		 = -lrt
 
-OBJ = $(TARGET).o eperf_callbacks.o ceperf.o
+OBJ = EPerf.o EPerfC.o EPerfCallbacks.o EPerfF.o
 INC = $(wildcard ../include/eperf/*.h)
 
 %.o : %.cpp ${INC}
@@ -15,11 +15,11 @@ INC = $(wildcard ../include/eperf/*.h)
 %.o : %.c ${INC}
 	$(CC) $(CXXFLAGS) -c $<
 
+%.o : %.F90
+	$(FC) $(FFLAGS) -c $<
+
 all: $(OBJ)
 	$(CXX) $(LDFLAGS) $(OBJ) -o lib$(TARGET).so $(LLIB)
-# FORTRAN Module
-	$(FC) $(FFLAGS) -c feperf.F90
-#	$(MV) feperf.mod ../include/eperf
 
 clean:
-	rm -f lib$(TARGET).so $(OBJ) feperf.o
+	rm -f lib$(TARGET).so $(OBJ) ../include/eperf/m_eperf.mod

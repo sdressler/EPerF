@@ -10,8 +10,8 @@
  *
  * */
 
-#include "eperf.h"
-#include "eeperf.h"
+#include "EPerf.h"
+#include "EPerfErrors.h"
 
 #ifndef C_EPERF_H
 #define C_EPERF_H

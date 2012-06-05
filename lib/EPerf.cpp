@@ -8,8 +8,8 @@
 
 #include <stdexcept>
 
-#include "../include/eperf/eperf.h"
-#include "../include/eperf/ceperf.h"
+#include "../include/eperf/EPerf.h"
+#include "../include/eperf/EPerfC.h"
 
 //using namespace ENHANCE;
 
