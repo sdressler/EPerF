@@ -127,7 +127,7 @@ void EPerf::stopTimer(int KernelID, int DeviceID) {
 	
 	double WCLK_start = convTimeSpecToDoubleSeconds(ttimes[ref][1]);
 	double WCLK_stop = convTimeSpecToDoubleSeconds(t[1]);
-
+/*
 	// Calculate the difference
 	double CPU_d = CPU_stop - CPU_start;
 	double WCLK_d = WCLK_stop - WCLK_start;
@@ -140,6 +140,12 @@ void EPerf::stopTimer(int KernelID, int DeviceID) {
 	// Save the difference
 	data[ref].setWallClockTime(WCLK_d);
 	data[ref].setCPUTime(CPU_d);
+	*/
+
+	// Save the timestamps
+	data[ref].setClockTime(std::string("wclk"), std::pair<double, double>(WCLK_start, WCLK_stop));
+	data[ref].setClockTime(std::string("cpuclk"), std::pair<double, double>(CPU_start, CPU_stop));
+
 }
 
 void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes,	int64_t outBytes) {
