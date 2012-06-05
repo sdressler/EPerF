@@ -31,6 +31,7 @@ Changelog
 
 2012-06-05 / 0.2:
 	- Changed device handling for allowing subdevices
+	- Changed handling of measured times (now saving distinct timestamps)
 
 2012-06-01 / 0.1.1:
 	- Added FORTRAN bindings
