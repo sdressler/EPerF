@@ -29,6 +29,9 @@ Note that before building the examples you should build the library.
 Changelog
 ---------
 
+2012-06-05 / 0.2:
+	- Changed device handling for allowing subdevices
+
 2012-06-01 / 0.1.1:
 	- Added FORTRAN bindings
 
