@@ -50,6 +50,7 @@ private:
 	/**
 	 * Provides the time difference of a specific clock
 	 *
+	 * @exception runtime_error If the time difference is negative
 	 * @param[in] clk Clock identifier string
 	 * @retval double The time difference
 	 * */
