@@ -142,14 +142,14 @@ void EPerf::stopTimer(int KernelID, int DeviceID) {
 	data[ref].setCPUTime(CPU_d);
 }
 
-void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, long long inBytes,	long long outBytes) {
+void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes,	int64_t outBytes) {
 
 	// Check IDs
 	checkKernelExistance(KernelID);
 	checkDeviceExistance(DeviceID);
 
 	// Add measurements
-//	dvolume[std::pair<int, int>(KernelID, DeviceID)] = std::pair<long long, long long>(inBytes, outBytes);
+//	dvolume[std::pair<int, int>(KernelID, DeviceID)] = std::pair<int64_t, int64_t>(inBytes, outBytes);
 	data[std::pair<int, int>(KernelID, DeviceID)].setDataVolumes(inBytes, outBytes);
 }
 

@@ -113,8 +113,8 @@ int cpp_callback_EPerfStopTimer(EPerf *e, int KernelID, int DeviceID);
  * 		E_NOK if the kernel was not found,
  * 		E_NOD if the device was not found
  * */
-int EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, long long inBytes, long long outBytes);
-int cpp_callback_EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, long long inBytes, long long outBytes);
+int EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes);
+int cpp_callback_EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes);
 
 /**
  * Dumps the current content of the framework.

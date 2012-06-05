@@ -15,6 +15,7 @@
 // C header
 #include <time.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 // This only checks whether we are on a POSIX system or not
 #ifndef _POSIX_TIMERS
@@ -41,8 +42,8 @@ class EPerfData {
 private:
 	double wclock;		///< Wall Clock time
 	double cputime;		///< CPU time
-	long long inBytes;	///< Bytes to be transferred host -> device
-	long long outBytes;	///< Bytes to be transferred device -> host
+	int64_t inBytes;	///< Bytes to be transferred host -> device
+	int64_t outBytes;	///< Bytes to be transferred device -> host
 
 public:
 	/**
@@ -65,7 +66,7 @@ public:
 	 * @param[in] i The volume to be transferred host -> device (in) in Bytes
 	 * @param[in] o The volume to be transferred device -> host (out) in Bytes
 	 * */
-	void setDataVolumes(long long i, long long o) { inBytes = i; outBytes = o; }
+	void setDataVolumes(int64_t i, int64_t o) { inBytes = i; outBytes = o; }
 
 	/**
 	 * Print the class' content to a stream
@@ -223,7 +224,7 @@ public:
 	 * @param[in] inBytes  The number of Bytes to be transferred from <b>host to device</b>
 	 * @param[in] outBytes The number of Bytes to be transferred from <b>device to host</b>
 	 * */
-	void addKernelDataVolumes(int KernelID,	int DeviceID, long long inBytes, long long outBytes);
+	void addKernelDataVolumes(int KernelID,	int DeviceID, int64_t inBytes, int64_t outBytes);
 
 	/**
 	 * Prints the content of the object to given std::ostream.

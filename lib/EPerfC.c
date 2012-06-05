@@ -25,7 +25,7 @@ int EPerfStopTimer(EPerf *e, int KernelID, int DeviceID) {
 	return cpp_callback_EPerfStopTimer(e, KernelID, DeviceID);
 }
 
-int EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, long long inBytes, long long outBytes) {
+int EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes) {
 	return cpp_callback_EPerfAddKernelDataVolumes(e, KernelID, DeviceID, inBytes, outBytes);
 }
 
