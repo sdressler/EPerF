@@ -23,6 +23,10 @@ doc:
 examples:
 	$(MAKE) -C examples
 
+run: $(BUILDDIRS)
+	LD_LIBRARY_PATH=lib/ examples/cpp_example
+
+
 clean: $(CLEANDIRS)
 
 $(CLEANDIRS):
