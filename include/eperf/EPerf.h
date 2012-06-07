@@ -138,6 +138,20 @@ public:
 	void addKernelDataVolumes(int KernelID,	int DeviceID, int64_t inBytes, int64_t outBytes);
 
 	/**
+	 * Exports all devices, kernels and measurements to a JSON file
+	 *
+	 * @param[in] path Path to the file
+	 * */
+	void exportToJSONFile(const std::string &path);
+
+	/**
+	 * Imports devices, kernels and measurements from a JSON file
+	 *
+	 * @param[in] path Path to the file
+	 * */
+	void importFromJSONFile(const std::string &path);
+
+	/**
 	 * Prints the content of the object to given std::ostream.
 	 *
 	 * @param[in,out] out Stream for output
