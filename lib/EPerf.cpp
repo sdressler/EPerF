@@ -95,6 +95,8 @@ void EPerf::startTimer(int KernelID, int DeviceID) {
 	WCLK_t = &ttimes[ref][1];
 
 	// Save the timestamps
+	tTimeStamps[ref] = time(NULL);
+	
 	clock_gettime(CPU_clockid, CPU_t);
 	clock_gettime(WCLK_clockid, WCLK_t);
 
@@ -127,22 +129,9 @@ void EPerf::stopTimer(int KernelID, int DeviceID) {
 	
 	double WCLK_start = convTimeSpecToDoubleSeconds(ttimes[ref][1]);
 	double WCLK_stop = convTimeSpecToDoubleSeconds(t[1]);
-/*
-	// Calculate the difference
-	double CPU_d = CPU_stop - CPU_start;
-	double WCLK_d = WCLK_stop - WCLK_start;
-
-	// Check if it's negative (should not be the case) 
-	if ((CPU_d < 0.0) || (WCLK_d < 0.0)) {
-		throw std::logic_error("Time difference is negative.");
-	}
-
-	// Save the difference
-	data[ref].setWallClockTime(WCLK_d);
-	data[ref].setCPUTime(CPU_d);
-	*/
 
 	// Save the timestamps
+	data[ref].setTimeStamp(tTimeStamps[ref]);
 	data[ref].setClockTime(std::string("wclk"), std::pair<double, double>(WCLK_start, WCLK_stop));
 	data[ref].setClockTime(std::string("cpuclk"), std::pair<double, double>(CPU_start, CPU_stop));
 
@@ -157,75 +146,6 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes,	in
 	// Add measurements
 //	dvolume[std::pair<int, int>(KernelID, DeviceID)] = std::pair<int64_t, int64_t>(inBytes, outBytes);
 	data[std::pair<int, int>(KernelID, DeviceID)].setDataVolumes(inBytes, outBytes);
-}
-
-void EPerf::exportToJSONFile(const std::string &path) {
-
-	// Try to open the file
-	std::ofstream f(path.c_str(), std::ios_base::trunc);
-
-	// Check if it's open
-	if (!f.is_open()) {
-		throw std::runtime_error("Could not open file!");
-	}
-
-	f << "{\n";
-	f << "\"devices\": [\n";
-	std::map<int, EPerfDevice>::const_iterator dit;
-	for (dit = devices.begin(); dit != devices.end(); ++dit) {
-		f << "{" << dit->second;
-				
-		++dit;
-		if (dit == devices.end()) {
-			f << "}\n";
-		} else {
-			f << "},\n";
-		}
-		--dit;
-	}
-	f << "],\n";
-	
-	f << "\"kernels\" : [\n";
-
-	std::map<int, std::string>::const_iterator kit;
-	for (kit = kernels.begin(); kit != kernels.end(); ++kit) {
-		f << "{\"ID\" : " << kit->first << ", \"name\" : \"" << kit->second << "\"}";
-		
-		// Last?
-		kit++;
-		if (kit != kernels.end()) {
-			f << ",\n";
-		} else {
-			f << "\n";
-		}
-		kit--;
-	}
-	f << "],\n";
-	
-	f << "\"measurements\" : [\n";
-
-	std::map<std::pair<int, int>, EPerfData>::const_iterator mit;
-	for (mit = data.begin(); mit != data.end(); ++mit) {
-		f << "{\n";
-
-		f << "\"kernel\": " << mit->first.first << ",\n";
-		f << "\"device\": " << mit->first.second << ",\n";
-	
-		f << mit->second;
-
-		// Last?
-		mit++;
-		if (mit != data.end()) {
-			f << "},\n";
-		} else {
-			f << "}\n";
-		}
-		mit--;
-	}
-	f << "]\n";
-	f << "}\n";
-
-	f.close();
 }
 
 std::ostream& operator<<(std::ostream &out, const EPerf &e) {

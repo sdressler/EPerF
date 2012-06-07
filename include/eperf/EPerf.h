@@ -38,19 +38,19 @@
 #include <iomanip>
 #include <stdexcept>
 
-#include "EPerfData.h"
-#include "EPerfDevice.h"
+#include "EPerfContainer.h"
 
 namespace ENHANCE {
-class EPerf {
+class EPerf : public EPerfContainer {
 private:
 	static const clockid_t CPU_clockid = CLOCK_PROCESS_CPUTIME_ID; ///< Holds the clockid for CPU_CLOCK
 	static const clockid_t WCLK_clockid = CLOCK_MONOTONIC; ///< Holds the clockid for Wall Clock
-	std::map<int, std::string> kernels; ///< Holds the kernels with ID and name
-	std::map<int, EPerfDevice> devices; ///< Holds the devices with ID and name
+
 	std::map<std::pair<int, int>, std::vector<struct timespec> > ttimes; ///< Temporary placeholder for timespecs
-	std::map<std::pair<int, int>, EPerfData> data; ///< Holds the performance data
-	
+	std::map<std::pair<int, int>, time_t> tTimeStamps; ///< Temporary placeholder for timestamps
+
+//	EPerfContainer c; ///< Holds all relevant data
+
 	/**
 	 * Captures the current time and converts it to double
 	 *
