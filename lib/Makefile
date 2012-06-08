@@ -4,7 +4,7 @@ TARGET		 = eperf
 
 CXXFLAGS	+= -fPIC
 LDFLAGS		+= -shared -g
-LLIB 		 = -lrt
+LLIB 		 = -lrt -lcrypto
 
 SERDIR = Serialization
 

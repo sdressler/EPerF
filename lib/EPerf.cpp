@@ -27,9 +27,9 @@ void EPerf::checkKernelExistance(int ID) {
 }
 
 // Add a new kernel with unique ID and optional kernel name
-void EPerf::addKernel(int ID, const std::string &kName) {
+tKernelMap::iterator EPerf::addKernel(int ID, const std::string &kName) {
 	// Try to insert, if it already exists -> exception
-	std::pair<std::map<int, EPerfKernel>::iterator, bool> r = kernels.insert(
+	std::pair<tKernelMap::iterator, bool> r = kernels.insert(
 		std::pair<int, EPerfKernel>(ID, EPerfKernel(kName))
 	);
 
@@ -37,12 +37,14 @@ void EPerf::addKernel(int ID, const std::string &kName) {
 	if (r.second == false) {
 		throw std::runtime_error("Kernel already exists.");
 	}
+
+	return r.first;
 }
 
 // Add a new device with unique ID and optional device name
-void EPerf::addDevice(int ID, const std::string &dName) {
+tDeviceMap::iterator EPerf::addDevice(int ID, const std::string &dName) {
 	// Try to insert
-	std::pair<std::map<int, EPerfDevice>::iterator, bool> r = devices.insert(
+	std::pair<tDeviceMap::iterator, bool> r = devices.insert(
 		std::pair<int, EPerfDevice>(ID, EPerfDevice(dName))
 	);
 
@@ -50,6 +52,8 @@ void EPerf::addDevice(int ID, const std::string &dName) {
 	if (r.second == false) {
 		throw std::runtime_error("Device already exists.");
 	}
+
+	return r.first;
 }
 
 // Add a subdevice to another device
