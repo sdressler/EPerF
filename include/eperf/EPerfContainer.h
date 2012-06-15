@@ -3,30 +3,32 @@
 
 #include "EPerfKernel.h"
 #include "EPerfDevice.h"
-#include "EPerfData.h"
 
 #include "../Serialization/IJSONSerializable.h"
 
 #include <string>
+#include <set>
+#include <map>
 #include <sstream>
 
 namespace ENHANCE {
 	
 typedef std::map<int, EPerfKernel> tKernelMap;
 typedef std::map<int, EPerfDevice> tDeviceMap;
-typedef std::map<std::pair<int, int>, EPerfData> tDataMap;
+typedef std::pair<int, int> tKernelDeviceID;
+typedef std::set<EPerfData> tDataSet;
 
 class EPerfContainer : public IJSONSerializable {
 
 protected:
 	tKernelMap kernels;	///< Holds the kernels with ID and name
 	tDeviceMap devices;	///< Holds the devices with ID and name
-	tDataMap data;		///< Holds the performance data
+	tDataSet data;		///< Holds the performance data
 
 public:
 	virtual std::string serializeToJSONString() const {
 		std::stringstream ss;
-
+/*
 		ss << "{\n";
 		ss << "\"devices\": [\n";
 		tDeviceMap::const_iterator dit;
@@ -56,11 +58,12 @@ public:
 				ss << ",\n";
 			} else {
 				ss << "\n";
-			}
+		}
 			kit--;
 		}
 		ss << "],\n";
-		
+*/
+/*		
 		ss << "\"measurements\" : [\n";
 
 		tDataMap::const_iterator mit;
@@ -82,7 +85,8 @@ public:
 			mit--;
 		}
 		ss << "]\n";
-		ss << "}\n";
+*/
+//		ss << "}\n";
 
 		return ss.str();
 	}

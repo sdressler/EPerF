@@ -21,20 +21,20 @@ int main(void) {
 	tKernelMap::iterator k;
 
 	cout << "Adding kernel.\n";
-	k = e.addKernel(0, "Fibonacci");
-	k->second.insertNewConfigKeyValuePair("number", "10");
+	e.addKernel(0, "Fibonacci 10");
+//	k->second.insertNewConfigKeyValuePair("number", "10");
 
-	k = e.addKernel(1, "Fibonacci");
-	k->second.insertNewConfigKeyValuePair("number", "20");
+	e.addKernel(1, "Fibonacci 20");
+//	k->second.insertNewConfigKeyValuePair("number", "20");
 
-	k = e.addKernel(2, "Fibonacci");
-	k->second.insertNewConfigKeyValuePair("number", "30");
+	e.addKernel(2, "Fibonacci 30");
+//	k->second.insertNewConfigKeyValuePair("number", "30");
 
 //	k = e.getKernelByID(0);
 	// Add configurations
 //	k->insertConfiguration(EPerfKernelConfiguration());
 
-//	e.addKernel(3, "Fibonacci 40");
+	e.addKernel(3, "Fibonacci 40");
 
 	cout << "Adding device\n";
 	e.addDevice(0, "CPU");
@@ -47,10 +47,10 @@ int main(void) {
 	cout << "Generating timings and datavolumes\n";
 
 	unsigned int f;
-	for (int i = 0; i < 3; i++) {
-		e.addKernelDataVolumes(1, 0, 1024, 512);
+	for (int i = 0; i < 4; i++) {
+//		e.addKernelConfigKeyValuePair(0, "number", "10");
+		e.addKernelDataVolumes(i, 0, 4, 4);
 		e.startTimer(i, 0);
-//		sleep(1);
 		f = fib((i + 1) * 10);
 		e.stopTimer(i, 0);
 		cout << "Fibonacci " << (i+1)*10 << ": " << f << "\n";
@@ -62,9 +62,9 @@ int main(void) {
 	// Write to JSON
 //	e.exportToJSONFile("test.json");
 
-	JSON<EPerfContainer> j("test.json");
+//	JSON<EPerfContainer> j("test.json");
 
-	j.serialize(e);
+//	j.serialize(e);
 
 	return 0;
 

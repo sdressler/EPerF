@@ -11,8 +11,6 @@
 #include "../include/eperf/EPerf.h"
 #include "../include/eperf/EPerfC.h"
 
-//using namespace ENHANCE;
-
 namespace ENHANCE {
 void EPerf::checkDeviceExistance(int ID) {
 	if (devices.find(ID) == devices.end()) {
@@ -85,59 +83,50 @@ void EPerf::startTimer(int KernelID, int DeviceID) {
 	checkKernelExistance(KernelID);
 	checkDeviceExistance(DeviceID);
 
-	// Create entries in temp timespec
-	struct timespec dummy;
-	struct timespec *CPU_t;
-	struct timespec *WCLK_t;
+	// Insert a new temporary object and get a reference to it
+	// Possibly an entry already exists from KDV
+	std::pair<tTempDataMap::iterator, bool> x;
 
-	std::pair<int, int> ref = std::pair<int, int>(KernelID, DeviceID);
+	x = tempData.insert(
+		std::pair<tKernelDeviceID, EPerfData>(
+			tKernelDeviceID(KernelID, DeviceID), EPerfData()
+		)
+	);
 
-	ttimes[ref].push_back(dummy);
-	ttimes[ref].push_back(dummy);
+	// Test whether this entry already exists
+/*	if (!x.second) {
+		throw std::runtime_error("Temporary entry already exists.");
+	}*/
 
-	CPU_t = &ttimes[ref][0];
-	WCLK_t = &ttimes[ref][1];
-
-	// Save the timestamps
-	tTimeStamps[ref] = time(NULL);
-	
-	clock_gettime(CPU_clockid, CPU_t);
-	clock_gettime(WCLK_clockid, WCLK_t);
-
+	// Start the timers
+	(x.first)->second.startAllTimers();
 };
 
 // Stop the time measurement and save the measured time
 void EPerf::stopTimer(int KernelID, int DeviceID) {
 
-	// Stop the time
-	struct timespec t[2];
-	clock_gettime(CPU_clockid, &t[0]);
-	clock_gettime(WCLK_clockid, &t[1]);
-
-	checkKernelExistance(KernelID);
-	checkDeviceExistance(DeviceID);
-
-	// Try to locate the start time
-	std::map<std::pair<int, int>, std::vector<struct timespec> >::iterator timeit = ttimes.find(
-		std::pair<int, int>(KernelID, DeviceID)
-	);
-	if (timeit == ttimes.end()) {
-		throw std::runtime_error("Start time not found.");
+	// Get the entry
+	tTempDataMap::iterator x = tempData.find(tKernelDeviceID(KernelID, DeviceID));
+	if (x == tempData.end()) {
+		throw std::runtime_error("Timer was not started!");
 	}
 
-	// Convert the start time to double
-	std::pair<int, int> ref = std::pair<int, int>(KernelID, DeviceID);
-	
-	double CPU_start = convTimeSpecToDoubleSeconds(ttimes[ref][0]);
-	double CPU_stop  = convTimeSpecToDoubleSeconds(t[0]);
-	
-	double WCLK_start = convTimeSpecToDoubleSeconds(ttimes[ref][1]);
-	double WCLK_stop = convTimeSpecToDoubleSeconds(t[1]);
+	// Stop the timers
+	x->second.stopAllTimers();
 
-	// Save the timestamps
-	data[ref].setTimeStamp(tTimeStamps[ref]);
-	data[ref].setClockTime(std::string("wclk"), std::pair<double, double>(WCLK_start, WCLK_stop));
-	data[ref].setClockTime(std::string("cpuclk"), std::pair<double, double>(CPU_start, CPU_stop));
+	// Copy to set and remove temporary entry
+	x->second.setKernelDeviceReference(
+		KernelID,
+		kernels.find(KernelID)->second.getActiveConfigurationHash(),
+		DeviceID
+	);
+	
+	std::pair<tDataSet::const_iterator, bool> test = data.insert(x->second);
+	if (!test.second) {
+		throw std::runtime_error("Something went wrong on data insertion.");
+	}
+
+	tempData.erase(tKernelDeviceID(KernelID, DeviceID));
 
 }
 
@@ -146,14 +135,28 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes,	in
 	// Check IDs
 	checkKernelExistance(KernelID);
 	checkDeviceExistance(DeviceID);
+	
+	// Insert a new temporary object and get a reference to it
+	// Possibly an entry already exists from KDV
+	std::pair<tTempDataMap::iterator, bool> x;
 
-	// Add measurements
-//	dvolume[std::pair<int, int>(KernelID, DeviceID)] = std::pair<int64_t, int64_t>(inBytes, outBytes);
-	data[std::pair<int, int>(KernelID, DeviceID)].setDataVolumes(inBytes, outBytes);
+	x = tempData.insert(
+		std::pair<tKernelDeviceID, EPerfData>(
+			tKernelDeviceID(KernelID, DeviceID), EPerfData()
+		)
+	);
+
+	(x.first)->second.setDataVolumes(inBytes, outBytes);
+
 }
 
 std::ostream& operator<<(std::ostream &out, const EPerf &e) {
 
+	for (tDataSet::const_iterator it = e.data.begin(); it != e.data.end(); ++it) {
+		out << *it << "\n";
+	}
+
+/*
 	std::map<int, EPerfDevice>::const_iterator dit;
 	out << "Devices:\n";
 	for (dit = e.devices.begin(); dit != e.devices.end(); ++dit) {
@@ -167,13 +170,16 @@ std::ostream& operator<<(std::ostream &out, const EPerf &e) {
 		out << "\tID: " << kit->first << " Name: " << kit->second << "\n";
 	}
 	out << "\n";
-
+*/
+	/**
+	 * \todo{Change implementation to fit new internal layout of data
+	 *
 	out << "Timings & Data volumes:\n";
 	std::map<std::pair<int, int>, EPerfData>::const_iterator vit;
 	for (vit = e.data.begin(); vit != e.data.end(); ++vit) {
 		out << "K: " << vit->first.first << " D: " << vit->first.second << " " << vit->second << "\n";
 	}
-	
+	*/
 	return out;
 }
 }

@@ -43,11 +43,12 @@
 namespace ENHANCE {
 class EPerf : public EPerfContainer {
 private:
+	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
+
 	static const clockid_t CPU_clockid = CLOCK_PROCESS_CPUTIME_ID; ///< Holds the clockid for CPU_CLOCK
 	static const clockid_t WCLK_clockid = CLOCK_MONOTONIC; ///< Holds the clockid for Wall Clock
 
-	std::map<std::pair<int, int>, std::vector<struct timespec> > ttimes; ///< Temporary placeholder for timespecs
-	std::map<std::pair<int, int>, time_t> tTimeStamps; ///< Temporary placeholder for timestamps
+	tTempDataMap tempData; ///< Temporary measurement data
 
 	/**
 	 * Captures the current time and converts it to double
