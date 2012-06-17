@@ -38,16 +38,27 @@
 #include <iomanip>
 #include <stdexcept>
 
+<<<<<<< HEAD:include/eperf/EPerf.h
+=======
+#include <db_cxx.h>
+
+>>>>>>> db:include/EPerf/EPerf.h
 #include "EPerfContainer.h"
 
 namespace ENHANCE {
 class EPerf : public EPerfContainer {
 private:
+<<<<<<< HEAD:include/eperf/EPerf.h
 	static const clockid_t CPU_clockid = CLOCK_PROCESS_CPUTIME_ID; ///< Holds the clockid for CPU_CLOCK
 	static const clockid_t WCLK_clockid = CLOCK_MONOTONIC; ///< Holds the clockid for Wall Clock
 
 	std::map<std::pair<int, int>, std::vector<struct timespec> > ttimes; ///< Temporary placeholder for timespecs
 	std::map<std::pair<int, int>, time_t> tTimeStamps; ///< Temporary placeholder for timestamps
+=======
+
+	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
+	tTempDataMap tempData; ///< Temporary measurement data
+>>>>>>> db:include/EPerf/EPerf.h
 
 	/**
 	 * Captures the current time and converts it to double
@@ -73,7 +84,18 @@ private:
 	 * */
 	void checkKernelExistance(int ID);
 
+	int BDB_getDevice(Db *sbdbp, const Dbt *pkey, const Dbt *pvalue, Dbt *skey);
+
 public:
+
+	/**
+	 *
+	 * Commit the collected data to a Berkeley DB. If the DB does not yet exist
+	 * it is created.
+	 * 
+	 * */
+	void commitToDB();
+
 	/**
 	 * Adds a new kernel to the framework.
 	 *

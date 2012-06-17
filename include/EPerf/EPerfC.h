@@ -125,6 +125,13 @@ int cpp_callback_EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID,
 void EPerfPrintResults(EPerf *e);
 void cpp_callback_EPerfPrintResults(EPerf *e);
 
+/**
+ * Write the results to a Berkeley DB. If the DB not exists, it is created.
+ *
+ * */
+void EPerfCommitToDB(EPerf *e);
+void cpp_callback_EPerfCommitToDB(EPerf *e);
+
 #ifdef __cplusplus
 }
 #endif

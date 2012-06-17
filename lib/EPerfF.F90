@@ -92,6 +92,14 @@ MODULE m_eperf
             INTEGER(C_INT) :: EPerfAddKernelDataVolumes
         END FUNCTION EPerfAddKernelDataVolumes
 
+        SUBROUTINE EPerfCommitToDB(e) &
+&           BIND(C, NAME="EPerfCommitToDB")
+
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR
+            IMPLICIT NONE
+            TYPE(C_PTR), VALUE :: e
+        END SUBROUTINE EPerfCommitToDB
+
         SUBROUTINE EPerfPrintResults(e) &
 &           BIND(C, NAME="EPerfPrintResults")
 

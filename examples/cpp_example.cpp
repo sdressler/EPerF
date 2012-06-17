@@ -47,10 +47,16 @@ int main(void) {
 	cout << "Generating timings and datavolumes\n";
 
 	unsigned int f;
+<<<<<<< HEAD
 	for (int i = 0; i < 3; i++) {
 		e.addKernelDataVolumes(1, 0, 1024, 512);
 		e.startTimer(i, 0);
 //		sleep(1);
+=======
+	for (int i = 0; i < 4; i++) {
+		e.addKernelDataVolumes(i, 0, 4, 4);
+		e.startTimer(i, 0);
+>>>>>>> db
 		f = fib((i + 1) * 10);
 		e.stopTimer(i, 0);
 		cout << "Fibonacci " << (i+1)*10 << ": " << f << "\n";
@@ -59,12 +65,17 @@ int main(void) {
 	cout << "Printing content:\n";
 	cout << e;
 
+<<<<<<< HEAD
 	// Write to JSON
 //	e.exportToJSONFile("test.json");
 
 	JSON<EPerfContainer> j("test.json");
 
 	j.serialize(e);
+=======
+	cout << "Committing to DB\n";
+	e.commitToDB();
+>>>>>>> db
 
 	return 0;
 

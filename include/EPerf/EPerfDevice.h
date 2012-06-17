@@ -5,10 +5,17 @@
 #include <vector>
 #include <sstream>
 
+<<<<<<< HEAD:include/eperf/EPerfDevice.h
 #include "../Serialization/IJSONSerializable.h"
 
 namespace ENHANCE {
 class EPerfDevice : public IJSONSerializable {
+=======
+#include "DB/IBDBObject.h"
+
+namespace ENHANCE {
+class EPerfDevice : public IBDBObject {
+>>>>>>> db:include/EPerf/EPerfDevice.h
 private:
 	std::string name;				///< Device name
 	std::vector<int> subDevices;	///< Vector of subdevices
@@ -20,7 +27,7 @@ public:
 	 *
 	 * @param[in] n The optional device name
 	 * */
-	EPerfDevice(std::string n = std::string()) : name(n) { }
+	EPerfDevice(std::string n = std::string());
 
 	/**
 	 *
@@ -28,9 +35,7 @@ public:
 	 *
 	 * @param[in] s The ID of the subdevice to be added.
 	 * */
-	void addSubDevice(int s) {
-		subDevices.push_back(s);
-	}
+	void addSubDevice(int s);
 
 	/**
 	 *
@@ -41,6 +46,7 @@ public:
 	 * @param[in] d A reference to the data
 	 * @retval std::ostream The returning stream
 	 * */
+<<<<<<< HEAD:include/eperf/EPerfDevice.h
 	friend std::ostream& operator<<(std::ostream &out, const EPerfDevice &d) {
 		out << d.name;
 	
@@ -83,6 +89,12 @@ public:
 		return ss.str();
 	}
 
+=======
+	friend std::ostream& operator<<(std::ostream &out, const EPerfDevice &d);
+
+	virtual std::vector<char> convertToByteVector() const;
+//	virtual tBDBObjectMap convertToBDBObjectMap(std::string prefix);
+>>>>>>> db:include/EPerf/EPerfDevice.h
 };
 }
 

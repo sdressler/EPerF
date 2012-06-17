@@ -29,6 +29,9 @@ Note that before building the examples you should build the library.
 Changelog
 ---------
 
+2012-06-17 / 0.3:
+	- Added support for committing recorded data to Berkeley DB
+
 2012-06-05 / 0.2:
 	- Changed device handling for allowing subdevices
 	- Changed handling of measured times (now saving distinct timestamps)

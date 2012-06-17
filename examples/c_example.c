@@ -48,7 +48,7 @@ int main(void) {
 
 	printf("Printing content:\n");
 	EPerfPrintResults(e);
-	
+
 	return 0;
 
 }

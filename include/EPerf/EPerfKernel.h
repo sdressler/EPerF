@@ -8,15 +8,22 @@
 
 #include <openssl/sha.h>
 
+#include "EPerfKernelConfiguration.h"
+
+#include "DB/IBDBObject.h"
+
 namespace ENHANCE {
 
-typedef std::map<std::string, std::string> tKConfMap;
+typedef std::map<std::string, EPerfKernelConfiguration> tKConfMap;
 
-class EPerfKernel : private tKConfMap {
+class EPerfKernel : public IBDBObject {
 private:
 	std::string name; ///< Holds the kernel name
-//	tKConfMap config; ///< Map for kernel configurations
-	
+	tKConfMap config; ///< Map for kernel configurations
+
+	std::string actConfHash; ///< Identifier, which configuration is used
+
+/*	
 	std::string hash; ///< Holds the generated hash
 
 	void genConfigHash() {
@@ -47,7 +54,7 @@ private:
 
 		return ss.str();
 	}
-
+*/
 public:
 	/**
 	 * Create a new kernel with a name for easier identification
@@ -58,6 +65,8 @@ public:
 		name = s;
 	}
 
+	const std::string& getActiveConfigurationHash() { return actConfHash; }
+/*
 	void insertNewConfigKeyValuePair(const std::string &key, const std::string &value) {
 		// Use the insert of the map
 		this->insert(std::pair<std::string, std::string>(key, value));
@@ -65,15 +74,17 @@ public:
 		// Regenerate the hash
 		genConfigHash();
 	}
-	
+*/	
 	friend std::ostream& operator<<(std::ostream &out, const EPerfKernel &k) {
 		out << k.name << ", Configuration:\n";
-		out << "\tHash: " << k.hash << "\n";
+/*		out << "\tHash: " << k.hash << "\n";
 		for (tKConfMap::const_iterator it = k.begin(); it != k.end(); ++it) {
 			out << "\tKey: " << it->first << " Value: " << it->second << "\n";
-		}
+		}*/
 		return out;
 	}
+
+	virtual std::vector<char> convertToByteVector() const;
 };
 }
 

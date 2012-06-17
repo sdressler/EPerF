@@ -109,6 +109,10 @@ int cpp_callback_EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID,
 	return E_OK;
 }
 
+void cpp_callback_EPerfCommitToDB(EPerf *e) {
+	e->commitToDB();
+}
+
 void cpp_callback_EPerfPrintResults(EPerf *e) {
 	std::cout << *e;
 }

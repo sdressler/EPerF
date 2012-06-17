@@ -29,6 +29,10 @@ int EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBy
 	return cpp_callback_EPerfAddKernelDataVolumes(e, KernelID, DeviceID, inBytes, outBytes);
 }
 
+void EPerfCommitToDB(EPerf *e) {
+	cpp_callback_EPerfCommitToDB(e);
+}
+
 void EPerfPrintResults(EPerf *e) {
 	cpp_callback_EPerfPrintResults(e);
 }
