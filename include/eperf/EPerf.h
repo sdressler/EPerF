@@ -49,8 +49,6 @@ private:
 	std::map<std::pair<int, int>, std::vector<struct timespec> > ttimes; ///< Temporary placeholder for timespecs
 	std::map<std::pair<int, int>, time_t> tTimeStamps; ///< Temporary placeholder for timestamps
 
-//	EPerfContainer c; ///< Holds all relevant data
-
 	/**
 	 * Captures the current time and converts it to double
 	 *
@@ -83,7 +81,7 @@ public:
 	 * @param[in] ID The unique ID of the kernel
 	 * @param[in] kName The (optional) name of the kernel
 	 * */
-	void addKernel(int ID, const std::string &kName = std::string());
+	tKernelMap::iterator addKernel(const int ID, const std::string &kName = std::string());
 
 	/**
 	 * Adds a new device to the framework.
@@ -92,7 +90,7 @@ public:
 	 * @param[in] ID The unique ID of the device
 	 * @param[in] dName The (optional) name of the device
 	 * */
-	void addDevice(int ID, const std::string &dName = std::string());
+	tDeviceMap::iterator addDevice(int ID, const std::string &dName = std::string());
 
 	/**
 	 * Adds a new subdevice to an existing device.

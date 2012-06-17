@@ -18,10 +18,22 @@ int main(void) {
 
 	EPerf e;
 
+	tKernelMap::iterator k;
+
 	cout << "Adding kernel.\n";
-	e.addKernel(0, "Fibonacci 10");
-	e.addKernel(1, "Fibonacci 20");
-	e.addKernel(2, "Fibonacci 30");
+	k = e.addKernel(0, "Fibonacci");
+	k->second.insertNewConfigKeyValuePair("number", "10");
+
+	k = e.addKernel(1, "Fibonacci");
+	k->second.insertNewConfigKeyValuePair("number", "20");
+
+	k = e.addKernel(2, "Fibonacci");
+	k->second.insertNewConfigKeyValuePair("number", "30");
+
+//	k = e.getKernelByID(0);
+	// Add configurations
+//	k->insertConfiguration(EPerfKernelConfiguration());
+
 //	e.addKernel(3, "Fibonacci 40");
 
 	cout << "Adding device\n";
