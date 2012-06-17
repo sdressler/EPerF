@@ -45,7 +45,8 @@ int main(void) {
 	cout << "Printing content:\n";
 	cout << e;
 
-	e.commitData();
+	cout << "Committing to DB\n";
+	e.commitToDB();
 
 	return 0;
 

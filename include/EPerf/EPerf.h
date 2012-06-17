@@ -77,7 +77,13 @@ private:
 
 public:
 
-	void commitData();
+	/**
+	 *
+	 * Commit the collected data to a Berkeley DB. If the DB does not yet exist
+	 * it is created.
+	 * 
+	 * */
+	void commitToDB();
 
 	/**
 	 * Adds a new kernel to the framework.

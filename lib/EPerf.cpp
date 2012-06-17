@@ -13,9 +13,9 @@
 
 namespace ENHANCE {
 
-void EPerf::commitData() {
+void EPerf::commitToDB() {
 
-	int ret;
+//	int ret;
 	std::vector<char> bVec;
 
 	// Base DB
@@ -34,8 +34,8 @@ void EPerf::commitData() {
 		Dbt value(static_cast<void*>(&bVec[0]), bVec.size());
 
 		// Insert
-		ret = baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
-		std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
+		baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
+//		std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
 	}
 
 	// Place all kernels into the DB
@@ -49,8 +49,8 @@ void EPerf::commitData() {
 		Dbt value(static_cast<void*>(&bVec[0]), bVec.size());
 
 		// Insert
-		ret = baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
-		std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
+		baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
+//		std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
 	}
 
 	// Place all the data into the DB
@@ -71,8 +71,8 @@ void EPerf::commitData() {
 		Dbt value(static_cast<void*>(&bVec[0]), bVec.size());
 
 		// Write
-		ret = baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
-		std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
+		baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
+//		std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
 
 	}
 
