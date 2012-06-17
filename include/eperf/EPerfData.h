@@ -5,6 +5,9 @@
 #include <string>
 
 namespace ENHANCE {
+
+typedef std::map<std::string, std::pair<double, double> >::const_iterator const_time_it;
+
 class EPerfData {
 private:
 	std::map<std::string, std::pair<double, double> > clocks; ///< map for saving clocks
