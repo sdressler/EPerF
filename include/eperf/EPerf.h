@@ -40,9 +40,11 @@
 
 namespace ENHANCE {
 
+typedef std::map<std::string, std::pair<double, double> >::const_iterator const_time_it; ///< Alias for clock map const_iterator
+
 class EPerfData {
 private:
-	std::map<std::string, std::pair<double, double> > clocks; ///< map for saving clocks
+	std::map<std::string, std::pair<double, double> > clocks; ///< Map for saving clocks
 
 	int64_t inBytes;	///< Bytes to be transferred host -> device
 	int64_t outBytes;	///< Bytes to be transferred device -> host
@@ -106,6 +108,24 @@ public:
 	 * @param[in] o The volume to be transferred device -> host (out) in Bytes
 	 * */
 	void setDataVolumes(int64_t i, int64_t o) { inBytes = i; outBytes = o; }
+
+	/**
+	 * Get the begin iterator to the available clocks
+	 *
+	 * @retval const_time_it
+	 * */
+	const_time_it clocks_begin() const {
+		return clocks.begin();
+	}
+
+	/**
+	 * Get the end iterator to the available clocks
+	 *
+	 * @retval const_time_it
+	 * */
+	const_time_it clocks_end() const {
+		return clocks.end();
+	}
 
 	/**
 	 * Print the class' content to a stream
