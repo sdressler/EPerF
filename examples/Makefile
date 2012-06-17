@@ -4,7 +4,7 @@ TARGET_CPP	= cpp_example
 TARGET_MDEV	= multidevice
 TARGET_C	= c_example
 TARGET_F90	= f_example
-LLIB		= -L../lib -leperf -lcrypto
+LLIB		= -L../lib -leperf
 
 FFLAGS		+= -I../include/eperf
 

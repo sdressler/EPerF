@@ -3,17 +3,19 @@ include ../Makefile.inc
 TARGET		 = eperf
 
 CXXFLAGS	+= -fPIC
-LDFLAGS		+= -shared -g
-LLIB 		 = -lrt -lcrypto
+LDFLAGS		+= -shared
+#LLIB 		 = -Wl,-Bstatic -lrt -ldb_cxx -Wl,-Bdynamic
+LLIB		= -lrt -ldb_cxx
 
-SERDIR = Serialization
+#SERDIR = Serialization
 
-OBJ = EPerf.o \
+OBJ = EPerfDevice.o EPerfKernel.o EPerfData.o \
+	  EPerfClock.o EPerfContainer.o EPerf.o \
 	  EPerfC.o EPerfCallbacks.o \
-	  EPerfF.o \
-	  $(SERDIR)/JSON.o
+	  EPerfF.o
+#	  $(SERDIR)/JSON.o
 
-INC = $(wildcard ../include/eperf/*.h)
+INC = $(wildcard ../include/EPerf/*.h)
 
 %.o : %.cpp ${INC}
 	$(CXX) $(CXXFLAGS) -c $<
@@ -24,8 +26,8 @@ INC = $(wildcard ../include/eperf/*.h)
 %.o : %.F90
 	$(FC) $(FFLAGS) -c $<
 
-$(SERDIR)/%.o : $(SERDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+#$(SERDIR)/%.o : $(SERDIR)/%.cpp
+#	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all: $(OBJ)
 	$(CXX) $(LDFLAGS) $(OBJ) -o lib$(TARGET).so $(LLIB)

@@ -38,16 +38,16 @@
 #include <iomanip>
 #include <stdexcept>
 
+#include <db_cxx.h>
+
 #include "EPerfContainer.h"
 
 namespace ENHANCE {
 class EPerf : public EPerfContainer {
 private:
-	static const clockid_t CPU_clockid = CLOCK_PROCESS_CPUTIME_ID; ///< Holds the clockid for CPU_CLOCK
-	static const clockid_t WCLK_clockid = CLOCK_MONOTONIC; ///< Holds the clockid for Wall Clock
 
-	std::map<std::pair<int, int>, std::vector<struct timespec> > ttimes; ///< Temporary placeholder for timespecs
-	std::map<std::pair<int, int>, time_t> tTimeStamps; ///< Temporary placeholder for timestamps
+	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
+	tTempDataMap tempData; ///< Temporary measurement data
 
 	/**
 	 * Captures the current time and converts it to double
@@ -73,7 +73,12 @@ private:
 	 * */
 	void checkKernelExistance(int ID);
 
+	int BDB_getDevice(Db *sbdbp, const Dbt *pkey, const Dbt *pvalue, Dbt *skey);
+
 public:
+
+	void commitData();
+
 	/**
 	 * Adds a new kernel to the framework.
 	 *
