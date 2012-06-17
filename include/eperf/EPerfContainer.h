@@ -1,6 +1,7 @@
 #ifndef EPERF_CONTAINER_H
 #define EPERF_CONTAINER_H
 
+#include "EPerfKernel.h"
 #include "EPerfDevice.h"
 #include "EPerfData.h"
 
@@ -10,11 +11,12 @@
 #include <sstream>
 
 namespace ENHANCE {
+	
+typedef std::map<int, EPerfKernel> tKernelMap;
+typedef std::map<int, EPerfDevice> tDeviceMap;
+typedef std::map<std::pair<int, int>, EPerfData> tDataMap;
+
 class EPerfContainer : public IJSONSerializable {
-private:
-	typedef std::map<int, std::string> tKernelMap;
-	typedef std::map<int, EPerfDevice> tDeviceMap;
-	typedef std::map<std::pair<int, int>, EPerfData> tDataMap;
 
 protected:
 	tKernelMap kernels;	///< Holds the kernels with ID and name
@@ -27,7 +29,7 @@ public:
 
 		ss << "{\n";
 		ss << "\"devices\": [\n";
-		std::map<int, EPerfDevice>::const_iterator dit;
+		tDeviceMap::const_iterator dit;
 		for (dit = devices.begin(); dit != devices.end(); ++dit) {
 			
 			ss << "{" << dit->second.serializeToJSONString();
@@ -44,7 +46,7 @@ public:
 		
 		ss << "\"kernels\" : [\n";
 
-		std::map<int, std::string>::const_iterator kit;
+		tKernelMap::const_iterator kit;
 		for (kit = kernels.begin(); kit != kernels.end(); ++kit) {
 			ss << "{\"ID\" : " << kit->first << ", \"name\" : \"" << kit->second << "\"}";
 			
@@ -61,7 +63,7 @@ public:
 		
 		ss << "\"measurements\" : [\n";
 
-		std::map<std::pair<int, int>, EPerfData>::const_iterator mit;
+		tDataMap::const_iterator mit;
 		for (mit = data.begin(); mit != data.end(); ++mit) {
 			ss << "{\n";
 

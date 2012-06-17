@@ -29,8 +29,8 @@ void EPerf::checkKernelExistance(int ID) {
 // Add a new kernel with unique ID and optional kernel name
 void EPerf::addKernel(int ID, const std::string &kName) {
 	// Try to insert, if it already exists -> exception
-	std::pair<std::map<int, std::string>::iterator, bool> r = kernels.insert(
-		std::pair<int, std::string>(ID, kName)
+	std::pair<std::map<int, EPerfKernel>::iterator, bool> r = kernels.insert(
+		std::pair<int, EPerfKernel>(ID, EPerfKernel(kName))
 	);
 
 	// Check for overwrite attempt
@@ -157,7 +157,7 @@ std::ostream& operator<<(std::ostream &out, const EPerf &e) {
 	}
 	out << "\n";
 
-	std::map<int, std::string>::const_iterator kit;
+	tKernelMap::const_iterator kit;	
 	out << "Kernels:\n";
 	for (kit = e.kernels.begin(); kit != e.kernels.end(); ++kit) {
 		out << "\tID: " << kit->first << " Name: " << kit->second << "\n";
