@@ -1,4 +1,5 @@
 #include "../include/eperf/EPerf.h"
+#include "../include/Serialization/JSON.h"
 
 #include <iostream>
 
@@ -47,7 +48,11 @@ int main(void) {
 	cout << e;
 
 	// Write to JSON
-	e.exportToJSONFile("test.json");
+//	e.exportToJSONFile("test.json");
+
+	JSON<EPerfContainer> j("test.json");
+
+	j.serialize(e);
 
 	return 0;
 

@@ -3,9 +3,12 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
+
+#include "../Serialization/IJSONSerializable.h"
 
 namespace ENHANCE {
-class EPerfDevice {
+class EPerfDevice : public IJSONSerializable {
 private:
 	std::string name;				///< Device name
 	std::vector<int> subDevices;	///< Vector of subdevices
@@ -39,43 +42,45 @@ public:
 	 * @retval std::ostream The returning stream
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfDevice &d) {
-
-		if (&out == &std::cout || &out == &std::cerr) {
-			out << d.name;
+		out << d.name;
 	
-			if (d.subDevices.size() != 0) {
-				out << " Subdevices: ";
-				for (std::vector<int>::const_iterator it = d.subDevices.begin(); it != d.subDevices.end(); ++it) {
-					out << *it << " ";
-				}
+		if (d.subDevices.size() != 0) {
+			out << " Subdevices: ";
+			for (std::vector<int>::const_iterator it = d.subDevices.begin(); it != d.subDevices.end(); ++it) {
+				out << *it << " ";
 			}
-		} else {
-			
-			out << "\"name\": \"" << d.name << "\"";
-
-			if (d.subDevices.size() != 0) {
-				out << ",\n";
-				out << "\"subdevices\": [\n";
-				for (std::vector<int>::const_iterator it = d.subDevices.begin(); it != d.subDevices.end(); ++it) {
-					out << "{\"id\": " << *it << "\n";
-					
-					++it;
-					if (it == d.subDevices.end()) {
-						out << "}\n";
-					} else {
-						out << "},\n";
-					}
-					--it;
-
-				}
-				out << "]\n";
-			} else {
-				out << "\n";
-			}
-
 		}
 
 		return out;
+	}
+
+	// Used for serialization
+	virtual std::string serializeToJSONString() const {
+		std::stringstream ss;
+		
+		ss << "\"name\": \"" << name << "\"";
+
+		if (subDevices.size() != 0) {
+			ss << ",\n";
+			ss << "\"subdevices\": [\n";
+			for (std::vector<int>::const_iterator it = subDevices.begin(); it != subDevices.end(); ++it) {
+				ss << "{\"id\": " << *it << "\n";
+				
+				++it;
+				if (it == subDevices.end()) {
+					ss << "}\n";
+				} else {
+					ss << "},\n";
+				}
+				--it;
+
+			}
+			ss << "]\n";
+		} else {
+			ss << "\n";
+		}
+
+		return ss.str();
 	}
 
 };

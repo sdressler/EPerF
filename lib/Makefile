@@ -6,7 +6,13 @@ CXXFLAGS	+= -fPIC
 LDFLAGS		+= -shared -g
 LLIB 		 = -lrt
 
-OBJ = EPerf.o EPerfC.o EPerfCallbacks.o EPerfF.o
+SERDIR = Serialization
+
+OBJ = EPerf.o \
+	  EPerfC.o EPerfCallbacks.o \
+	  EPerfF.o \
+	  $(SERDIR)/JSON.o
+
 INC = $(wildcard ../include/eperf/*.h)
 
 %.o : %.cpp ${INC}
@@ -17,6 +23,9 @@ INC = $(wildcard ../include/eperf/*.h)
 
 %.o : %.F90
 	$(FC) $(FFLAGS) -c $<
+
+$(SERDIR)/%.o : $(SERDIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all: $(OBJ)
 	$(CXX) $(LDFLAGS) $(OBJ) -o lib$(TARGET).so $(LLIB)
