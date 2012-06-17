@@ -6,7 +6,7 @@
  *
  * */
 
-#include <stdexcept>
+#include <fstream>
 
 #include "../include/eperf/EPerf.h"
 #include "../include/eperf/EPerfC.h"
@@ -157,6 +157,18 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes,	in
 	// Add measurements
 //	dvolume[std::pair<int, int>(KernelID, DeviceID)] = std::pair<int64_t, int64_t>(inBytes, outBytes);
 	data[std::pair<int, int>(KernelID, DeviceID)].setDataVolumes(inBytes, outBytes);
+}
+
+void EPerf::exportToJSONFile(const std::string &path) {
+
+	// Try to open the file
+	std::ofstream f(path.c_str(), std::ios_base::trunc);
+
+	// Check if it's open
+	if (!f.is_open()) {
+		throw std::runtime_error("Could not open file!");
+	}
+
 }
 
 std::ostream& operator<<(std::ostream &out, const EPerf &e) {
