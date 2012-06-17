@@ -169,39 +169,26 @@ void EPerf::exportToJSONFile(const std::string &path) {
 		throw std::runtime_error("Could not open file!");
 	}
 
-	// Write
 	f << "{\n";
-
-	int spaces = 4;
-
-	f << std::setw(spaces) << " " << "\"devices\" : [\n";
-
-	spaces += 4;
+	f << "\"devices\": [\n";
 	std::map<int, EPerfDevice>::const_iterator dit;
 	for (dit = devices.begin(); dit != devices.end(); ++dit) {
-		f << std::setw(spaces) << " ";
-		f << "{\"ID\" : " << dit->first << ", \"name\" : \"" << dit->second << "\"}";
-
-		// Last?
-		dit++;
-		if (dit != devices.end()) {
-			f << ",\n";
+		f << "{" << dit->second;
+				
+		++dit;
+		if (dit == devices.end()) {
+			f << "}\n";
 		} else {
-			f << "\n";
+			f << "},\n";
 		}
-		dit--;
+		--dit;
 	}
-	spaces -= 4;
-	f << std::setw(spaces) << " ";
 	f << "],\n";
-
-	f << std::setw(spaces) << " ";
+	
 	f << "\"kernels\" : [\n";
 
-	spaces += 4;
 	std::map<int, std::string>::const_iterator kit;
 	for (kit = kernels.begin(); kit != kernels.end(); ++kit) {
-		f << std::setw(spaces) << " ";
 		f << "{\"ID\" : " << kit->first << ", \"name\" : \"" << kit->second << "\"}";
 		
 		// Last?
@@ -213,56 +200,19 @@ void EPerf::exportToJSONFile(const std::string &path) {
 		}
 		kit--;
 	}
-	spaces -= 4;
-	f << std::setw(spaces) << " ";
 	f << "],\n";
-
-	f << std::setw(spaces) << " ";
+	
 	f << "\"measurements\" : [\n";
 
-	spaces += 4;
 	std::map<std::pair<int, int>, EPerfData>::const_iterator mit;
 	for (mit = data.begin(); mit != data.end(); ++mit) {
-		f << std::setw(spaces) << " ";
 		f << "{\n";
-		spaces += 4;
-		f << std::setw(spaces) << " ";
-		f << "\"KernelID\" : " << mit->first.first << ",\n";
-		f << std::setw(spaces) << " ";
-		f << "\"DeviceID\" : " << mit->first.second << ",\n";
-		f << std::setw(spaces) << " ";
-		f << "\"timings\" : [\n";
-		
-		spaces += 4;
-		for (const_time_it it = mit->second.clocks_begin(); it != mit->second.clocks_end(); ++it) {
-			f << std::setw(spaces) << " ";
-			f << "{\n";
-			spaces += 4;
-			f << std::setw(spaces) << " ";
-			f << "\"clock\" : \"" << it->first << "\",\n";
-			f << std::setw(spaces) << " ";
-			f << "\"start\" : " << it->second.first << ",\n";
-			f << std::setw(spaces) << " ";
-			f << "\"stop\" : " << it->second.second << "\n";
-	
-			spaces -= 4;
-			f << std::setw(spaces) << " ";
-			// Last?
-			it++;
-			if (it != mit->second.clocks_end()) {
-				f << "},\n";
-			} else {
-				f << "}\n";
-			}
-			it--;
-		}
 
-		spaces -= 4;
-		f << std::setw(spaces) << " ";
-		f << "]\n";
-		
-		spaces -= 4;
-		f << std::setw(spaces) << " ";
+		f << "\"kernel\": " << mit->first.first << ",\n";
+		f << "\"device\": " << mit->first.second << ",\n";
+	
+		f << mit->second;
+
 		// Last?
 		mit++;
 		if (mit != data.end()) {
@@ -272,10 +222,7 @@ void EPerf::exportToJSONFile(const std::string &path) {
 		}
 		mit--;
 	}
-	spaces -= 4;
-	f << std::setw(spaces) << " ";
 	f << "]\n";
-
 	f << "}\n";
 
 	f.close();

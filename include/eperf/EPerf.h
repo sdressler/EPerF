@@ -37,6 +37,7 @@
 #include <iostream>
 #include <iomanip>
 #include <stdexcept>
+#include <sstream>
 
 namespace ENHANCE {
 
@@ -78,6 +79,11 @@ public:
 	 *
 	 * */
 	EPerfData() {
+
+		// Init bytes
+		inBytes = 0;
+		outBytes = 0;
+
 		clocks["wclk"] = std::pair<double, double>();
 		clocks["cpuclk"] = std::pair<double, double>();
 	}
@@ -128,20 +134,49 @@ public:
 	}
 
 	/**
-	 * Print the class' content to a stream
+	 * Print the class' content to a stream. If the stream is an ofstream the
+	 * output is converted to JSON.
 	 *
 	 * @param[in,out] out The corresponding stream
 	 * @param[in] d A reference to the data
 	 * @retval std::ostream The returning stream
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
-		out << std::scientific << std::setw(16) << std::setprecision(9);
-		out << "CPU Time[s]: " << d.getTimeDifferenceForClock("cpuclk") << ", ";
-		out	<< "Wall Clock Time[s]: " << d.getTimeDifferenceForClock("wclk") << ", ";
-		out << std::fixed << std::setprecision(0);
-		out << "Data in[byte]: " << d.inBytes << ", " << "Data out[byte]: " << d.outBytes;
+		
+		if (&out == &std::cout || &out == &std::cerr) {
+			out << std::scientific << std::setw(16) << std::setprecision(9);
+			out << "CPU Time[s]: " << d.getTimeDifferenceForClock("cpuclk") << ", ";
+			out	<< "Wall Clock Time[s]: " << d.getTimeDifferenceForClock("wclk") << ", ";
+			out << std::fixed << std::setprecision(0);
+			out << "Data in[byte]: " << d.inBytes << ", " << "Data out[byte]: " << d.outBytes;
+		} else {
+		
+			// Print the timings
+			out << "\"timings\": {\n";
+			for (const_time_it it = d.clocks.begin(); it != d.clocks.end(); ++it) {
+				out << "\"" << it->first << "\": {\n";
+				out << "\"start\": " << it->second.first << ",\n";
+				out << "\"stop\": " << it->second.second << "\n";
+
+				// Last one?
+				++it;
+				if (it == d.clocks.end()) {
+					out << "}\n";
+				} else {
+					out << "},\n";
+				}
+				--it;
+			}
+			out << "},\n";
+
+			// Print the bytes
+			out << "\"in\": " << d.inBytes << ",\n";
+			out << "\"out\": " << d.outBytes << "\n";
+
+		}
 		return out;
 	}
+
 };
 
 class EPerfDevice {
@@ -170,20 +205,48 @@ public:
 
 	/**
 	 *
-	 * Print the device name to a stream
+	 * Print the device name to a stream. If the stream is a file the
+	 * output is converted to JSON.
 	 *
 	 * @param[in,out] out The corresponding stream
 	 * @param[in] d A reference to the data
 	 * @retval std::ostream The returning stream
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfDevice &d) {
-		out << d.name;
 
-		if (d.subDevices.size() != 0) {
-			out << " Subdevices: ";
-			for (std::vector<int>::const_iterator it = d.subDevices.begin(); it != d.subDevices.end(); ++it) {
-				out << *it << " ";
+		if (&out == &std::cout || &out == &std::cerr) {
+			out << d.name;
+	
+			if (d.subDevices.size() != 0) {
+				out << " Subdevices: ";
+				for (std::vector<int>::const_iterator it = d.subDevices.begin(); it != d.subDevices.end(); ++it) {
+					out << *it << " ";
+				}
 			}
+		} else {
+			
+			out << "\"name\": \"" << d.name << "\"";
+
+			if (d.subDevices.size() != 0) {
+				out << ",\n";
+				out << "\"subdevices\": [\n";
+				for (std::vector<int>::const_iterator it = d.subDevices.begin(); it != d.subDevices.end(); ++it) {
+					out << "{\"id\": " << *it << "\n";
+					
+					++it;
+					if (it == d.subDevices.end()) {
+						out << "}\n";
+					} else {
+						out << "},\n";
+					}
+					--it;
+
+				}
+				out << "]\n";
+			} else {
+				out << "\n";
+			}
+
 		}
 
 		return out;
