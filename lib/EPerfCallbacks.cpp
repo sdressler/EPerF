@@ -1,6 +1,6 @@
-#include "../include/eperf/EPerf.h"
-#include "../include/eperf/EPerfC.h"
-#include "../include/eperf/EPerfErrors.h"
+#include "../include/EPerf/EPerf.h"
+#include "../include/EPerf/EPerfC.h"
+#include "../include/EPerf/EPerfErrors.h"
 
 #include <stdexcept>
 #include <iostream>

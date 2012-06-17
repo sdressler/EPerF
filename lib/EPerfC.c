@@ -1,5 +1,5 @@
-#include "../include/eperf/EPerfC.h"
-#include "../include/eperf/EPerf.h"
+#include "../include/EPerf/EPerfC.h"
+#include "../include/EPerf/EPerf.h"
 
 EPerf* EPerfInit() {
 	return cpp_callback_EPerfInit();

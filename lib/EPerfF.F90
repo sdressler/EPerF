@@ -1,6 +1,6 @@
 MODULE m_eperf
 !
-! #include "../include/eperf/EPerfC.h"
+! #include "../include/EPerf/EPerfC.h"
 !
     IMPLICIT NONE
 

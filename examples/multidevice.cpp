@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/eperf/EPerf.h"
+#include "../include/EPerf/EPerf.h"
 
 using namespace ENHANCE;
 

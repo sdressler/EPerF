@@ -8,8 +8,8 @@
 
 #include <fstream>
 
-#include "../include/eperf/EPerf.h"
-#include "../include/eperf/EPerfC.h"
+#include "../include/EPerf/EPerf.h"
+#include "../include/EPerf/EPerfC.h"
 
 namespace ENHANCE {
 
@@ -161,19 +161,6 @@ void EPerf::startTimer(int KernelID, int DeviceID) {
 		)
 	);
 
-<<<<<<< HEAD
-	// Save the timestamps
-	tTimeStamps[ref] = time(NULL);
-	
-	clock_gettime(CPU_clockid, CPU_t);
-	clock_gettime(WCLK_clockid, WCLK_t);
-=======
-	// Test whether this entry already exists
-/*	if (!x.second) {
-		throw std::runtime_error("Temporary entry already exists.");
-	}*/
->>>>>>> db
-
 	// Start the timers
 	(x.first)->second.startAllTimers();
 };
@@ -197,25 +184,12 @@ void EPerf::stopTimer(int KernelID, int DeviceID) {
 		DeviceID
 	);
 	
-<<<<<<< HEAD
-	double CPU_start = convTimeSpecToDoubleSeconds(ttimes[ref][0]);
-	double CPU_stop  = convTimeSpecToDoubleSeconds(t[0]);
-	
-	double WCLK_start = convTimeSpecToDoubleSeconds(ttimes[ref][1]);
-	double WCLK_stop = convTimeSpecToDoubleSeconds(t[1]);
-
-	// Save the timestamps
-	data[ref].setTimeStamp(tTimeStamps[ref]);
-	data[ref].setClockTime(std::string("wclk"), std::pair<double, double>(WCLK_start, WCLK_stop));
-	data[ref].setClockTime(std::string("cpuclk"), std::pair<double, double>(CPU_start, CPU_stop));
-=======
 	std::pair<tDataSet::const_iterator, bool> test = data.insert(x->second);
 	if (!test.second) {
 		throw std::runtime_error("Something went wrong on data insertion.");
 	}
 
 	tempData.erase(tKernelDeviceID(KernelID, DeviceID));
->>>>>>> db
 
 }
 

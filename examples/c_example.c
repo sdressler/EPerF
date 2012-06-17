@@ -1,4 +1,4 @@
-#include "../include/eperf/EPerfC.h"
+#include "../include/EPerf/EPerfC.h"
 
 #include <stdio.h>
 #include <stdlib.h>
