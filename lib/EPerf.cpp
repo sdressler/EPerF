@@ -12,6 +12,74 @@
 #include "../include/eperf/EPerfC.h"
 
 namespace ENHANCE {
+
+void EPerf::commitData() {
+
+	int ret;
+	std::vector<char> bVec;
+
+	// Base DB
+	Db baseDB(NULL, 0);
+	baseDB.open(NULL, "eperf.db", "base", DB_BTREE, DB_CREATE, 0);
+
+	// Place all devices into the DB
+	for (tDeviceMap::iterator it = devices.begin(); it != devices.end(); ++it) {
+		std::stringstream ss;
+		// Convert device ID to string
+		ss << "device:" << it->first;
+		bVec = it->second.convertToByteVector();
+
+		// Create entry for the DB
+		Dbt key(static_cast<void*>(const_cast<char*>(ss.str().c_str())), ss.str().size() + 1);
+		Dbt value(static_cast<void*>(&bVec[0]), bVec.size());
+
+		// Insert
+		ret = baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
+		std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
+	}
+
+	// Place all kernels into the DB
+	for (tKernelMap::iterator it = kernels.begin(); it != kernels.end(); ++it) {
+		std::stringstream ss;
+		// Convert kernel ID to string
+		ss << "kernel:" << it->first;
+		bVec = it->second.convertToByteVector();
+
+		Dbt key(static_cast<void*>(const_cast<char*>(ss.str().c_str())), ss.str().size() + 1);
+		Dbt value(static_cast<void*>(&bVec[0]), bVec.size());
+
+		// Insert
+		ret = baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
+		std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
+	}
+
+	// Place all the data into the DB
+	for (tDataSet::iterator it = data.begin(); it != data.end(); ++it) {
+		std::stringstream ss;
+		// Convert the timestamp, kernel id and device id to a valid key
+		ss << "data:" << it->getKernelID() << ":" << it->getDeviceID() << ":";
+
+		// Get the timestamp itself
+		bVec = it->getTimeStamp().convertToByteVector();
+		ss.write(&bVec[0], bVec.size());
+
+		// Create key
+		Dbt key(static_cast<void*>(const_cast<char*>(ss.str().c_str())), ss.str().size() + 1);
+
+		// Value
+		bVec = it->convertToByteVector();
+		Dbt value(static_cast<void*>(&bVec[0]), bVec.size());
+
+		// Write
+		ret = baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
+		std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
+
+	}
+
+	baseDB.close(0);
+
+}
+
 void EPerf::checkDeviceExistance(int ID) {
 	if (devices.find(ID) == devices.end()) {
 		throw std::invalid_argument("Device ID not valid.");

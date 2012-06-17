@@ -10,11 +10,13 @@
 
 #include "EPerfKernelConfiguration.h"
 
+#include "DB/IBDBObject.h"
+
 namespace ENHANCE {
 
 typedef std::map<std::string, EPerfKernelConfiguration> tKConfMap;
 
-class EPerfKernel {
+class EPerfKernel : public IBDBObject {
 private:
 	std::string name; ///< Holds the kernel name
 	tKConfMap config; ///< Map for kernel configurations
@@ -81,6 +83,8 @@ public:
 		}*/
 		return out;
 	}
+
+	virtual std::vector<char> convertToByteVector() const;
 };
 }
 
