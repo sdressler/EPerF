@@ -2,8 +2,19 @@ include ../Makefile.inc
 
 TARGET_CPP	= cpp_example
 TARGET_MDEV	= multidevice
+
+ifeq ($(WITH_CAPI), yes)
 TARGET_C	= c_example
+else
+TARGET_C	=
+endif
+
+ifeq ($(WITH_FAPI), yes)
 TARGET_F90	= f_example
+else
+TARGET_F90	=
+endif
+
 LLIB		= -L../lib -leperf -lcrypto
 
 FFLAGS		+= -I../include/eperf
@@ -24,14 +35,6 @@ OBJ_F90		= f_example.o
 
 all: $(TARGET_CPP) $(TARGET_C) $(TARGET_F90) $(TARGET_MDEV)
 
-only-c: $(TARGET_C)
-
-only-cpp: $(TARGET_CPP)
-
-only-mdev: $(TARGET_MDEV)
-
-only-f90: $(TARGET_F90)
-
 $(TARGET_CPP) : $(OBJ_CPP)
 	$(CXX) $(LDFLAGS) $(OBJ_CPP) -o $(TARGET_CPP) $(LLIB) 
 
@@ -43,20 +46,6 @@ $(TARGET_MDEV) : $(OBJ_MDEV)
 
 $(TARGET_F90) : $(OBJ_F90)
 	$(FC) $(FFLAGS) $(OBJ_F90) -o $(TARGET_F90) $(LLIB)
-
-run: $(TARGET_CPP) $(TARGET_C)
-	@echo "==========="
-	@echo "CPP Example"
-	@echo "===========\n"
-	LD_LIBRARY_PATH=../lib ./$(TARGET_CPP)
-	@echo "========="
-	@echo "C Example"
-	@echo "=========\n"
-	LD_LIBRARY_PATH=../lib ./$(TARGET_C)
-	@echo "==============="
-	@echo "FORTRAN Example"
-	@echo "===============\n"
-	LD_LIBRARY_PATH=../lib ./$(TARGET_F90)
 
 clean:
 	rm -f $(TARGET_CPP) $(TARGET_C) $(OBJ_CPP) $(OBJ_C) $(TARGET_F90) $(OBJ_F90) $(TARGET_MDEV) $(OBJ_MDEV)

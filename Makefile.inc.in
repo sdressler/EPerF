@@ -1,0 +1,11 @@
+CC = @CC@
+CFLAGS = @CFLAGS@
+
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+
+FC = @F77@
+FFLAGS = -std=f2003 -J../include/EPerf
+
+WITH_CAPI = @WITH_CAPI@
+WITH_FAPI = @WITH_FAPI@
