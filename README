@@ -13,12 +13,21 @@ This is part of the ENHANCE project.
 Usage
 -----
 
-From the projects root directory, you can
+First, please execute ./configure and set the desired options. Actually
+two options are available:
 
-	- build all (without documentation): make
-	- build the documentation: make doc
-	- build the library: make lib
-	- build the examples: make examples
+	- --disable-c-api (Disables the C API interface)
+	- --disable-fortran-api (Disables the FORTRAN API interface)
+
+Please note, that when you disable the C API you will also have to disable
+the FORTRAN API.
+
+After configure simply type:
+
+	- make (build lib + examples)
+	- make doc (build doxygen documentation)
+	- make lib (build library only)
+	- make examples (build examples only)
 
 When building the library you'll get a shared object within the
 "lib" folder. Link against the object and refer to the provided
@@ -28,6 +37,9 @@ Note that before building the examples you should build the library.
 
 Changelog
 ---------
+
+2012-06-19 / 0.3.1:
+	- Added configure script
 
 2012-06-17 / 0.3:
 	- Added support for committing recorded data to Berkeley DB
