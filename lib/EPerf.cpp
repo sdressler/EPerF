@@ -13,6 +13,8 @@
 
 namespace ENHANCE {
 
+sem_t synchronize;
+
 EPerf::EPerf() {
 	sem_init(&synchronize, 1, 1);
 }
