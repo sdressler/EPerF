@@ -26,6 +26,10 @@ examples:
 run: $(BUILDDIRS)
 	LD_LIBRARY_PATH=lib/ examples/cpp_example
 
+install: build-lib
+	cp lib/libeperf.so /usr/lib
+	cp -R include/EPerf /usr/include
+
 clean: $(CLEANDIRS)
 
 $(CLEANDIRS):
