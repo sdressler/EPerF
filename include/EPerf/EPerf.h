@@ -46,7 +46,7 @@
 
 namespace ENHANCE {
 
-sem_t sync;
+sem_t synchronize;
 
 class EPerf : public EPerfContainer {
 private:

@@ -14,11 +14,11 @@
 namespace ENHANCE {
 
 EPerf::EPerf() {
-	sem_init(&sync, 1, 1);
+	sem_init(&synchronize, 1, 1);
 }
 
 EPerf::~EPerf() {
-	sem_destroy(&sync);
+	sem_destroy(&synchronize);
 }
 
 void EPerf::commitToDB() {
@@ -160,7 +160,7 @@ void EPerf::startTimer(int KernelID, int DeviceID) {
 	checkDeviceExistance(DeviceID);
 
 	/* Lock operation */
-	sem_wait(&sync);
+	sem_wait(&synchronize);
 	
 	// Insert a new temporary object and get a reference to it
 	// Possibly an entry already exists from KDV
@@ -179,14 +179,14 @@ void EPerf::startTimer(int KernelID, int DeviceID) {
 
 	/* Unlock */
 //	sem_post(&timerStartSem);
-	sem_post(&sync);
+	sem_post(&synchronize);
 };
 
 // Stop the time measurement and save the measured time
 void EPerf::stopTimer(int KernelID, int DeviceID) {
 
 	/* Lock operation */
-	sem_wait(&sync);
+	sem_wait(&synchronize);
 
 	// Get the entry
 	tTempDataMap::iterator x = tempData.find(tKernelDeviceID(KernelID, DeviceID));
@@ -212,7 +212,7 @@ void EPerf::stopTimer(int KernelID, int DeviceID) {
 	tempData.erase(tKernelDeviceID(KernelID, DeviceID));
 
 	/* Unlock operation */
-	sem_post(&sync);
+	sem_post(&synchronize);
 
 }
 
