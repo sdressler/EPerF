@@ -2,6 +2,7 @@ include ../Makefile.inc
 
 TARGET_CPP	= cpp_example
 TARGET_MDEV	= multidevice
+TARGET_THREADS = threads_example
 
 ifeq ($(WITH_CAPI), yes)
 TARGET_C	= c_example
@@ -21,11 +22,12 @@ FFLAGS		+= -I../include/eperf
 
 OBJ_CPP		= cpp_example.o
 OBJ_MDEV	= multidevice.o
+OBJ_THR		= $(TARGET_THREADS).o
 OBJ_C		= c_example.o
 OBJ_F90		= f_example.o
 
 %.o : %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c -fopenmp $<
 
 %.o : %.c
 	$(CC) $(CXXFLAGS) -c $<
@@ -33,13 +35,16 @@ OBJ_F90		= f_example.o
 %.o : %.F90
 	$(FC) $(FFLAGS) -c $<
 
-all: $(TARGET_CPP) $(TARGET_C) $(TARGET_F90) $(TARGET_MDEV)
+all: $(TARGET_CPP) $(TARGET_C) $(TARGET_F90) $(TARGET_MDEV) $(TARGET_THREADS)
 
 $(TARGET_CPP) : $(OBJ_CPP)
 	$(CXX) $(LDFLAGS) $(OBJ_CPP) -o $(TARGET_CPP) $(LLIB) 
 
 $(TARGET_C) : $(OBJ_C)
 	$(CC) $(LDFLAGS) $(OBJ_C) -o $(TARGET_C) $(LLIB)
+
+$(TARGET_THREADS) : $(OBJ_THR)
+	$(CXX) $(LDFLAGS) $(OBJ_THR) -o $(TARGET_THREADS) $(LLIB) -fopenmp
 
 $(TARGET_MDEV) : $(OBJ_MDEV)
 	$(CXX) $(LDFALGS) $(OBJ_MDEV) -o $(TARGET_MDEV) $(LLIB)

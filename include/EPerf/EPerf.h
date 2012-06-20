@@ -16,6 +16,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <semaphore.h>
 
 // This only checks whether we are on a POSIX system or not
 #ifndef _POSIX_TIMERS
@@ -41,12 +42,17 @@
 #include <db_cxx.h>
 
 #include "EPerfContainer.h"
+	
 
 namespace ENHANCE {
+
+sem_t sync;
+
 class EPerf : public EPerfContainer {
 private:
 	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
 	tTempDataMap tempData; ///< Temporary measurement data
+
 
 	/**
 	 * Captures the current time and converts it to double
@@ -75,6 +81,9 @@ private:
 	int BDB_getDevice(Db *sbdbp, const Dbt *pkey, const Dbt *pvalue, Dbt *skey);
 
 public:
+
+	EPerf();
+	~EPerf();
 
 	/**
 	 *
