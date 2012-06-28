@@ -6,8 +6,8 @@ CXXFLAGS	+= -fPIC
 LDFLAGS		+= -shared
 LLIB		= -lrt -ldb_cxx
 
-OBJ_LIB		= EPerfDevice.o EPerfKernel.o EPerfData.o \
-			  EPerfClock.o EPerfContainer.o EPerf.o
+OBJ_LIB		= EPerfDevice.o EPerfKernelConfiguration.o EPerfKernel.o \
+			  EPerfData.o EPerfClock.o EPerfContainer.o EPerf.o
 
 ifeq ($(WITH_CAPI), yes)
     OBJ_CAPI = EPerfC.o EPerfCallbacks.o
@@ -34,8 +34,6 @@ INC = $(wildcard ../include/EPerf/*.h)
 
 all: $(OBJ_LIB) $(OBJ_CAPI) $(OBJ_FAPI)
 	$(CXX) $(LDFLAGS) $(OBJ_LIB) $(OBJ_CAPI) $(OBJ_FAPI) -o lib$(TARGET).so $(LLIB)
-
-
 
 clean:
 	rm -f lib$(TARGET).so $(OBJ_LIB) $(OBJ_CAPI) $(OBJ_FAPI) ../include/eperf/m_eperf.mod

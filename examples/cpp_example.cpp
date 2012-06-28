@@ -1,6 +1,7 @@
 #include "../include/EPerf/EPerf.h"
 
 #include <iostream>
+#include <sstream>
 
 using namespace ENHANCE;
 using namespace std;
@@ -19,10 +20,10 @@ int main(void) {
 
 	cout << "Adding kernel.\n";
 	e.addKernel(0, "Fibonacci");
-	e.addKernel(1, "Fibonacci");
+/*	e.addKernel(1, "Fibonacci");
 	e.addKernel(2, "Fibonacci");
 	e.addKernel(3, "Fibonacci 40");
-
+*/
 	cout << "Adding device\n";
 	e.addDevice(0, "CPU");
 	e.addDevice(1, "GPU");
@@ -34,13 +35,26 @@ int main(void) {
 	cout << "Generating timings and datavolumes\n";
 
 	unsigned int f;
+    for (int n = 0; n < 2; n++) {
 	for (int i = 0; i < 4; i++) {
-		e.addKernelDataVolumes(i, 0, 4, 4);
-		e.startTimer(i, 0);
-		f = fib((i + 1) * 10);
-		e.stopTimer(i, 0);
+
+        EPerfKernelConfiguration c;
+		
+        f = (i + 1) * 10;
+
+        std::stringstream ss;
+        ss << f;
+        c.insertConfigPair("number", ss.str());
+
+        e.insertAndActivateKernelConfiguration(0, c);
+
+//		e.addKernelDataVolumes(i, 0, 4, 4);
+		e.startTimer(0, 0);
+		f = fib(f);
+		e.stopTimer(0, 0);
 		cout << "Fibonacci " << (i+1)*10 << ": " << f << "\n";
 	}
+    }
 
 	cout << "Printing content:\n";
 	cout << e;

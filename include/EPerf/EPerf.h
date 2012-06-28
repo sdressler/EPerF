@@ -52,7 +52,6 @@ private:
 	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
 	tTempDataMap tempData; ///< Temporary measurement data
 
-
 	/**
 	 * Captures the current time and converts it to double
 	 *
@@ -166,6 +165,8 @@ public:
 	 * @param[in] path Path to the file
 	 * */
 	void importFromJSONFile(const std::string &path);
+
+    void insertAndActivateKernelConfiguration(const int KernelID, const EPerfKernelConfiguration &c);
 
 	/**
 	 * Prints the content of the object to given std::ostream.
