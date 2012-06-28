@@ -46,7 +46,6 @@
 
 namespace ENHANCE {
 
-
 class EPerf : public EPerfContainer {
 private:
 	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
@@ -166,7 +165,8 @@ public:
 	 * */
 	void importFromJSONFile(const std::string &path);
 
-    void insertAndActivateKernelConfiguration(const int KernelID, const EPerfKernelConfiguration &c);
+//    void insertAndActivateKernelConf(const int KernelID, const EPerfKernelConf &c);
+    void setKernelConf(const int KernelID, const EPerfKernelConf &c);
 
 	/**
 	 * Prints the content of the object to given std::ostream.

@@ -201,7 +201,7 @@ void EPerf::stopTimer(int KernelID, int DeviceID) {
 	// Copy to set and remove temporary entry
 	x->second.setKernelDeviceReference(
 		KernelID,
-		kernels.find(KernelID)->second.getActiveConfigurationHash(),
+		kernels.find(KernelID)->second.getActiveConfHash(),
 		DeviceID
 	);
 	
@@ -237,13 +237,13 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes,	in
 
 }
    
-void EPerf::insertAndActivateKernelConfiguration(const int KernelID, const EPerfKernelConfiguration &c) {
+void EPerf::setKernelConf(const int KernelID, const EPerfKernelConf &c) {
 
     checkKernelExistance(KernelID);
 
-    kernels.find(KernelID)->second.insertAndActivateKernelConfiguration(c);
+    kernels.find(KernelID)->second.insertAndActivateKernelConf(c);
 
-//    kernels[KernelID].insertAndActivateKernelConfiguration(c);
+//    kernels[KernelID].insertAndActivateKernelConf(c);
 
 }
 

@@ -10,8 +10,9 @@
  *
  * */
 
-#include "EPerf.h"
 #include "EPerfErrors.h"
+#include "EPerf.h"
+#include "EPerfKernelConf.h"
 
 #ifndef C_EPERF_H
 #define C_EPERF_H
@@ -32,6 +33,9 @@ extern "C" {
  * */
 EPerf* EPerfInit();
 EPerf* cpp_callback_EPerfInit();
+
+EPerfKernelConf* EPerfInitKernelConf();
+EPerfKernelConf* cpp_callback_EPerfInitKernelConf();
 
 /**
  * Adds a new kernel to the framework. The kernel is only added if the ID does
@@ -115,6 +119,9 @@ int cpp_callback_EPerfStopTimer(EPerf *e, int KernelID, int DeviceID);
  * */
 int EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes);
 int cpp_callback_EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes);
+
+int EPerfSetKernelConf(EPerf *e, EPerfKernelConf *c);
+int cpp_callback_EPerfSetKernelConf(EPerf *e, EPerfKernelConf *c);
 
 /**
  * Dumps the current content of the framework.
