@@ -100,7 +100,7 @@ std::vector<char> EPerfData::convertToByteVector() const {
     );
 
 	// Save {in,out}Bytes
-	o.resize(2 * sizeof(int64_t));
+	o.resize(offset + 2 * sizeof(int64_t));
 	memcpy(static_cast<void*>(&o[offset]), static_cast<const void*>(&inBytes), sizeof(int64_t));
 	memcpy(static_cast<void*>(&o[offset + 4]), static_cast<const void*>(&outBytes), sizeof(int64_t));
 

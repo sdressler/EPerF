@@ -35,7 +35,7 @@ int main(void) {
 	cout << "Generating timings and datavolumes\n";
 
 	unsigned int f;
-    for (int n = 0; n < 2; n++) {
+    for (int n = 0; n < 1; n++) {
 	for (int i = 0; i < 4; i++) {
 
         EPerfKernelConfiguration c;

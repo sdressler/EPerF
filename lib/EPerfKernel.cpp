@@ -50,4 +50,15 @@ void EPerfKernel::activateKernelConfigurationWithHash(const std::string &hash) {
 
 }
 
+std::ostream& operator<<(std::ostream &out, const EPerfKernel &k) {
+    out << k.name << ", Configuration(s):\n";
+
+    for (tKConfMap::const_iterator it = k.config.begin(); it != k.config.end(); ++it) {
+        out << "\tHash: " << it->first << "\n";
+        out << "\tKeys & Values: " << it->second << "\n";
+    }
+    
+    return out;
+}
+
 }

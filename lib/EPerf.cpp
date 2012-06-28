@@ -249,11 +249,6 @@ void EPerf::insertAndActivateKernelConfiguration(const int KernelID, const EPerf
 
 std::ostream& operator<<(std::ostream &out, const EPerf &e) {
 
-	for (tDataSet::const_iterator it = e.data.begin(); it != e.data.end(); ++it) {
-		out << *it << "\n";
-	}
-
-/*
 	std::map<int, EPerfDevice>::const_iterator dit;
 	out << "Devices:\n";
 	for (dit = e.devices.begin(); dit != e.devices.end(); ++dit) {
@@ -267,16 +262,13 @@ std::ostream& operator<<(std::ostream &out, const EPerf &e) {
 		out << "\tID: " << kit->first << " Name: " << kit->second << "\n";
 	}
 	out << "\n";
-*/
-	/**
-	 * \todo{Change implementation to fit new internal layout of data
-	 *
-	out << "Timings & Data volumes:\n";
-	std::map<std::pair<int, int>, EPerfData>::const_iterator vit;
-	for (vit = e.data.begin(); vit != e.data.end(); ++vit) {
-		out << "K: " << vit->first.first << " D: " << vit->first.second << " " << vit->second << "\n";
+	
+    out << "Timings & Data volumes:\n";
+	for (tDataSet::const_iterator it = e.data.begin(); it != e.data.end(); ++it) {
+		out << *it << "\n";
 	}
-	*/
+    out << "\n";
+
 	return out;
 }
 }

@@ -37,14 +37,7 @@ public:
     void activateKernelConfigurationWithPrototype(const EPerfKernelConfiguration &proto);
     void activateKernelConfigurationWithHash(const std::string &hash);
 	
-    friend std::ostream& operator<<(std::ostream &out, const EPerfKernel &k) {
-		out << k.name << ", Configuration:\n";
-/*		out << "\tHash: " << k.hash << "\n";
-		for (tKConfMap::const_iterator it = k.begin(); it != k.end(); ++it) {
-			out << "\tKey: " << it->first << " Value: " << it->second << "\n";
-		}*/
-		return out;
-	}
+    friend std::ostream& operator<<(std::ostream &out, const EPerfKernel &k);
 
 	virtual std::vector<char> convertToByteVector() const;
 };

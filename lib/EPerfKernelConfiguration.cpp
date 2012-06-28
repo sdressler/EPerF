@@ -2,6 +2,16 @@
 
 namespace ENHANCE {
 
+std::ostream& operator<<(std::ostream &out, const EPerfKernelConfiguration &c) {
+
+    out << "\n";
+    for (tStringMap::const_iterator it = c.begin(); it != c.end(); ++it) {
+       out << "\t\t" << it->first << " : " << it->second << "\n";
+    }
+
+    return out;
+}
+
 void EPerfKernelConfiguration::insertConfigPair(std::string key, std::string value) {
     insert(std::pair<std::string, std::string>(key, value));
 }
