@@ -6,15 +6,13 @@
 #include <map>
 #include <sstream>
 
-//#include <openssl/sha.h>
-
-#include "EPerfKernelConfiguration.h"
+#include "EPerfKernelConf.h"
 
 #include "DB/IBDBObject.h"
 
 namespace ENHANCE {
 
-typedef std::map<std::string, EPerfKernelConfiguration> tKConfMap;
+typedef std::map<std::string, EPerfKernelConf> tKConfMap;
 
 class EPerfKernel : public IBDBObject {
 private:
@@ -31,11 +29,11 @@ public:
 	 * */
 	EPerfKernel(std::string s);
 
-	const std::string& getActiveConfigurationHash() { return actConfHash; }
+	const std::string& getActiveConfHash() { return actConfHash; }
 
-    void insertAndActivateKernelConfiguration(const EPerfKernelConfiguration &c);
-    void activateKernelConfigurationWithPrototype(const EPerfKernelConfiguration &proto);
-    void activateKernelConfigurationWithHash(const std::string &hash);
+    void insertAndActivateKernelConf(const EPerfKernelConf &c);
+    void activateKernelConfWithPrototype(const EPerfKernelConf &proto);
+    void activateKernelConfWithHash(const std::string &hash);
 	
     friend std::ostream& operator<<(std::ostream &out, const EPerfKernel &k);
 

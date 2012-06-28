@@ -38,15 +38,15 @@ int main(void) {
     for (int n = 0; n < 1; n++) {
 	for (int i = 0; i < 4; i++) {
 
-        EPerfKernelConfiguration c;
+        EPerfKernelConf c;
 		
         f = (i + 1) * 10;
 
         std::stringstream ss;
         ss << f;
-        c.insertConfigPair("number", ss.str());
+        c.insertKernelConfPair("number", ss.str());
 
-        e.insertAndActivateKernelConfiguration(0, c);
+        e.setKernelConf(0, c);
 
 //		e.addKernelDataVolumes(i, 0, 4, 4);
 		e.startTimer(0, 0);

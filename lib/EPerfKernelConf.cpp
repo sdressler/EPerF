@@ -1,8 +1,8 @@
-#include "../include/EPerf/EPerfKernelConfiguration.h"
+#include "../include/EPerf/EPerfKernelConf.h"
 
 namespace ENHANCE {
 
-std::ostream& operator<<(std::ostream &out, const EPerfKernelConfiguration &c) {
+std::ostream& operator<<(std::ostream &out, const EPerfKernelConf &c) {
 
     out << "\n";
     for (tStringMap::const_iterator it = c.begin(); it != c.end(); ++it) {
@@ -12,11 +12,11 @@ std::ostream& operator<<(std::ostream &out, const EPerfKernelConfiguration &c) {
     return out;
 }
 
-void EPerfKernelConfiguration::insertConfigPair(std::string key, std::string value) {
+void EPerfKernelConf::insertKernelConfPair(std::string key, std::string value) {
     insert(std::pair<std::string, std::string>(key, value));
 }
 
-std::string EPerfKernelConfiguration::getConfigHash() const {
+std::string EPerfKernelConf::getKernelConfHash() const {
 
     std::string s;
 
@@ -29,7 +29,7 @@ std::string EPerfKernelConfiguration::getConfigHash() const {
     return sha256(s);
 }
     
-std::string EPerfKernelConfiguration::sha256(const std::string &s) const {
+std::string EPerfKernelConf::sha256(const std::string &s) const {
     unsigned char hash[SHA256_DIGEST_LENGTH];
 
     SHA256_CTX sha256;

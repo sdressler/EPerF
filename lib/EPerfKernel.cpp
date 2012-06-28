@@ -7,8 +7,8 @@ EPerfKernel::EPerfKernel(std::string s) {
     name = s;
 
     // Create "empty" hash
-    EPerfKernelConfiguration c;
-    actConfHash = c.getConfigHash();
+    EPerfKernelConf c;
+    actConfHash = c.getKernelConfHash();
 }
 
 std::vector<char> EPerfKernel::convertToByteVector() const {
@@ -23,27 +23,27 @@ std::vector<char> EPerfKernel::convertToByteVector() const {
 
 }
    
-void EPerfKernel::insertAndActivateKernelConfiguration(const EPerfKernelConfiguration &c) {
+void EPerfKernel::insertAndActivateKernelConf(const EPerfKernelConf &c) {
     
-    std::string hash = c.getConfigHash();
-    config.insert(std::pair<std::string, EPerfKernelConfiguration>(hash, c));
+    std::string hash = c.getKernelConfHash();
+    config.insert(std::pair<std::string, EPerfKernelConf>(hash, c));
     actConfHash = hash;
 
     std::cout << "Activated configuration: " << hash << "\n";
 
 }
 
-void EPerfKernel::activateKernelConfigurationWithPrototype(const EPerfKernelConfiguration &proto) {
+void EPerfKernel::activateKernelConfWithPrototype(const EPerfKernelConf &proto) {
     
-    activateKernelConfigurationWithHash(proto.getConfigHash());
+    activateKernelConfWithHash(proto.getKernelConfHash());
 
 }
 
-void EPerfKernel::activateKernelConfigurationWithHash(const std::string &hash) {
+void EPerfKernel::activateKernelConfWithHash(const std::string &hash) {
     
     tKConfMap::const_iterator it = config.find(hash);
     if (it == config.end()) {
-        throw std::runtime_error("Configuration not found!");
+        throw std::runtime_error("Conf not found!");
     }
 
     actConfHash = hash;
@@ -51,7 +51,7 @@ void EPerfKernel::activateKernelConfigurationWithHash(const std::string &hash) {
 }
 
 std::ostream& operator<<(std::ostream &out, const EPerfKernel &k) {
-    out << k.name << ", Configuration(s):\n";
+    out << k.name << ", Conf(s):\n";
 
     for (tKConfMap::const_iterator it = k.config.begin(); it != k.config.end(); ++it) {
         out << "\tHash: " << it->first << "\n";
