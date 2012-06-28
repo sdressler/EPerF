@@ -87,10 +87,22 @@ std::vector<char> EPerfData::convertToByteVector() const {
 
 	std::vector<char> o;
 	
+    unsigned int offset;
+
+    offset += kConfigHash.size();
+
+    // Save configuration hash
+    o.resize(kConfigHash.size());
+    memcpy(
+        static_cast<void*>(&o[0]),
+        static_cast<void*>(const_cast<char*>(kConfigHash.c_str())),
+        offset
+    );
+
 	// Save {in,out}Bytes
 	o.resize(2 * sizeof(int64_t));
-	memcpy(static_cast<void*>(&o[0]), static_cast<const void*>(&inBytes), sizeof(int64_t));
-	memcpy(static_cast<void*>(&o[4]), static_cast<const void*>(&outBytes), sizeof(int64_t));
+	memcpy(static_cast<void*>(&o[offset]), static_cast<const void*>(&inBytes), sizeof(int64_t));
+	memcpy(static_cast<void*>(&o[offset + 4]), static_cast<const void*>(&outBytes), sizeof(int64_t));
 
 	// Save all clocks
 	for (std::vector<EPerfClock>::const_iterator it = clocks.begin(); it != clocks.end(); ++it) {
