@@ -68,6 +68,7 @@ void EPerfData::setDataVolumes(const int64_t i, const int64_t o) {
 std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
 
 	out << "KernelID: " << d.KernelID << " DeviceID: " << d.DeviceID << "\n";
+    out << "Config Hash: " << d.kConfigHash << "\n";
 	
 	out << std::scientific << std::setprecision(9);
 	out << "Timestamp: " << d.timestamp;

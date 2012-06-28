@@ -180,7 +180,6 @@ void EPerf::startTimer(int KernelID, int DeviceID) {
 	(x.first)->second.startAllTimers();
 
 	/* Unlock */
-//	sem_post(&timerStartSem);
 	sem_post(&synchronize);
 };
 
@@ -235,6 +234,16 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes,	in
 	);
 
 	(x.first)->second.setDataVolumes(inBytes, outBytes);
+
+}
+   
+void EPerf::insertAndActivateKernelConfiguration(const int KernelID, const EPerfKernelConfiguration &c) {
+
+    checkKernelExistance(KernelID);
+
+    kernels.find(KernelID)->second.insertAndActivateKernelConfiguration(c);
+
+//    kernels[KernelID].insertAndActivateKernelConfiguration(c);
 
 }
 
