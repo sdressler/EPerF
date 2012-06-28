@@ -9,7 +9,9 @@
 
 namespace ENHANCE {
 
-class EPerfKernelConfiguration : private std::map<std::string, std::string> {
+typedef std::map<std::string, std::string> tStringMap;
+
+class EPerfKernelConfiguration : private tStringMap {
 private:
     std::string sha256(const std::string &s) const;
     
@@ -23,6 +25,8 @@ public:
      * @param[in] value The value for the configuration pair
      * */
     void insertConfigPair(std::string key, std::string value);
+
+    friend std::ostream& operator<<(std::ostream &out, const EPerfKernelConfiguration &c);
 
 };
 }
