@@ -36,7 +36,7 @@ $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
 	$(MAKE) -C doc clean
 	rm -f include/eperf/*.mod
-	rm -f Makefile
+	rm -f Makefile Makefile.inc config.log config.status
 
 .PHONY: subdirs $(SUBDIRS)
 .PHONY: subdirs $(CLEANDIRS)
