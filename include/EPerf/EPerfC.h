@@ -120,8 +120,11 @@ int cpp_callback_EPerfStopTimer(EPerf *e, int KernelID, int DeviceID);
 int EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes);
 int cpp_callback_EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes);
 
-int EPerfSetKernelConf(EPerf *e, EPerfKernelConf *c);
-int cpp_callback_EPerfSetKernelConf(EPerf *e, EPerfKernelConf *c);
+int EPerfInsertKernelConfPair(EPerfKernelConf *c, const char *key, const char *value);
+int cpp_callback_EPerfInsertKernelConfPair(EPerfKernelConf *c, const char *key, const char *value);
+
+int EPerfSetKernelConf(EPerf *e, int KernelID, EPerfKernelConf *c);
+int cpp_callback_EPerfSetKernelConf(EPerf *e, int KernelID, EPerfKernelConf *c);
 
 /**
  * Dumps the current content of the framework.

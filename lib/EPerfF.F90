@@ -23,7 +23,15 @@ MODULE m_eperf
             IMPLICIT NONE
             TYPE(C_PTR) :: EPerfInit
         END FUNCTION EPerfInit
-        
+       
+        FUNCTION EPerfInitKernelConf() &
+&           BIND(C, NAME="EPerfInitKernelConf")
+
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR
+            IMPLICIT NONE
+            TYPE(C_PTR) :: EPerfInitKernelConf
+        END FUNCTION EPerfInitKernelConf
+
         FUNCTION EPerfAddKernel(e, ID, kName) &
 &           BIND(C, NAME="EPerfAddKernel")
 
@@ -91,6 +99,27 @@ MODULE m_eperf
             INTEGER(C_LONG_LONG), VALUE :: outBytes
             INTEGER(C_INT) :: EPerfAddKernelDataVolumes
         END FUNCTION EPerfAddKernelDataVolumes
+
+        FUNCTION EPerfInsertKernelConfPair(c, cKey, cValue) &
+&           BIND(C, NAME="EPerfInsertKernelConfPair")
+
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT, C_CHAR
+            IMPLICIT NONE
+            TYPE(C_PTR), VALUE :: c
+            CHARACTER(LEN=1, KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: cKey
+            CHARACTER(LEN=1, KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: cValue
+            INTEGER(C_INT) :: EPerfInsertKernelConfPair
+        END FUNCTION EPerfInsertKernelConfPair
+
+        FUNCTION EPerfSetKernelConf(e, KernelID, c) &
+&           BIND(C, NAME="EPerfSetKernelConf")
+
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT
+            TYPE(C_PTR), VALUE :: e
+            INTEGER(C_INT), VALUE :: KernelID
+            TYPE(C_PTR), VALUE :: c
+            INTEGER(C_INT) :: EPerfSetKernelConf
+        END FUNCTION EPerfSetKernelConf
 
         SUBROUTINE EPerfCommitToDB(e) &
 &           BIND(C, NAME="EPerfCommitToDB")
