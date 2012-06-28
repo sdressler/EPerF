@@ -4,51 +4,74 @@
 #include <stdlib.h>
 
 unsigned int fib(unsigned int n) {
-	if (n < 2) {
-		return n;
-	} else {
-		return fib(n-1) + fib(n-2);
-	}
+    if (n < 2) {
+        return n;
+    } else {
+        return fib(n-1) + fib(n-2);
+    }
 }
 
 int main(void) {
 
-	unsigned int f;
-	int i, err;
+    unsigned int f;
+    int i, err;
+    char s[256];    // Used for the configuration string
 
-	EPerf *e = EPerfInit();
+    EPerf *e = EPerfInit();
 
-	printf("Adding kernel.\n");
-	err = EPerfAddKernel(e, 0, "Fibonacci 10");
-	err = EPerfAddKernel(e, 1, "Fibonacci 20");
-	err = EPerfAddKernel(e, 2, "Fibonacci 30");
-  	err = EPerfAddKernel(e, 3, "Fibonacci 40");
+    // Holds the configurations
+    EPerfKernelConf *c;
 
-	if (err != E_OK) {
-		printf("Error: %d\n", err);
-		exit(-1);
-	}
+    printf("Adding kernel.\n");
+    err = EPerfAddKernel(e, 0, "Fibonacci");
 
-	printf("Adding device\n");
-	EPerfAddDevice(e, 0, "Test Device");
+    // Do not forget the ERRORS!
+    if (err != E_OK) {
+        printf("Error: %d\n", err);
+        exit(-1);
+    }
 
-	printf("Generating timings and datavolumes\n");
+    printf("Adding device\n");
+    EPerfAddDevice(e, 0, "CPU");
 
-	for (i = 0; i < 4; i++) {
+    printf("Generating timings and datavolumes\n");
 
-		EPerfAddKernelDataVolumes(e, 1, 0, 1024, 512);
+    for (i = 0; i < 4; i++) {
 
-		EPerfStartTimer(e, i, 0);
-		sleep(1);
-		f = fib((i + 1) * 10);
-		EPerfStopTimer(e, i, 0);
+        // Fib number to generate
+        f = (i + 1) * 10;
 
-		printf("Fibonacci %d: %u\n", (i+1)*10, f);
-	}
+        // Initialize Kernel Configuration
+        c = EPerfInitKernelConf();
 
-	printf("Printing content:\n");
-	EPerfPrintResults(e);
+        // Write Configuration String
+        sprintf(s, "%d", f);
+        EPerfInsertKernelConfPair(c, "number", s);
 
-	return 0;
+        // Activate Kernel Configuration
+        EPerfSetKernelConf(e, 0, c);
+
+        // Set KDV
+        EPerfAddKernelDataVolumes(e, 0, 0, 4, 4);
+
+        // Start Timer
+        EPerfStartTimer(e, 0, 0);
+        
+        // Run Kernel
+        f = fib(f);
+
+        // Stop Timer
+        EPerfStopTimer(e, 0, 0);
+
+        printf("Fibonacci %d: %u\n", (i+1)*10, f);
+    }
+
+    printf("Printing content:\n");
+    EPerfPrintResults(e);
+
+    printf("Committing to DB\n");
+    EPerfCommitToDB(e);
+
+    return 0;
 
 }

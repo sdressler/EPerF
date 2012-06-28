@@ -19,6 +19,18 @@ EPerf* cpp_callback_EPerfInit() {
 	return e;
 }
 
+EPerfKernelConf* cpp_callback_EPerfInitKernelConf() {
+    EPerfKernelConf *c;
+
+    try {
+        c = new EPerfKernelConf();
+    } catch (...) {
+        return NULL;
+    }
+
+    return c;
+}
+
 int cpp_callback_EPerfAddKernel(EPerf *e, int ID, const char *kName) {
 	try {
 		e->addKernel(ID, std::string(kName));
@@ -107,6 +119,25 @@ int cpp_callback_EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID,
 		}
 	}
 	return E_OK;
+}
+
+int cpp_callback_EPerfInsertKernelConfPair(EPerfKernelConf *c, const char *key, const char *value) {
+    c->insertKernelConfPair(std::string(key), std::string(value));
+}
+
+int cpp_callback_EPerfSetKernelConf(EPerf *e, int KernelID, EPerfKernelConf *c) {
+    try {
+        e->setKernelConf(KernelID, *c);
+    } catch (std::invalid_argument &e) {
+        std::string what = e.what();
+        if (what.find("Kernel")) {
+            return E_NOK;
+        } else {
+            std::cerr << "Fatal error. Exiting.\n";
+            std::terminate();
+        }
+    }
+    return E_OK;
 }
 
 void cpp_callback_EPerfCommitToDB(EPerf *e) {

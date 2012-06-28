@@ -5,6 +5,10 @@ EPerf* EPerfInit() {
 	return cpp_callback_EPerfInit();
 }
 
+EPerfKernelConf* EPerfInitKernelConf() {
+    return cpp_callback_EPerfInitKernelConf();
+}
+
 int EPerfAddKernel(EPerf *e, int ID, const char *kName) {
 	return cpp_callback_EPerfAddKernel(e, ID, kName);
 }
@@ -29,10 +33,17 @@ int EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBy
 	return cpp_callback_EPerfAddKernelDataVolumes(e, KernelID, DeviceID, inBytes, outBytes);
 }
 
+int EPerfInsertKernelConfPair(EPerfKernelConf *c, const char *key, const char *value) {
+    return cpp_callback_EPerfInsertKernelConfPair(c, key, value);
+}
+
+int EPerfSetKernelConf(EPerf *e, int KernelID, EPerfKernelConf *c) {
+    return cpp_callback_EPerfSetKernelConf(e, KernelID, c);
+}
+
 void EPerfCommitToDB(EPerf *e) {
 	cpp_callback_EPerfCommitToDB(e);
 }
 
-void EPerfPrintResults(EPerf *e) {
-	cpp_callback_EPerfPrintResults(e);
+void EPerfPrintResults(EPerf *e) {	cpp_callback_EPerfPrintResults(e);
 }
