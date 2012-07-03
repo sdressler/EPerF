@@ -24,17 +24,16 @@ program fibonacci
 
       ! Integer for count
       TYPE(C_PTR) :: eperf
-      integer :: i, err, fNum
+      TYPE(C_PTR) :: eperfKernelConf
+      integer :: i, err, fNum,f
+      character*256 :: s
 
       ! Call some C
       eperf = EPerfInit()
 
       ! Add kernels
       print '(a)', "Adding kernel."
-      err = EPerfAddKernel(eperf, 1_C_INT, "Fibonacci 10" // C_NULL_CHAR )
-      err = EPerfAddKernel(eperf, 2_C_INT, "Fibonacci 20" // C_NULL_CHAR )
-      err = EPerfAddKernel(eperf, 3_C_INT, "Fibonacci 30" // C_NULL_CHAR )
-      err = EPerfAddKernel(eperf, 4_C_INT, "Fibonacci 40" // C_NULL_CHAR )
+      err = EPerfAddKernel(eperf, 1_C_INT, "Fibonacci" // C_NULL_CHAR )
 
       if ( err /= E_OK ) then
          print '(a,a)', "Error", err
@@ -48,17 +47,31 @@ program fibonacci
       ! Generate some numbers
       print '(a)', "Generating timings and datavolumes"
       do i = 1,4
-        err = EPerfAddKernelDataVolumes(eperf, i, 0, 8_8, 8_8)
-        err = EPerfStartTimer(eperf, i, 0)
-        fNum = fib(i * 10)  
-        err = EPerfStopTimer(eperf, i, 0)
+! Fib number to generate
+        f = i  * 10
+! Initialize Kernel Configuration
+        eperfKernelConf = EPerfInitKernelConf()
+! Write Configuration String
+        write(s,'(I10)')f
+        err=EPerfInsertKernelConfPair(eperfKernelConf, "number", s)
+! Activate Kernel Configuration
+        err=EPerfSetKernelConf(eperf, 1, eperfKernelConf)
+! Set KD    
+        err = EPerfAddKernelDataVolumes(eperf, 1, 0, 8_8, 8_8)
+! Start Timer      
+        err = EPerfStartTimer(eperf, 1, 0)
+! Run Kernel
+        fNum = fib(f)  
+! Stop Timer
+        err = EPerfStopTimer(eperf, 1, 0)
 
-        write(*,'("Fibonacci ",i2,": ",i12)') i * 10, fNum
+        write(*,'("Fibonacci ",i2,": ",i12)')f, fNum
       end do
 
       print '(a)', "Printing content:"
       call EPerfPrintResults(eperf)
-
+      print '(a)', "Commiting to DB:"
+      call EPerfCommitToDB(eperf)
       stop
 end program fibonacci
 
