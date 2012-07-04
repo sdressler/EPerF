@@ -65,7 +65,7 @@ program fibonacci
 ! Stop Timer
         err = EPerfStopTimer(eperf, 1, 0)
 
-        write(*,'("Fibonacci ",i2,": ",i12)')f, fNum
+        write(*,'(A,I2,A,I12)')'Fibonacci',f,': ',fNum
       end do
 
       print '(a)', "Printing content:"
