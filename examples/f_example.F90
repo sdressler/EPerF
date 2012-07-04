@@ -53,7 +53,7 @@ program fibonacci
         eperfKernelConf = EPerfInitKernelConf()
 ! Write Configuration String
         write(s,'(I10)')f
-        err=EPerfInsertKernelConfPair(eperfKernelConf, "number", s)
+        err=EPerfInsertKernelConfPair(eperfKernelConf, "number"// C_NULL_CHAR, s// C_NULL_CHAR)
 ! Activate Kernel Configuration
         err=EPerfSetKernelConf(eperf, 1, eperfKernelConf)
 ! Set KD    
