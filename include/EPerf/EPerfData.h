@@ -56,7 +56,8 @@ public:
 	}
 
 	// Set reference to KernelID / DeviceID and kernel configuration hash
-	void setKernelDeviceReference(const int k, const std::string &kconf, const int d);
+	void setKernelDeviceReference(const int k, const int d);
+    void setKernelConfigReference(const int k, const std::string &kconf);
 
 	friend bool operator<(const EPerfData &x, const EPerfData &y);
 	
