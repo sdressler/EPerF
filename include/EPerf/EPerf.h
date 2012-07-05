@@ -65,7 +65,7 @@ private:
 	 * @exception std::invalid_argument If the device does not exist
 	 * @param[in] ID The ID of the device
 	 * */
-	void checkDeviceExistance(int ID);
+	void checkDeviceExistance(const int ID);
 	
 	/**
 	 * Checks whether a specific kernel ID exists
@@ -73,7 +73,7 @@ private:
 	 * @exception std::invalid_argument If the kernel does not exist
 	 * @param[in] ID The ID of the kernel
 	 * */
-	void checkKernelExistance(int ID);
+	void checkKernelExistance(const int ID);
 
 	int BDB_getDevice(Db *sbdbp, const Dbt *pkey, const Dbt *pvalue, Dbt *skey);
 
@@ -106,7 +106,7 @@ public:
 	 * @param[in] ID The unique ID of the device
 	 * @param[in] dName The (optional) name of the device
 	 * */
-	tDeviceMap::iterator addDevice(int ID, const std::string &dName = std::string());
+	tDeviceMap::iterator addDevice(const int ID, const std::string &dName = std::string());
 
 	/**
 	 * Adds a new subdevice to an existing device.
@@ -127,7 +127,7 @@ public:
 	 * @param[in] KernelID The ID of the kernel
 	 * @param[in] DeviceID The ID of the device
 	 * */
-	void startTimer(int KernelID, int DeviceID);
+	void startTimer(const int KernelID, const int DeviceID, const EPerfKernelConf &c);
 
 	/**
 	 * Stops the time measurement for a specific kernel / device combination
@@ -138,7 +138,7 @@ public:
 	 * @param[in] KernelID The ID of the kernel
 	 * @param[in] DeviceID The ID of the device
 	 * */
-	void stopTimer(int KernelID, int DeviceID);
+	void stopTimer(const int KernelID, const int DeviceID);
 
 	/**
 	 * Registers the data to be transferred for a specific kernel / device combination
@@ -166,7 +166,7 @@ public:
 	void importFromJSONFile(const std::string &path);
 
 //    void insertAndActivateKernelConf(const int KernelID, const EPerfKernelConf &c);
-    void setKernelConf(const int KernelID, const EPerfKernelConf &c);
+//    void setKernelConf(const int KernelID, const int DeviceID, const EPerfKernelConif &c);
 
 	/**
 	 * Prints the content of the object to given std::ostream.

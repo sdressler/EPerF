@@ -15,15 +15,21 @@ EPerfData::EPerfData() {
 	clockNames[1] = "CPU clock";
 }
 
-void EPerfData::setKernelDeviceReference(const int k, const std::string &kconf, const int d) {
+void EPerfData::setKernelDeviceReference(const int k, const int d) {
 	// Check if they are already set
 	if (KernelID > -1 || DeviceID > -1) {
 		throw std::runtime_error("Kernel ID and Device ID references are already set!");
 	}
 
 	KernelID = k;
-	kConfigHash = kconf;
+//	kConfigHash = kconf;
 	DeviceID = d;
+}
+
+void EPerfData::setKernelConfigReference(const int k, const std::string &kconf) {
+
+    kConfigHash = kconf;
+
 }
 
 bool operator<(const EPerfData &x, const EPerfData &y) {
