@@ -41,13 +41,13 @@ int main(void) {
         c.insertKernelConfPair("number", ss.str());
 
         // Activate Kernel Configuration
-        e.setKernelConf(0, c);
+       // e.setKernelConf(0, c);
 
         // Set KDV
         e.addKernelDataVolumes(0, 0, 4, 4);
 
         // Start Timer
-        e.startTimer(0, 0);
+        e.startTimer(0, 0, c);
 
         // Run Kernel
         f = fib(f);

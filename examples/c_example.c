@@ -48,14 +48,11 @@ int main(void) {
         sprintf(s, "%d", f);
         EPerfInsertKernelConfPair(c, "number", s);
 
-        // Activate Kernel Configuration
-        EPerfSetKernelConf(e, 0, c);
-
         // Set KDV
         EPerfAddKernelDataVolumes(e, 0, 0, 4, 4);
 
         // Start Timer
-        EPerfStartTimer(e, 0, 0);
+        EPerfStartTimerWithConfig(e, 0, 0, c);
         
         // Run Kernel
         f = fib(f);
