@@ -31,7 +31,7 @@ public:
 
 	const std::string& getActiveConfHash() { return actConfHash; }
 
-    void insertAndActivateKernelConf(const EPerfKernelConf &c);
+    void insertKernelConf(const EPerfKernelConf &c);
     void activateKernelConfWithPrototype(const EPerfKernelConf &proto);
     void activateKernelConfWithHash(const std::string &hash);
 	
