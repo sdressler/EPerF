@@ -60,9 +60,13 @@ int cpp_callback_EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID
 	return E_OK;
 }
 
-int cpp_callback_EPerfStartTimer(EPerf *e, int KernelID, int DeviceID) {
+int cpp_callback_EPerfStartTimer(EPerf *e, int KernelID, int DeviceID, EPerfKernelConf *c) {
 	try {
-		e->startTimer(KernelID, DeviceID);
+        if (c == NULL) {
+    		e->startTimer(KernelID, DeviceID);
+        } else {
+            e->startTimer(KernelID, DeviceID, *c);
+        }
 	} catch (std::invalid_argument &e) {
 		// Decode exception
 		std::string what = e.what();
@@ -125,6 +129,7 @@ int cpp_callback_EPerfInsertKernelConfPair(EPerfKernelConf *c, const char *key, 
     c->insertKernelConfPair(std::string(key), std::string(value));
 }
 
+/*
 int cpp_callback_EPerfSetKernelConf(EPerf *e, int KernelID, EPerfKernelConf *c) {
     try {
         e->setKernelConf(KernelID, *c);
@@ -139,7 +144,7 @@ int cpp_callback_EPerfSetKernelConf(EPerf *e, int KernelID, EPerfKernelConf *c) 
     }
     return E_OK;
 }
-
+*/
 void cpp_callback_EPerfCommitToDB(EPerf *e) {
 	e->commitToDB();
 }
