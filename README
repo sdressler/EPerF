@@ -44,34 +44,26 @@ Note that before building the examples you should build the library.
 Changelog
 ---------
 
-* 2012-07-05 / 0.5.1
-    - Changed the style how configurations are handled
-        - Now providing kernel configuration directly to startTimer
-        - C++ uses default parameter
-        - C / FORTRAN: two different function calls
-        - insertKernelConf was removed
+* 2012-07-05 / 0.5.1 / Changed the style how configurations are handled
+    - Now providing kernel configuration directly to startTimer
+    - C++ uses default parameter
+    - C / FORTRAN: two different function calls
+    - insertKernelConf was removed
 
-* 2012-06-28 / 0.5
-    - Added support for Kernel Configurations
+* 2012-06-28 / 0.5 / Added support for Kernel Configurations
 
-* 2012-06-20 / 0.4:
-	- Thread *safer* ePerF
+* 2012-06-20 / 0.4 / Thread *safer* ePerF
 
-* 2012-06-19 / 0.3.1:
-	- Added configure script
+* 2012-06-19 / 0.3.1 / Added configure script
 
-* 2012-06-17 / 0.3:
-	- Added support for committing recorded data to Berkeley DB
+* 2012-06-17 / 0.3 / Added support for committing recorded data to Berkeley DB
 
-* 2012-06-05 / 0.2:
-	- Changed device handling for allowing subdevices
+* 2012-06-05 / 0.2 / Changed device handling for allowing subdevices
 	- Changed handling of measured times (now saving distinct timestamps)
 
-* 2012-06-01 / 0.1.1:
-	- Added FORTRAN bindings
+* 2012-06-01 / 0.1.1 / Added FORTRAN bindings
 
-* 2012-05-31 / 0.1:
-	- Initial release
+* 2012-05-31 / 0.1 / Initial release
 
 License
 -------
