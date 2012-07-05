@@ -622,6 +622,8 @@ CPPFLAGS
 LDFLAGS
 CXXFLAGS
 CXX
+WITH_FAPI
+WITH_CAPI
 target_alias
 host_alias
 build_alias
@@ -2195,12 +2197,26 @@ fi
 
 
 if test "x$enable_c_api" != "xno"; then :
+  WITH_CAPI=YES
 
 else
-  if test "x$enable_fortran_api" != "xno"; then :
+
+        WITH_CAPI=NO
+,
+        if test "x$enable_fortran_api" != "xno"; then :
   as_fn_error $? "You tried to disable the C API with enabled FORTRAN API" "$LINENO" 5
 
 fi
+
+
+fi
+
+if test "x$enable_fortran_api" != "xno"; then :
+  WITH_FAPI=YES
+
+else
+  WITH_FAPI=NO
+
 
 fi
 

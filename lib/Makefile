@@ -9,13 +9,13 @@ LLIB		= -lrt -ldb_cxx
 OBJ_LIB		= EPerfDevice.o EPerfKernelConf.o EPerfKernel.o \
 			  EPerfData.o EPerfClock.o EPerfContainer.o EPerf.o
 
-ifeq ($(WITH_CAPI), yes)
+ifeq ($(WITH_CAPI), YES)
     OBJ_CAPI = EPerfC.o EPerfCallbacks.o
 else
     OBJ_CAPI =
 endif
 
-ifeq ($(WITH_FAPI), yes)
+ifeq ($(WITH_FAPI), YES)
     OBJ_FAPI = EPerfF.o
 else
     OBJ_FAPI =
