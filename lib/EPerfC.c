@@ -22,7 +22,11 @@ int EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID) {
 }
 
 int EPerfStartTimer(EPerf *e, int KernelID, int DeviceID) {
-	return cpp_callback_EPerfStartTimer(e, KernelID, DeviceID);
+	return cpp_callback_EPerfStartTimer(e, KernelID, DeviceID, NULL);
+}
+
+int EPerfStartTimerWithConfig(EPerf *e, int KernelID, int DeviceID, EPerfKernelConf *c) {
+    return cpp_callback_EPerfStartTimer(e, KernelID, DeviceID, c);
 }
 
 int EPerfStopTimer(EPerf *e, int KernelID, int DeviceID) {
@@ -36,11 +40,11 @@ int EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID, int64_t inBy
 int EPerfInsertKernelConfPair(EPerfKernelConf *c, const char *key, const char *value) {
     return cpp_callback_EPerfInsertKernelConfPair(c, key, value);
 }
-
+/*
 int EPerfSetKernelConf(EPerf *e, int KernelID, EPerfKernelConf *c) {
     return cpp_callback_EPerfSetKernelConf(e, KernelID, c);
 }
-
+*/
 void EPerfCommitToDB(EPerf *e) {
 	cpp_callback_EPerfCommitToDB(e);
 }

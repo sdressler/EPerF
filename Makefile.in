@@ -30,15 +30,13 @@ install: build-lib
 	cp lib/libeperf.so /usr/lib
 	cp -R include/EPerf /usr/include
 
-clean: $(CLEANDIRS)
-
-$(CLEANDIRS):
-	$(MAKE) -C $(@:clean-%=%) clean
+clean:
+	$(MAKE) -C lib clean
 	$(MAKE) -C doc clean
+	$(MAKE) -C examples clean
 	rm -f include/eperf/*.mod
 	rm -f Makefile Makefile.inc config.log config.status
 
 .PHONY: subdirs $(SUBDIRS)
-.PHONY: subdirs $(CLEANDIRS)
 .PHONY: all lib examples clean
 

@@ -76,6 +76,18 @@ MODULE m_eperf
             INTEGER(C_INT) :: EPerfStartTimer
         END FUNCTION EPerfStartTimer
         
+        FUNCTION EPerfStartTimerWithConfig(e, KernelID, DeviceID, c) &
+&           BIND(C, NAME="EPerfStartTimerWithConfig")
+
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT
+            TYPE(C_PTR), VALUE :: e
+            INTEGER(C_INT), VALUE :: KernelID
+            INTEGER(C_INT), VALUE :: DeviceID
+            TYPE(C_PTR), VALUE :: c
+            INTEGER(C_INT) :: EPerfStartTimerWithConfig
+        END FUNCTION EPerfStartTimerWithConfig
+
+        
         FUNCTION EPerfStopTimer(e, KernelID, DeviceID)&
 &           BIND(C, NAME="EPerfStopTimer")
 
@@ -110,16 +122,6 @@ MODULE m_eperf
             CHARACTER(LEN=1, KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: cValue
             INTEGER(C_INT) :: EPerfInsertKernelConfPair
         END FUNCTION EPerfInsertKernelConfPair
-
-        FUNCTION EPerfSetKernelConf(e, KernelID, c) &
-&           BIND(C, NAME="EPerfSetKernelConf")
-
-            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT
-            TYPE(C_PTR), VALUE :: e
-            INTEGER(C_INT), VALUE :: KernelID
-            TYPE(C_PTR), VALUE :: c
-            INTEGER(C_INT) :: EPerfSetKernelConf
-        END FUNCTION EPerfSetKernelConf
 
         SUBROUTINE EPerfCommitToDB(e) &
 &           BIND(C, NAME="EPerfCommitToDB")

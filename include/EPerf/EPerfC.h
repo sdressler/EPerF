@@ -86,7 +86,8 @@ int cpp_callback_EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID
  * 		E_NOD if the device was not found
  * */
 int EPerfStartTimer(EPerf *e, int KernelID, int DeviceID);
-int cpp_callback_EPerfStartTimer(EPerf *e, int KernelID, int DeviceID);
+int EPerfStartTimerWithConfig(EPerf *e, int KernelID, int DeviceID, EPerfKernelConf *c);
+int cpp_callback_EPerfStartTimer(EPerf *e, int KernelID, int DeviceID, EPerfKernelConf *c);
 
 /**
  * Stops the time measurement for a specific kernel / device combination
@@ -123,8 +124,10 @@ int cpp_callback_EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID,
 int EPerfInsertKernelConfPair(EPerfKernelConf *c, const char *key, const char *value);
 int cpp_callback_EPerfInsertKernelConfPair(EPerfKernelConf *c, const char *key, const char *value);
 
+/*
 int EPerfSetKernelConf(EPerf *e, int KernelID, EPerfKernelConf *c);
 int cpp_callback_EPerfSetKernelConf(EPerf *e, int KernelID, EPerfKernelConf *c);
+*/
 
 /**
  * Dumps the current content of the framework.
