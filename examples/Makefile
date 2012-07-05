@@ -4,13 +4,13 @@ TARGET_CPP	= cpp_example
 TARGET_MDEV	= multidevice
 TARGET_THREADS = threads_example
 
-ifeq ($(WITH_CAPI), yes)
+ifeq ($(WITH_CAPI), YES)
 TARGET_C	= c_example
 else
 TARGET_C	=
 endif
 
-ifeq ($(WITH_FAPI), yes)
+ifeq ($(WITH_FAPI), YES)
 TARGET_F90	= f_example
 else
 TARGET_F90	=

@@ -65,7 +65,7 @@ MODULE m_eperf
             INTEGER(C_INT) :: EPerfAddSubDeviceToDevice
         END FUNCTION EPerfAddSubDeviceToDevice
 
-        FUNCTION EPerfStartTimer(e, KernelID, DeviceID) &
+        FUNCTION EPerfStartTimer(e, KernelID, DeviceID, c) &
 &           BIND(C, NAME="EPerfStartTimer")
 
             USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT
@@ -73,20 +73,9 @@ MODULE m_eperf
             TYPE(C_PTR), VALUE :: e
             INTEGER(C_INT), VALUE :: KernelID
             INTEGER(C_INT), VALUE :: DeviceID
+            TYPE(C_PTR), VALUE :: c
             INTEGER(C_INT) :: EPerfStartTimer
         END FUNCTION EPerfStartTimer
-        
-        FUNCTION EPerfStartTimerWithConfig(e, KernelID, DeviceID, c) &
-&           BIND(C, NAME="EPerfStartTimerWithConfig")
-
-            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_INT
-            TYPE(C_PTR), VALUE :: e
-            INTEGER(C_INT), VALUE :: KernelID
-            INTEGER(C_INT), VALUE :: DeviceID
-            TYPE(C_PTR), VALUE :: c
-            INTEGER(C_INT) :: EPerfStartTimerWithConfig
-        END FUNCTION EPerfStartTimerWithConfig
-
         
         FUNCTION EPerfStopTimer(e, KernelID, DeviceID)&
 &           BIND(C, NAME="EPerfStopTimer")

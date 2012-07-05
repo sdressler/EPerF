@@ -52,7 +52,7 @@ int main(void) {
         EPerfAddKernelDataVolumes(e, 0, 0, 4, 4);
 
         // Start Timer
-        EPerfStartTimerWithConfig(e, 0, 0, c);
+        EPerfStartTimer(e, 0, 0, c);
         
         // Run Kernel
         f = fib(f);

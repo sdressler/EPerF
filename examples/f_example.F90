@@ -57,7 +57,7 @@ program fibonacci
 ! Set KD    
         err = EPerfAddKernelDataVolumes(eperf, 1, 0, 8_8, 8_8)
 ! Start Timer      
-        err = EPerfStartTimerWithConfig(eperf, 1, 0, eperfKernelConf)
+        err = EPerfStartTimer(eperf, 1, 0, eperfKernelConf)
 ! Run Kernel
         fNum = fib(f)  
 ! Stop Timer
