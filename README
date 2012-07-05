@@ -4,9 +4,9 @@ ENHANCE Performance Framework (ePerF)
 Author information
 ------------------
 
-Author: Sebastian Dressler
-Company: Zuse Institute Berlin
-Mail: dressler@zib.de
+* Author: Sebastian Dressler
+* Company: Zuse Institute Berlin
+* Mail: [lastname][at][zib][dot][de]
 
 This is part of the ENHANCE (http://www.enhance-project.de) project.
 
@@ -22,18 +22,18 @@ Usage
 First, please execute ./configure and set the desired options. Actually
 two options are available:
 
-	- --disable-c-api (Disables the C API interface)
-	- --disable-fortran-api (Disables the FORTRAN API interface)
+	--disable-c-api (Disables the C API interface)
+	--disable-fortran-api (Disables the FORTRAN API interface)
 
 Please note, that when you disable the C API you will also have to disable
 the FORTRAN API.
 
 After configure simply type:
 
-	- make (build lib + examples)
-	- make doc (build doxygen documentation)
-	- make lib (build library only)
-	- make examples (build examples only)
+    make (build lib + examples)
+	make doc (build doxygen documentation)
+	make lib (build library only)
+	make examples (build examples only)
 
 When building the library you'll get a shared object within the
 "lib" folder. Link against the object and refer to the provided
@@ -46,10 +46,10 @@ Changelog
 
 * 2012-07-05 / 0.5.1
     - Changed the style how configurations are handled
-        -> Now providing kernel configuration directly to startTimer
-        -> C++ uses default parameter
-        -> C / FORTRAN: two different function calls
-        -> insertKernelConf was removed
+        - Now providing kernel configuration directly to startTimer
+        - C++ uses default parameter
+        - C / FORTRAN: two different function calls
+        - insertKernelConf was removed
 
 * 2012-06-28 / 0.5
     - Added support for Kernel Configurations
