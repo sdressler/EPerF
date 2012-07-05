@@ -22,7 +22,15 @@ std::vector<char> EPerfKernel::convertToByteVector() const {
 	return o;
 
 }
-   
+
+void EPerfKernel::insertKernelConf(const EPerfKernelConf &c) {
+
+    std::string hash = c.getKernelConfHash();
+    config.insert(std::pair<std::string, EPerfKernelConf>(hash, c));
+    std::cout << "Inserted configuration: " << hash << "\n";
+
+}
+/*
 void EPerfKernel::insertAndActivateKernelConf(const EPerfKernelConf &c) {
     
     std::string hash = c.getKernelConfHash();
@@ -32,7 +40,7 @@ void EPerfKernel::insertAndActivateKernelConf(const EPerfKernelConf &c) {
     std::cout << "Activated configuration: " << hash << "\n";
 
 }
-
+*/
 void EPerfKernel::activateKernelConfWithPrototype(const EPerfKernelConf &proto) {
     
     activateKernelConfWithHash(proto.getKernelConfHash());
