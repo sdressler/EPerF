@@ -3479,6 +3479,23 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+# Check whether FORTRAN / C interface enabled + compiler exists
+if test "x$ac_cv_c_compiler_gnu" = "xno"; then :
+  if test "x$enable_c_api" = "xno"; then :
+  as_fn_error $? "You enabled the C API but there is no valid C compiler" "$LINENO" 5
+
+fi
+
+fi
+
+if test "x$ac_cv_fc_compiler_gnu" = "xno"; then :
+  if test "x$enable_fortran_api" != "xno"; then :
+  as_fn_error $? "You enabled the FORTRAN API but there is no valid FORTRAN compiler" "$LINENO" 5
+
+fi
+
+fi
+
 # Check whether Berkeley DB > 4.x is installed
 
 ac_ext=c
