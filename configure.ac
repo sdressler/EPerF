@@ -35,6 +35,23 @@ AC_PROG_CC
 # Check for FORTRAN compiler
 AC_PROG_FC
 
+# Check whether FORTRAN / C interface enabled + compiler exists
+AS_IF(
+    [test "x$ac_cv_c_compiler_gnu" = "xno"],
+    AS_IF(
+        [test "x$enable_c_api" = "xno"],
+        AC_MSG_ERROR([You enabled the C API but there is no valid C compiler])
+    )
+)
+
+AS_IF(
+    [test "x$ac_cv_fc_compiler_gnu" = "xno"],
+    AS_IF(
+        [test "x$enable_fortran_api" != "xno"],
+        AC_MSG_ERROR([You enabled the FORTRAN API but there is no valid FORTRAN compiler])
+    )
+)
+
 # Check whether Berkeley DB > 4.x is installed
 AX_PATH_BDB(
     [4],
