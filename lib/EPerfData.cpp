@@ -8,11 +8,20 @@ EPerfData::EPerfData() {
 	DeviceID = -1;
 	inBytes = 0;
 	outBytes = 0;
-	clocks.push_back(EPerfClock(CLOCK_MONOTONIC));
-	clockNames[0] = "wall-clock";
+	
+    #ifdef __MACH__
+        clocks.push_back(EPerfClock());
+    #else
+        clocks.push_back(EPerfClock(CLOCK_MONOTONIC));
+    #endif
+    clockNames[0] = "wall-clock";
 
-	clocks.push_back(EPerfClock(CLOCK_PROCESS_CPUTIME_ID));
-	clockNames[1] = "CPU clock";
+    #ifdef __MACH__
+        clocks.push_back(EPerfClock());
+    #else
+	    clocks.push_back(EPerfClock(CLOCK_PROCESS_CPUTIME_ID));
+    #endif
+    clockNames[1] = "CPU clock";
 }
 
 void EPerfData::setKernelDeviceReference(const int k, const int d) {
