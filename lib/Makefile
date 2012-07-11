@@ -4,7 +4,8 @@ TARGET		 = eperf
 
 CXXFLAGS	+= -fPIC
 LDFLAGS		+= -shared
-LLIB		= -lrt -ldb_cxx
+
+LLIB		+= -lcrypto -lssl -ldb_cxx
 
 OBJ_LIB		= EPerfDevice.o EPerfKernelConf.o EPerfKernel.o \
 			  EPerfData.o EPerfClock.o EPerfContainer.o EPerf.o

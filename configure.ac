@@ -60,8 +60,22 @@ AX_PATH_BDB(
 )
 
 AX_CHECK_OPENSSL(
-    [],
+    AC_SUBST(LSSL, -lssl),
     AC_MSG_ERROR([OpenSSL not found.])
+)
+
+AC_LANG(C)
+
+AC_CHECK_LIB(
+    rt,
+    clock_gettime,
+    AC_SUBST(LRT, -lrt)
+)
+
+AC_CHECK_LIB(
+    crypto,
+    SHA256_Init,
+    AC_SUBST(LCRYPTO, -lcrypto)
 )
 
 AC_LANG(C++)

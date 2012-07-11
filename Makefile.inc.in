@@ -4,6 +4,8 @@ CFLAGS = @CFLAGS@
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@
 
+LLIB = @LRT@ @LSSL@ @LCRYPTO@
+
 FC = @FC@
 FFLAGS = -std=f2003 -J../include/EPerf
 

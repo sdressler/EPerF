@@ -3,9 +3,16 @@
 #include <cstring>
 
 namespace ENHANCE {
+
+#ifdef __MACH__
+EPerfClock::EPerfClock() {
+    host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &clock);
+}
+#else
 EPerfClock::EPerfClock(const clockid_t &c) {
 	clock = c;
 }
+#endif
 
 bool operator<(const EPerfClock &x, const EPerfClock &y) {
 	if (x.start.tv_sec < y.start.tv_sec || x.start.tv_nsec < y.start.tv_nsec) {
