@@ -164,6 +164,8 @@ void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernel
     /* Lock operation */
     sem_wait(&synchronize);
     
+//    std::cerr << "Start Timer: " << getThreadID() << "\n";
+    
     // Add the configuration to the kernel
     kernels.find(KernelID)->second.insertKernelConf(c);
 
@@ -171,11 +173,8 @@ void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernel
     // Possibly an entry already exists from KDV
     std::pair<tTempDataMap::iterator, bool> x;
 
-    x = tempData.insert(
-        std::pair<tKernelDeviceID, EPerfData>(
-            tKernelDeviceID(KernelID, DeviceID), EPerfData()
-        )
-    );
+    int IDs[3] = {KernelID, DeviceID, getThreadID()};
+    x = tempData.insert(std::make_pair(std::vector<int>(IDs, IDs+3), EPerfData()));
 
     // Set the configuration reference
     (x.first)->second.setKernelConfigReference(KernelID, c.getKernelConfHash());
@@ -192,9 +191,13 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
 
     /* Lock operation */
     sem_wait(&synchronize);
+    
+//    std::cerr << "Stop Timer: " << getThreadID() << "\n";
+
+    int IDs[3] = {KernelID, DeviceID, getThreadID()};
 
     // Get the entry
-    tTempDataMap::iterator x = tempData.find(tKernelDeviceID(KernelID, DeviceID));
+    tTempDataMap::iterator x = tempData.find(std::vector<int>(IDs, IDs+3));
     if (x == tempData.end()) {
         throw std::runtime_error("Timer was not started!");
     }
@@ -204,13 +207,15 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
 
     // Copy to set and remove temporary entry
     x->second.setKernelDeviceReference(KernelID, DeviceID);
+    x->second.setThreadReference(IDs[2]);
+    x->second.setPID(getpid());
     
     std::pair<tDataSet::const_iterator, bool> test = data.insert(x->second);
     if (!test.second) {
         throw std::runtime_error("Something went wrong on data insertion.");
     }
 
-    tempData.erase(tKernelDeviceID(KernelID, DeviceID));
+    tempData.erase(std::vector<int>(IDs, IDs+3));
 
     /* Unlock operation */
     sem_post(&synchronize);
@@ -226,16 +231,17 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, in
     // Insert a new temporary object and get a reference to it
     // Possibly an entry already exists from KDV
     std::pair<tTempDataMap::iterator, bool> x;
+    int threadID = getThreadID();
 
-    x = tempData.insert(
-        std::pair<tKernelDeviceID, EPerfData>(
-            tKernelDeviceID(KernelID, DeviceID), EPerfData()
-        )
-    );
+    int IDs[3] = {KernelID, DeviceID, getThreadID()};
+
+    // Get or create a (new) entry 
+    x = tempData.insert(std::make_pair(std::vector<int>(IDs, IDs+3), EPerfData()));
 
     (x.first)->second.setDataVolumes(inBytes, outBytes);
 
 }
+
 /* 
 void EPerf::setKernelConf(const int KernelID, const int DeviceID, const EPerfKernelConf &c) {
 
@@ -246,6 +252,7 @@ void EPerf::setKernelConf(const int KernelID, const int DeviceID, const EPerfKer
     
 }
 */
+
 std::ostream& operator<<(std::ostream &out, const EPerf &e) {
 
     std::map<int, EPerfDevice>::const_iterator dit;

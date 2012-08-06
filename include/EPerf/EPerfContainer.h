@@ -16,7 +16,7 @@ namespace ENHANCE {
 	
 typedef std::map<int, EPerfKernel> tKernelMap;
 typedef std::map<int, EPerfDevice> tDeviceMap;
-typedef std::pair<int, int> tKernelDeviceID;
+
 typedef std::set<EPerfData> tDataSet;
 
 class EPerfContainer {

@@ -25,33 +25,51 @@ int main(void) {
 	// Create ePerF object
 	EPerf e;
 
-	// Add kernels, one for each thread
-	for (int i = 0; i < threads; i++) {
-		std::stringstream ss;
-		ss << "Fibonacci Kernel, Thread: " << i;
-		e.addKernel(i, ss.str());
-	}
+	// Add kernel
+    e.addKernel(0, "Fibonacci");
 
 	// Add device
 	e.addDevice(0, "Multicore CPU");
 
-	// Seed random number generator
-	srand(time(NULL));
-
 	std::cout << "Starting\n";
 
-	#pragma omp parallel for
-	for (int i = 0; i < 1000; i++) {
-		int tID = omp_get_thread_num();
-		std::cout << "Thread ID: " << tID << "\n";
-		int f = rand() % 30;
-//		std::cout << "Thread ID: " << tID << " Fib: " << f << "\n";
-/* ==== ePerF insertion point ==== */
-		e.startTimer(tID, 0);
-		f = fib(f);
-		e.stopTimer(tID, 0);
-/* =============================== */
-	}
+    unsigned int f;
+
+    #pragma omp parallel
+    {
+
+    #pragma omp for
+    for (int i = 0; i < 4; i++) {
+
+        // Fib number to generate
+//        f = (i + 1) * 20;
+  
+        f = 43;
+
+        // Initialize a Kernel Configuration
+        EPerfKernelConf c;
+
+        // Write Kernel Configuration
+        std::stringstream ss;
+        ss << f;
+        c.insertKernelConfPair("number", ss.str());
+
+        // Set KDV
+        e.addKernelDataVolumes(0, 0, 4, 4);
+
+        // Start Timer
+        e.startTimer(0, 0, c);
+
+        // Run Kernel
+        f = fib(f);
+
+        // Stop Timer
+        e.stopTimer(0, 0);
+
+//        std::cout << "Fibonacci " << (i+1)*10 << ": " << f << "\n";
+    }
+
+    }
 
 	std::cout << "Done.\n";
 

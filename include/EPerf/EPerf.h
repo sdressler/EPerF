@@ -39,6 +39,8 @@
 #include <iomanip>
 #include <stdexcept>
 
+#include <sys/syscall.h>
+
 #include <db_cxx.h>
 
 #include "EPerfContainer.h"
@@ -48,8 +50,13 @@ namespace ENHANCE {
 
 class EPerf : public EPerfContainer {
 private:
-	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
-	tTempDataMap tempData; ///< Temporary measurement data
+//	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
+//    typedef std::map<tKernelDeviceThreadID, EPerfData> tTempDataMap;
+
+    typedef std::map<std::vector<int>, EPerfData> tTempDataMap;
+    tTempDataMap tempData;
+
+    inline pid_t getThreadID() { return syscall(__NR_gettid); }
 
 	/**
 	 * Captures the current time and converts it to double
