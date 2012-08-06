@@ -41,6 +41,9 @@ void EPerfData::setKernelConfigReference(const int k, const std::string &kconf) 
 
 }
 
+void EPerfData::setThreadReference(const int t) { ThreadID = t; }
+void EPerfData::setPID(const int p) { PID = p; }
+
 bool operator<(const EPerfData &x, const EPerfData &y) {
 	/*
 	// First check if the IDs are different
@@ -82,7 +85,11 @@ void EPerfData::setDataVolumes(const int64_t i, const int64_t o) {
 
 std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
 
-	out << "KernelID: " << d.KernelID << " DeviceID: " << d.DeviceID << "\n";
+	out << "KernelID: "  << d.KernelID
+        << " DeviceID: " << d.DeviceID 
+        << " ThreadID: " << d.ThreadID
+        << " PID: " << d.PID
+        << "\n";
     out << "Config Hash: " << d.kConfigHash << "\n";
 	
 	out << std::scientific << std::setprecision(9);

@@ -29,6 +29,8 @@ private:
 
 	int KernelID;		///< Holds the reference to the used kernel
 	int DeviceID;		///< Holds the reference to the used device
+    int ThreadID;       ///< Holds the reference to the used thread
+    int PID;            ///< Holds the PID of the caller
 
 	std::string kConfigHash; ///< A reference to the kernel configuration hash
 
@@ -58,6 +60,8 @@ public:
 	// Set reference to KernelID / DeviceID and kernel configuration hash
 	void setKernelDeviceReference(const int k, const int d);
     void setKernelConfigReference(const int k, const std::string &kconf);
+    void setThreadReference(const int t);
+    void setPID(const int p);
 
 	friend bool operator<(const EPerfData &x, const EPerfData &y);
 	

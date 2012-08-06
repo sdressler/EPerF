@@ -51,6 +51,7 @@ int main(void) {
 
         // Run Kernel
         f = fib(f);
+        sleep(1);
 
         // Stop Timer
         e.stopTimer(0, 0);
