@@ -43,6 +43,8 @@ public:
 
 	inline int getKernelID() const { return KernelID; }
 	inline int getDeviceID() const { return DeviceID; }
+    inline int getThreadID() const { return ThreadID; }
+    inline int getPID() const { return PID; }
 	inline EPerfClock& getTimeStamp() const { return const_cast<EPerfClock&>(timestamp); }
 
 	inline void startAllTimers() {
@@ -84,7 +86,6 @@ public:
 	friend std::ostream& operator<<(std::ostream &out, const EPerfData &d);
 
 	virtual std::vector<char> convertToByteVector() const;
-	//virtual tBDBObjectMap convertToBDBObjectMap(std::string prefix);
 
 };
 }

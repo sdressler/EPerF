@@ -23,6 +23,8 @@ EPerf::~EPerf() {
     sem_destroy(&synchronize);
 }
 
+void EPerf::finalize() { commitToDB(); }
+
 void EPerf::commitToDB() {
 
 //  int ret;
@@ -67,7 +69,11 @@ void EPerf::commitToDB() {
     for (tDataSet::iterator it = data.begin(); it != data.end(); ++it) {
         std::stringstream ss;
         // Convert the timestamp, kernel id and device id to a valid key
-        ss << "data:" << it->getKernelID() << ":" << it->getDeviceID() << ":";
+        ss  << "data:"
+            << it->getKernelID() << ":"
+            << it->getDeviceID() << ":"
+            << it->getPID() << ":"
+            << it->getThreadID();
 
         // Get the timestamp itself
         bVec = it->getTimeStamp().convertToByteVector();
@@ -173,8 +179,7 @@ void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernel
     // Possibly an entry already exists from KDV
     std::pair<tTempDataMap::iterator, bool> x;
 
-    int IDs[3] = {KernelID, DeviceID, getThreadID()};
-    x = tempData.insert(std::make_pair(std::vector<int>(IDs, IDs+3), EPerfData()));
+    x = tempData.insert(std::make_pair(ID_type(KernelID, DeviceID, getThreadID()), EPerfData()));
 
     // Set the configuration reference
     (x.first)->second.setKernelConfigReference(KernelID, c.getKernelConfHash());
@@ -194,10 +199,8 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
     
 //    std::cerr << "Stop Timer: " << getThreadID() << "\n";
 
-    int IDs[3] = {KernelID, DeviceID, getThreadID()};
-
     // Get the entry
-    tTempDataMap::iterator x = tempData.find(std::vector<int>(IDs, IDs+3));
+    tTempDataMap::iterator x = tempData.find(ID_type(KernelID, DeviceID, getThreadID()));
     if (x == tempData.end()) {
         throw std::runtime_error("Timer was not started!");
     }
@@ -207,7 +210,7 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
 
     // Copy to set and remove temporary entry
     x->second.setKernelDeviceReference(KernelID, DeviceID);
-    x->second.setThreadReference(IDs[2]);
+    x->second.setThreadReference(getThreadID());
     x->second.setPID(getpid());
     
     std::pair<tDataSet::const_iterator, bool> test = data.insert(x->second);
@@ -215,7 +218,7 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
         throw std::runtime_error("Something went wrong on data insertion.");
     }
 
-    tempData.erase(std::vector<int>(IDs, IDs+3));
+    tempData.erase(ID_type(KernelID, DeviceID, getThreadID()));
 
     /* Unlock operation */
     sem_post(&synchronize);
@@ -231,27 +234,13 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, in
     // Insert a new temporary object and get a reference to it
     // Possibly an entry already exists from KDV
     std::pair<tTempDataMap::iterator, bool> x;
-    int threadID = getThreadID();
-
-    int IDs[3] = {KernelID, DeviceID, getThreadID()};
-
+    
     // Get or create a (new) entry 
-    x = tempData.insert(std::make_pair(std::vector<int>(IDs, IDs+3), EPerfData()));
+    x = tempData.insert(std::make_pair(ID_type(KernelID, DeviceID, getThreadID()), EPerfData()));
 
     (x.first)->second.setDataVolumes(inBytes, outBytes);
 
 }
-
-/* 
-void EPerf::setKernelConf(const int KernelID, const int DeviceID, const EPerfKernelConf &c) {
-
-    checkKernelExistance(KernelID);
-    checkDeviceExistance(DeviceID);
-
-    kernels.find(KernelID)->second.insertAndActivateKernelConf(c);
-    
-}
-*/
 
 std::ostream& operator<<(std::ostream &out, const EPerf &e) {
 
