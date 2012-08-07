@@ -87,8 +87,8 @@ std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
 
 	out << "KernelID: "  << d.KernelID
         << " DeviceID: " << d.DeviceID 
-        << " ThreadID: " << d.ThreadID
         << " PID: " << d.PID
+        << " ThreadID: " << d.ThreadID
         << "\n";
     out << "Config Hash: " << d.kConfigHash << "\n";
 	

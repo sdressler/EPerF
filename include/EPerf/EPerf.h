@@ -52,8 +52,35 @@ class EPerf : public EPerfContainer {
 private:
 //	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
 //    typedef std::map<tKernelDeviceThreadID, EPerfData> tTempDataMap;
+/*/
+    typedef struct {
+        int _ID[3];
+    } ID_type;
+**/
 
-    typedef std::map<std::vector<int>, EPerfData> tTempDataMap;
+    class ID_type {
+    private:
+        int K;
+        int D;
+        int T;
+
+    public:
+        inline ID_type(int _K, int _D, int _T) : K(_K), D(_D), T(_T) { }
+
+        bool operator<(const ID_type &oID) const {
+            if (K != oID.K) {
+                return (K < oID.K);
+            }
+
+            if (D != oID.D) {
+                return (D < oID.D);
+            }
+
+            return (T < oID.T);
+        }
+    };
+
+    typedef std::map<ID_type, EPerfData> tTempDataMap;
     tTempDataMap tempData;
 
     inline pid_t getThreadID() { return syscall(__NR_gettid); }
@@ -95,6 +122,7 @@ public:
 	 * it is created.
 	 * 
 	 * */
+    void finalize();
 	void commitToDB();
 
 	/**
