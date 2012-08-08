@@ -11,15 +11,22 @@ EPerfKernel::EPerfKernel(std::string s) {
     actConfHash = c.getKernelConfHash();
 }
 
-std::vector<char> EPerfKernel::convertToByteVector() const {
+tByteVectorMap EPerfKernel::convertToByteVectorMap() const {
 
-	std::vector<char> o;
+    tByteVectorMap map;
+
+    std::string key = "name";
+	std::vector<char> value(name.size() + 1);
 	
 	// Place the name of the kernel
-	o.resize(name.size() + 1);
-	memcpy(static_cast<void*>(&o[0]), static_cast<const char*>(name.c_str()), name.size() + 1);
+	memcpy(
+        static_cast<void*>(&value[0]),
+        static_cast<const char*>(name.c_str()),
+        name.size() + 1
+    );
+    map.insert(std::make_pair(key, value));
 
-	return o;
+	return map;
 
 }
 
@@ -30,17 +37,7 @@ void EPerfKernel::insertKernelConf(const EPerfKernelConf &c) {
     std::cout << "Inserted configuration: " << hash << "\n";
 
 }
-/*
-void EPerfKernel::insertAndActivateKernelConf(const EPerfKernelConf &c) {
-    
-    std::string hash = c.getKernelConfHash();
-    config.insert(std::pair<std::string, EPerfKernelConf>(hash, c));
-    actConfHash = hash;
 
-    std::cout << "Activated configuration: " << hash << "\n";
-
-}
-*/
 void EPerfKernel::activateKernelConfWithPrototype(const EPerfKernelConf &proto) {
     
     activateKernelConfWithHash(proto.getKernelConfHash());

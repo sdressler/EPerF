@@ -50,13 +50,6 @@ namespace ENHANCE {
 
 class EPerf : public EPerfContainer {
 private:
-//	typedef std::map<tKernelDeviceID, EPerfData> tTempDataMap;
-//    typedef std::map<tKernelDeviceThreadID, EPerfData> tTempDataMap;
-/*/
-    typedef struct {
-        int _ID[3];
-    } ID_type;
-**/
 
     class ID_type {
     private:
@@ -67,6 +60,7 @@ private:
     public:
         inline ID_type(int _K, int _D, int _T) : K(_K), D(_D), T(_T) { }
 
+        // This implements strict weak ordering for the map
         bool operator<(const ID_type &oID) const {
             if (K != oID.K) {
                 return (K < oID.K);
@@ -84,6 +78,8 @@ private:
     tTempDataMap tempData;
 
     inline pid_t getThreadID() { return syscall(__NR_gettid); }
+
+    std::string dbFileName;
 
 	/**
 	 * Captures the current time and converts it to double
@@ -113,7 +109,14 @@ private:
 
 public:
 
-	EPerf();
+    /**
+     *
+     * EPerF constructor with optional name for DB file. If the
+     * name is empty, the framework selects "eperf.db" automatically.
+     *
+     * @param[in] _dbFileName Where to store the DB
+     * */
+	EPerf(const std::string &_dbFileName = std::string(""));
 	~EPerf();
 
 	/**
@@ -185,23 +188,6 @@ public:
 	 * @param[in] outBytes The number of Bytes to be transferred from <b>device to host</b>
 	 * */
 	void addKernelDataVolumes(int KernelID,	int DeviceID, int64_t inBytes, int64_t outBytes);
-
-	/**
-	 * Exports all devices, kernels and measurements to a JSON file
-	 *
-	 * @param[in] path Path to the file
-	 * */
-	void exportToJSONFile(const std::string &path);
-
-	/**
-	 * Imports devices, kernels and measurements from a JSON file
-	 *
-	 * @param[in] path Path to the file
-	 * */
-	void importFromJSONFile(const std::string &path);
-
-//    void insertAndActivateKernelConf(const int KernelID, const EPerfKernelConf &c);
-//    void setKernelConf(const int KernelID, const int DeviceID, const EPerfKernelConif &c);
 
 	/**
 	 * Prints the content of the object to given std::ostream.

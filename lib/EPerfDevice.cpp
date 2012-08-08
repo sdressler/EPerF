@@ -26,23 +26,40 @@ std::ostream& operator<<(std::ostream &out, const EPerfDevice &d) {
 	return out;
 }
 
-std::vector<char> EPerfDevice::convertToByteVector() const {
+tByteVectorMap EPerfDevice::convertToByteVectorMap() const {
 
-	std::vector<char> o;
+    tByteVectorMap map;
 
 	// Place the name of the device
-	o.resize(name.size() + 1);
-	memcpy(static_cast<void*>(&o[0]), static_cast<const char*>(name.c_str()), name.size() + 1);
+    std::string key = "name";
+    std::vector<char> value(name.size() + 1);
+
+    memcpy(
+        static_cast<void*>(&value[0]),
+        static_cast<const char*>(name.c_str()),
+        name.size() + 1
+    );
+
+    map.insert(std::make_pair(key, value));
 
 	// Place all subdevices
 	for (std::vector<int>::const_iterator it = subDevices.begin(); it != subDevices.end(); ++it) {
-		// Increase size
-		unsigned int pos = o.size();
-		o.resize(o.size() + sizeof(int));
-		memcpy(static_cast<void*>(&o[pos]), static_cast<const void*>(&(*it)),	sizeof(int));
+
+        value.clear();
+        value.resize(sizeof(int));
+
+        memcpy(
+            static_cast<void*>(&value[0]),
+            static_cast<const void*>(&(*it)),
+            sizeof(int)
+        );
+
+        std::stringstream ss;
+        ss << std::distance(it, subDevices.begin());
+        map.insert(std::make_pair(ss.str(), value));
 	}
 
-	return o;
+	return map;
 
 }
 

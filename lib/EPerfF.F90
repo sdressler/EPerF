@@ -16,18 +16,19 @@ MODULE m_eperf
     END ENUM
 
     INTERFACE
-        FUNCTION EPerfInit() &
+        FUNCTION EPerfInit(dbFile) &
 &           BIND(C, NAME="EPerfInit")
 
-            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_CHAR
             IMPLICIT NONE
+            CHARACTER(LEN=1, KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: dbFile
             TYPE(C_PTR) :: EPerfInit
         END FUNCTION EPerfInit
        
         FUNCTION EPerfInitKernelConf() &
 &           BIND(C, NAME="EPerfInitKernelConf")
 
-            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR
+            USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_CHAR
             IMPLICIT NONE
             TYPE(C_PTR) :: EPerfInitKernelConf
         END FUNCTION EPerfInitKernelConf

@@ -45,6 +45,11 @@ Note that before building the examples you should build the library.
 Changelog
 ---------
 
+* 2012-08-08 / 0.5.3 / Internal changes
+    - IBDBObject.h now restricts destructor use
+    - Optional DB filename can be provided
+    - Improved write to DB
+
 * 2012-08-06 / 0.5.2 / Multiple thread env's now do not need multiple devices or kernels
 
 * 2012-07-05 / 0.5.1 / Changed the style how configurations are handled

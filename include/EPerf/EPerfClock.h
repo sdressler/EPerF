@@ -58,8 +58,7 @@ public:
 	friend std::ostream& operator<<(std::ostream &out, const EPerfClock &c);
 	
 	double getTimeDifference() const;
-
-	virtual std::vector<char> convertToByteVector() const;
+	virtual tByteVectorMap convertToByteVectorMap() const;
 };
 }
 

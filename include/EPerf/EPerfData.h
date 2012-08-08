@@ -18,11 +18,14 @@
 namespace ENHANCE {
 
 class EPerfData : public IBDBObject {
+
+    friend class EPerf;
+
 private:
 
-	EPerfClock timestamp;			///< Vector to save the timestamp
-	std::vector<EPerfClock> clocks; ///< Vector to save different timings
-	std::map<int, std::string> clockNames; ///< Map to associate clock IDs with names
+	EPerfClock timestamp;			        ///< Vector to save the timestamp
+	std::vector<EPerfClock> clocks;         ///< Vector to save different timings
+	std::map<int, std::string> clockNames;  ///< Map to associate clock IDs with names
 
 	int64_t inBytes;	///< Bytes to be transferred host -> device
 	int64_t outBytes;	///< Bytes to be transferred device -> host
@@ -59,21 +62,7 @@ public:
 		timestamp.takeStopStamp();
 	}
 
-	// Set reference to KernelID / DeviceID and kernel configuration hash
-	void setKernelDeviceReference(const int k, const int d);
-    void setKernelConfigReference(const int k, const std::string &kconf);
-    void setThreadReference(const int t);
-    void setPID(const int p);
-
 	friend bool operator<(const EPerfData &x, const EPerfData &y);
-	
-	/**
-	 * Set the data volumes
-	 *
-	 * @param[in] i The volume to be transferred host -> device (in) in Bytes
-	 * @param[in] o The volume to be transferred device -> host (out) in Bytes
-	 * */
-	void setDataVolumes(const int64_t i, const int64_t o);
 
 	/**
 	 * Print the class' content to a stream. If the stream is an ofstream the
@@ -85,7 +74,7 @@ public:
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfData &d);
 
-	virtual std::vector<char> convertToByteVector() const;
+	virtual tByteVectorMap convertToByteVectorMap() const;
 
 };
 }

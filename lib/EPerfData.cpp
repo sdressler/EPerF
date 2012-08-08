@@ -24,37 +24,7 @@ EPerfData::EPerfData() {
     clockNames[1] = "CPU clock";
 }
 
-void EPerfData::setKernelDeviceReference(const int k, const int d) {
-	// Check if they are already set
-	if (KernelID > -1 || DeviceID > -1) {
-		throw std::runtime_error("Kernel ID and Device ID references are already set!");
-	}
-
-	KernelID = k;
-//	kConfigHash = kconf;
-	DeviceID = d;
-}
-
-void EPerfData::setKernelConfigReference(const int k, const std::string &kconf) {
-
-    kConfigHash = kconf;
-
-}
-
-void EPerfData::setThreadReference(const int t) { ThreadID = t; }
-void EPerfData::setPID(const int p) { PID = p; }
-
 bool operator<(const EPerfData &x, const EPerfData &y) {
-	/*
-	// First check if the IDs are different
-	if (x.KernelID < y.KernelID || x.DeviceID < y.DeviceID) {
-		return true;
-	} else {
-		// If they are equal, timestamps should be different
-		return (x.timestamp < y.timestamp);
-	}
-*/
-
 	// Test whether we have different kernels
 	if (x.KernelID < y.KernelID) {
 		return true;
@@ -79,10 +49,6 @@ bool operator<(const EPerfData &x, const EPerfData &y) {
 	return false;			
 }
 
-void EPerfData::setDataVolumes(const int64_t i, const int64_t o) {
-	inBytes = i; outBytes = o;
-}
-
 std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
 
 	out << "KernelID: "  << d.KernelID
@@ -105,35 +71,56 @@ std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
 	return out;
 }
 
-std::vector<char> EPerfData::convertToByteVector() const {
+tByteVectorMap EPerfData::convertToByteVectorMap() const {
 
-	std::vector<char> o;
-	
-    unsigned int offset;
+    tByteVectorMap map;
 
-    offset += kConfigHash.size();
+    // Save the configuration hash
+    std::string key = std::string("hash");
+    std::vector<char> value;
 
-    // Save configuration hash
-    o.resize(kConfigHash.size());
+    value.resize(kConfigHash.size() + 1);
     memcpy(
-        static_cast<void*>(&o[0]),
-        static_cast<void*>(const_cast<char*>(kConfigHash.c_str())),
-        offset
+        static_cast<void*>(&value[0]),
+        static_cast<const char*>(kConfigHash.c_str()),
+        kConfigHash.size() + 1
     );
+    map.insert(std::make_pair(key, value));
 
-	// Save {in,out}Bytes
-	o.resize(offset + 2 * sizeof(int64_t));
-	memcpy(static_cast<void*>(&o[offset]), static_cast<const void*>(&inBytes), sizeof(int64_t));
-	memcpy(static_cast<void*>(&o[offset + 4]), static_cast<const void*>(&outBytes), sizeof(int64_t));
+    // Save the in/out Bytes
+    key = "bytein";
+    value.clear();
+    value.resize(sizeof(int));
+    memcpy(
+        static_cast<void*>(&value[0]),
+        static_cast<const void*>(&inBytes),
+        sizeof(int64_t)
+    );
+    map.insert(std::make_pair(key, value));
+    
+    key = "byteout";
+    value.clear();
+    value.resize(sizeof(int));
+    memcpy(
+        static_cast<void*>(&value[0]),
+        static_cast<const void*>(&outBytes),
+        sizeof(int64_t)
+    );
+    map.insert(std::make_pair(key, value));
 
-	// Save all clocks
-	for (std::vector<EPerfClock>::const_iterator it = clocks.begin(); it != clocks.end(); ++it) {
-		std::vector<char> bVec = it->convertToByteVector();
-		// Append to end
-		o.insert(o.end(), bVec.begin(), bVec.end());
-	}
+    // Save all clocks
+    for (unsigned int i = 0; i < clocks.size(); i++) {
 
-	return o;
+        key = clockNames.find(i)->second;
+        tByteVectorMap clock = clocks[i].convertToByteVectorMap();
+
+        for (tByteVectorMap::const_iterator it = clock.begin(); it != clock.end(); ++it) {
+            key += std::string(":") + it->first;
+            map.insert(std::make_pair(key, it->second));
+        }
+    }
+
+    return map;
 
 }
 }

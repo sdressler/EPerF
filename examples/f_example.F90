@@ -29,7 +29,7 @@ program fibonacci
       character*256 :: s
 
       ! Call some C
-      eperf = EPerfInit()
+      eperf = EPerfInit("" // C_NULL_CHAR)
 
       ! Add kernels
       print '(a)', "Adding kernel."

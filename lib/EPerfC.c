@@ -1,8 +1,8 @@
 #include "../include/EPerf/EPerfC.h"
 #include "../include/EPerf/EPerf.h"
 
-EPerf* EPerfInit() {
-	return cpp_callback_EPerfInit();
+EPerf* EPerfInit(const char *dbName) {
+	return cpp_callback_EPerfInit(dbName);
 }
 
 EPerfKernelConf* EPerfInitKernelConf() {

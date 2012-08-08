@@ -37,7 +37,7 @@ public:
 	
     friend std::ostream& operator<<(std::ostream &out, const EPerfKernel &k);
 
-	virtual std::vector<char> convertToByteVector() const;
+	virtual tByteVectorMap convertToByteVectorMap() const;
 };
 }
 

@@ -7,11 +7,11 @@
 
 using namespace ENHANCE;
 
-EPerf* cpp_callback_EPerfInit() {
+EPerf* cpp_callback_EPerfInit(const char *dbName) {
 	EPerf *e;
 
 	try {
-		e = new EPerf();
+		e = new EPerf(std::string(dbName));
 	} catch (...) {
 		return NULL;
 	}
@@ -127,6 +127,7 @@ int cpp_callback_EPerfAddKernelDataVolumes(EPerf *e, int KernelID, int DeviceID,
 
 int cpp_callback_EPerfInsertKernelConfPair(EPerfKernelConf *c, const char *key, const char *value) {
     c->insertKernelConfPair(std::string(key), std::string(value));
+    return E_OK;
 }
 
 /*
