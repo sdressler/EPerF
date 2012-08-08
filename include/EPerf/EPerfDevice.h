@@ -41,8 +41,7 @@ public:
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfDevice &d);
 
-	virtual std::vector<char> convertToByteVector() const;
-//	virtual tBDBObjectMap convertToBDBObjectMap(std::string prefix);
+	virtual tByteVectorMap convertToByteVectorMap() const;
 };
 }
 

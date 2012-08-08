@@ -78,7 +78,10 @@ AC_CHECK_LIB(
     AC_SUBST(LCRYPTO, -lcrypto)
 )
 
+AC_CHECK_HEADERS([sys/utsname.h])
+
 AC_LANG(C++)
+
 
 # Check whether the C++ header for BDB is also installed
 AC_CHECK_HEADER(

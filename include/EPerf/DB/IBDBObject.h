@@ -7,12 +7,17 @@
 namespace ENHANCE {
 
 typedef std::map<std::string, Dbt> tBDBObjectMap;
+typedef std::map<std::string, std::vector<char> > tByteVectorMap;
 
 class IBDBObject {
 
-public:
-	virtual std::vector<char> convertToByteVector() const = 0;
-//i	virtual tBDBObjectMap convertToBDBObjectMap(std::string prefix = std::string()) = 0;
+protected:
+    ~IBDBObject() {
+        
+    }
+
+private:
+	virtual tByteVectorMap convertToByteVectorMap() const = 0;
 
 };
 }

@@ -1,6 +1,7 @@
 #include "../include/EPerf/EPerfClock.h"
 
 #include <cstring>
+#include <sstream>
 
 namespace ENHANCE {
 
@@ -45,8 +46,8 @@ double EPerfClock::getTimeDifference() const {
 	return diff / 1.0e9;
 }
 
-std::vector<char> EPerfClock::convertToByteVector() const {
-
+tByteVectorMap EPerfClock::convertToByteVectorMap() const {
+/*
 	std::vector<char> o;
 
 	// Copy the clockid
@@ -62,5 +63,40 @@ std::vector<char> EPerfClock::convertToByteVector() const {
 	memcpy(static_cast<void*>(&o[pos]), static_cast<const void*>(&stop), sizeof(struct timespec));
 
 	return o;
+    */
+
+    tByteVectorMap map;
+
+    std::string key = std::string("start");
+    std::vector<char> value;
+
+    std::stringstream ss;
+    ss << start.tv_sec << ":" << start.tv_nsec;
+
+    value.resize(ss.str().size() + 1);
+    memcpy(
+        static_cast<void*>(&value[0]),
+        static_cast<void*>(const_cast<char*>(ss.str().c_str())),
+        ss.str().size() + 1
+    );
+
+    map.insert(std::make_pair(key, value));
+    
+    key = std::string("stop");
+    ss.str() = std::string();
+    ss << stop.tv_sec << ":" << stop.tv_nsec;
+
+    value.clear();
+    value.resize(ss.str().size() + 1);
+    memcpy(
+        static_cast<void*>(&value[0]),
+        static_cast<void*>(const_cast<char*>(ss.str().c_str())),
+        ss.str().size() + 1
+    );
+
+    map.insert(std::make_pair(key, value));
+
+    return map;
+
 }
 }

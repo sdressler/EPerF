@@ -15,8 +15,14 @@ namespace ENHANCE {
 
 sem_t synchronize;
 
-EPerf::EPerf() {
+EPerf::EPerf(const std::string &_dbFileName) {
     sem_init(&synchronize, 1, 1);
+
+    if (_dbFileName == std::string("")) {
+        dbFileName = std::string("eperf.db");
+    } else {
+        dbFileName = _dbFileName;
+    }
 }
 
 EPerf::~EPerf() {
@@ -32,66 +38,76 @@ void EPerf::commitToDB() {
 
     // Base DB
     Db baseDB(NULL, 0);
-    baseDB.open(NULL, "eperf.db", "base", DB_BTREE, DB_CREATE, 0);
+    baseDB.open(NULL, dbFileName.c_str(), "base", DB_BTREE, DB_CREATE, 0);
 
     // Place all devices into the DB
     for (tDeviceMap::iterator it = devices.begin(); it != devices.end(); ++it) {
-        std::stringstream ss;
-        // Convert device ID to string
-        ss << "device:" << it->first;
-        bVec = it->second.convertToByteVector();
 
-        // Create entry for the DB
-        Dbt key(static_cast<void*>(const_cast<char*>(ss.str().c_str())), ss.str().size() + 1);
-        Dbt value(static_cast<void*>(&bVec[0]), bVec.size());
+        std::string basekey = std::string("device:");
+        basekey += it->first;
 
-        // Insert
-        baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
-//      std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
+        tByteVectorMap map = it->second.convertToByteVectorMap();
+
+        for (tByteVectorMap::iterator iit = map.begin(); iit != map.end(); ++iit) {
+            std::string key = basekey + std::string(":") + iit->first;
+
+            // Create entry
+            Dbt db_key(static_cast<void*>(const_cast<char*>(key.c_str())), key.size() + 1);
+            Dbt db_value(static_cast<void*>(&(iit->second)[0]), iit->second.size());
+
+            // Insert
+            baseDB.put(NULL, &db_key, &db_value, DB_NOOVERWRITE);
+        }
     }
 
     // Place all kernels into the DB
     for (tKernelMap::iterator it = kernels.begin(); it != kernels.end(); ++it) {
-        std::stringstream ss;
-        // Convert kernel ID to string
-        ss << "kernel:" << it->first;
-        bVec = it->second.convertToByteVector();
 
-        Dbt key(static_cast<void*>(const_cast<char*>(ss.str().c_str())), ss.str().size() + 1);
-        Dbt value(static_cast<void*>(&bVec[0]), bVec.size());
+        std::string basekey = std::string("kernel:");
+        basekey += it->first;
 
-        // Insert
-        baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
-//      std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
+        tByteVectorMap map = it->second.convertToByteVectorMap();
+
+        for (tByteVectorMap::iterator iit = map.begin(); iit != map.end(); ++iit) {
+            std::string key = basekey + std::string(":") + iit->first;
+
+            // Create entry
+            Dbt db_key(static_cast<void*>(const_cast<char*>(key.c_str())), key.size() + 1);
+            Dbt db_value(static_cast<void*>(&(iit->second)[0]), iit->second.size());
+
+            // Insert
+            baseDB.put(NULL, &db_key, &db_value, DB_NOOVERWRITE);
+        }
     }
-
+    
     // Place all the data into the DB
     for (tDataSet::iterator it = data.begin(); it != data.end(); ++it) {
-        std::stringstream ss;
+
         // Convert the timestamp, kernel id and device id to a valid key
-        ss  << "data:"
-            << it->getKernelID() << ":"
-            << it->getDeviceID() << ":"
-            << it->getPID() << ":"
-            << it->getThreadID();
+        std::stringstream ss;
+        ss  << "data:" << it->getKernelID() << ":" << it->getDeviceID();
 
-        // Get the timestamp itself
-        bVec = it->getTimeStamp().convertToByteVector();
-        ss.write(&bVec[0], bVec.size());
+        tByteVectorMap map = it->getTimeStamp().convertToByteVectorMap();
+        for (tByteVectorMap::const_iterator iit = map.begin(); iit != map.end(); ++iit) {
+            ss << ":" << std::string(iit->second.begin(), iit->second.end());
+        }
 
-        // Create key
-        Dbt key(static_cast<void*>(const_cast<char*>(ss.str().c_str())), ss.str().size() + 1);
+        std::string basekey = ss.str();
 
-        // Value
-        bVec = it->convertToByteVector();
-        Dbt value(static_cast<void*>(&bVec[0]), bVec.size());
+        map = it->convertToByteVectorMap();
+        for (tByteVectorMap::iterator iit = map.begin(); iit != map.end(); ++iit) {
+            std::string key = basekey + std::string(":") + iit->first;
 
-        // Write
-        baseDB.put(NULL, &key, &value, DB_NOOVERWRITE);
-//      std::cout << "BDB Insert: " << ss.str() << " -> " << ret << "\n";
+            // Create entry
+            Dbt db_key(static_cast<void*>(const_cast<char*>(key.c_str())), key.size() + 1);
+            Dbt db_value(static_cast<void*>(&(iit->second)[0]), iit->second.size());
 
+            // Insert
+            baseDB.put(NULL, &db_key, &db_value, DB_NOOVERWRITE);
+        }
+        
     }
-
+    
     baseDB.close(0);
 
 }
@@ -182,7 +198,7 @@ void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernel
     x = tempData.insert(std::make_pair(ID_type(KernelID, DeviceID, getThreadID()), EPerfData()));
 
     // Set the configuration reference
-    (x.first)->second.setKernelConfigReference(KernelID, c.getKernelConfHash());
+    (x.first)->second.kConfigHash = c.getKernelConfHash();
 
     // Start the timers
     (x.first)->second.startAllTimers();
@@ -209,9 +225,10 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
     x->second.stopAllTimers();
 
     // Copy to set and remove temporary entry
-    x->second.setKernelDeviceReference(KernelID, DeviceID);
-    x->second.setThreadReference(getThreadID());
-    x->second.setPID(getpid());
+    x->second.KernelID = KernelID;
+    x->second.DeviceID = DeviceID;
+    x->second.ThreadID = getThreadID();
+    x->second.PID = getpid();
     
     std::pair<tDataSet::const_iterator, bool> test = data.insert(x->second);
     if (!test.second) {
@@ -230,7 +247,10 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, in
     // Check IDs
     checkKernelExistance(KernelID);
     checkDeviceExistance(DeviceID);
-    
+
+    /* LOCK */
+    sem_wait(&synchronize);
+
     // Insert a new temporary object and get a reference to it
     // Possibly an entry already exists from KDV
     std::pair<tTempDataMap::iterator, bool> x;
@@ -238,7 +258,11 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, in
     // Get or create a (new) entry 
     x = tempData.insert(std::make_pair(ID_type(KernelID, DeviceID, getThreadID()), EPerfData()));
 
-    (x.first)->second.setDataVolumes(inBytes, outBytes);
+    (x.first)->second.inBytes  = inBytes;
+    (x.first)->second.outBytes = outBytes;
+
+    /* UNLOCK */
+    sem_post(&synchronize);
 
 }
 

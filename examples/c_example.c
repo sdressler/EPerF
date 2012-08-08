@@ -17,7 +17,7 @@ int main(void) {
     int i, err;
     char s[256];    // Used for the configuration string
 
-    EPerf *e = EPerfInit();
+    EPerf *e = EPerfInit("");
 
     // Holds the configurations
     EPerfKernelConf *c;
