@@ -15,11 +15,13 @@
 #include <stdexcept>
 #include <vector>
 
+#include "EPerfSQLite.h"
+
 namespace ENHANCE {
 
 typedef std::map<std::string, std::string> tStringMap;
 
-class EPerfKernelConf : private tStringMap {
+class EPerfKernelConf : private tStringMap, public IEPerfSQLite {
 private:
     std::string sha256(const std::string &s) const;
     
@@ -35,6 +37,8 @@ public:
     void insertKernelConfPair(std::string key, std::string value);
 
     friend std::ostream& operator<<(std::ostream &out, const EPerfKernelConf &c);
+
+    virtual std::vector<std::string> createSQLInsertObj() const;
 
 };
 }

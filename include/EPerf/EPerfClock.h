@@ -2,6 +2,7 @@
 #define EPERF_CLOCK_H
 
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "DB/IBDBObject.h"
@@ -15,7 +16,7 @@
 
 namespace ENHANCE {
 
-class EPerfClock : public IBDBObject {
+class EPerfClock {
 private:
 
     // The following is for Mac OS X
@@ -58,7 +59,10 @@ public:
 	friend std::ostream& operator<<(std::ostream &out, const EPerfClock &c);
 	
 	double getTimeDifference() const;
-	virtual tByteVectorMap convertToByteVectorMap() const;
+
+    std::vector<int> getIntegerPairs() const;
+
+//	virtual tByteVectorMap convertToByteVectorMap() const;
 };
 }
 

@@ -45,4 +45,33 @@ std::string EPerfKernelConf::sha256(const std::string &s) const {
 
     return ss.str();
 }
+
+std::vector<std::string> EPerfKernelConf::createSQLInsertObj() const {
+
+    // Rewrite entire KConf
+    
+    std::vector<std::string> x;
+
+    std::stringstream q;
+    
+    tStringMap::const_iterator it;
+    for (it = begin(); it != end(); ++it) {
+
+        q.str("");
+        q.clear();
+
+        q   << "INSERT OR IGNORE INTO kernelconfigurations (hash, key, value) "
+            << "VALUES ("
+            <<      "'" << getKernelConfHash() << "',"
+            <<      "'" << it->first << "',"
+            <<      "'" << it->second << "'"
+            << ")";
+
+        x.push_back(q.str());
+
+    } 
+
+    return x;
+
+}
 }

@@ -3,7 +3,8 @@
 #include <cstring>
 
 namespace ENHANCE {
-EPerfKernel::EPerfKernel(std::string s) {
+EPerfKernel::EPerfKernel(int _id, std::string s) {
+    id = _id;
     name = s;
 
     // Create "empty" hash
@@ -11,6 +12,21 @@ EPerfKernel::EPerfKernel(std::string s) {
     actConfHash = c.getKernelConfHash();
 }
 
+std::vector<std::string> EPerfKernel::createSQLInsertObj() const {
+
+    std::vector<std::string> x;
+
+    std::stringstream q;
+    
+    q   << "INSERT OR IGNORE INTO kernels (id, name) VALUES("
+        << id << ", '" << name << "')";
+
+    x.push_back(q.str());
+
+    return x;
+
+}
+/*
 tByteVectorMap EPerfKernel::convertToByteVectorMap() const {
 
     tByteVectorMap map;
@@ -29,7 +45,7 @@ tByteVectorMap EPerfKernel::convertToByteVectorMap() const {
 	return map;
 
 }
-
+*/
 void EPerfKernel::insertKernelConf(const EPerfKernelConf &c) {
 
     std::string hash = c.getKernelConfHash();

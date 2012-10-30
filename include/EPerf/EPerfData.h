@@ -13,16 +13,16 @@
 #include <inttypes.h>
 
 #include "EPerfClock.h"
-#include "DB/IBDBObject.h"
+#include "EPerfSQLite.h"
+//#include "DB/IBDBObject.h"
 
 namespace ENHANCE {
 
-class EPerfData : public IBDBObject {
+class EPerfData : public IEPerfSQLite {
 
     friend class EPerf;
 
 private:
-
 	EPerfClock timestamp;			        ///< Vector to save the timestamp
 	std::vector<EPerfClock> clocks;         ///< Vector to save different timings
 	std::map<int, std::string> clockNames;  ///< Map to associate clock IDs with names
@@ -74,7 +74,8 @@ public:
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfData &d);
 
-	virtual tByteVectorMap convertToByteVectorMap() const;
+    virtual std::vector<std::string> createSQLInsertObj() const;
+//	virtual tByteVectorMap convertToByteVectorMap() const;
 
 };
 }
