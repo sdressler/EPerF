@@ -45,26 +45,20 @@ double EPerfClock::getTimeDifference() const {
 
 	return diff / 1.0e9;
 }
+    
+std::vector<int> EPerfClock::getIntegerPairs() const {
 
-tByteVectorMap EPerfClock::convertToByteVectorMap() const {
+    std::vector<int> x;
+
+    x.push_back(start.tv_sec); x.push_back(start.tv_nsec);
+    x.push_back(stop.tv_sec); x.push_back(stop.tv_nsec);
+
+    return x;
+
+}
+
+//tByteVectorMap EPerfClock::convertToByteVectorMap() const {
 /*
-	std::vector<char> o;
-
-	// Copy the clockid
-	o.resize(sizeof(clockid_t));
-	memcpy(static_cast<void*>(&o[0]), static_cast<const void*>(&clock), sizeof(clockid_t));
-
-	// Copy the timespec structs
-	int pos = o.size();
-	o.resize(o.size() + 2 * sizeof(struct timespec));
-	memcpy(static_cast<void*>(&o[pos]), static_cast<const void*>(&start), sizeof(struct timespec));
-
-	pos += sizeof(struct timespec);
-	memcpy(static_cast<void*>(&o[pos]), static_cast<const void*>(&stop), sizeof(struct timespec));
-
-	return o;
-    */
-
     tByteVectorMap map;
 
     std::string key = std::string("start");
@@ -99,4 +93,5 @@ tByteVectorMap EPerfClock::convertToByteVectorMap() const {
     return map;
 
 }
+*/
 }

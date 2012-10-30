@@ -19,5 +19,7 @@ int main(void) {
 	// Print
 	std::cout << e << "\n";
 
+    e.commitToDB();
+
 	return 0;
 }

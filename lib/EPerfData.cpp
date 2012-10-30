@@ -71,6 +71,55 @@ std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
 	return out;
 }
 
+std::vector<std::string> EPerfData::createSQLInsertObj() const {
+
+    std::vector<std::string> x;
+    std::stringstream q;
+
+    q   << "INSERT OR IGNORE INTO data "
+        << "("
+        <<      "id_kernel, id_device, conf_hash, "
+        <<      "ts_start_s, "
+        <<      "ts_start_ns, "
+        <<      "ts_stop_s, "
+        <<      "ts_stop_ns, "
+        <<      "wclock_start_s, "
+        <<      "wclock_start_ns, "
+        <<      "wclock_stop_s, "
+        <<      "wclock_stop_ns, "
+        <<      "cpuclock_start_s, "
+        <<      "cpuclock_start_ns, "
+        <<      "cpuclock_stop_s, "
+        <<      "cpuclock_stop_ns, "
+        <<      "pid, tid, data_in, data_out"
+        << ") "
+        << "VALUES ("
+        <<      KernelID << ", "
+        <<      DeviceID << ", "
+        <<      "'" << kConfigHash << "', ";
+
+    std::vector<int> clockval = timestamp.getIntegerPairs();
+    q   << clockval[0] << ", " << clockval[1] << ", " << clockval[2] << ", " << clockval[3] << ", ";
+    
+    std::vector<EPerfClock>::const_iterator it;
+    for (it = clocks.begin(); it != clocks.end(); ++it) {
+        clockval = it->getIntegerPairs();
+        q << clockval[0] << ", " << clockval[1] << ", " << clockval[2] << ", " << clockval[3] << ", ";
+    }
+
+    q   <<      PID << ", "
+        <<      ThreadID << ", "
+        <<      inBytes << ", "
+        <<      outBytes
+        << ")";
+
+    x.push_back(q.str());
+
+    return x;
+
+}
+
+/*
 tByteVectorMap EPerfData::convertToByteVectorMap() const {
 
     tByteVectorMap map;
@@ -123,5 +172,6 @@ tByteVectorMap EPerfData::convertToByteVectorMap() const {
     return map;
 
 }
+*/
 }
 

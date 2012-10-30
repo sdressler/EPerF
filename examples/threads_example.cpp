@@ -75,5 +75,7 @@ int main(void) {
 
 	std::cout << e;
 
+    e.commitToDB();
+
 	return 0;
 }

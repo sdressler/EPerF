@@ -20,6 +20,7 @@ int main(void) {
 
     cout << "Adding kernel.\n";
     e.addKernel(0, "Fibonacci");
+    e.addKernel(1, "Dummy");
     
     cout << "Adding device\n";
     e.addDevice(0, "CPU");
@@ -27,17 +28,18 @@ int main(void) {
     cout << "Generating timings and datavolumes\n";
 
     unsigned int f;
+    unsigned int f_src;
     for (int i = 0; i < 4; i++) {
 
         // Fib number to generate
-        f = (i + 1) * 10;
+        f_src = (i + 1) * 10;
         
         // Initialize a Kernel Configuration
         EPerfKernelConf c;
 
         // Write Kernel Configuration
         std::stringstream ss;
-        ss << f;
+        ss << f_src;
         c.insertKernelConfPair("number", ss.str());
 
         // Activate Kernel Configuration
@@ -50,13 +52,13 @@ int main(void) {
         e.startTimer(0, 0, c);
 
         // Run Kernel
-        f = fib(f);
-        sleep(1);
+        f = fib(f_src);
+        //sleep(1);
 
         // Stop Timer
         e.stopTimer(0, 0);
 
-        cout << "Fibonacci " << (i+1)*10 << ": " << f << "\n";
+        cout << "Fibonacci " << f_src << ": " << f << "\n";
     }
 
 

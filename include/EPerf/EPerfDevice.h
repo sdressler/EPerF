@@ -5,11 +5,14 @@
 #include <vector>
 #include <sstream>
 
-#include "DB/IBDBObject.h"
+//#include "DB/IBDBObject.h"
+#include "EPerfSQLite.h"
 
 namespace ENHANCE {
-class EPerfDevice : public IBDBObject {
+//class EPerfDevice : public IBDBObject {
+class EPerfDevice : public IEPerfSQLite {
 private:
+    int id;                         ///< Device ID
 	std::string name;				///< Device name
 	std::vector<int> subDevices;	///< Vector of subdevices
 
@@ -20,7 +23,7 @@ public:
 	 *
 	 * @param[in] n The optional device name
 	 * */
-	EPerfDevice(std::string n = std::string());
+	EPerfDevice(int _id, std::string n = std::string());
 
 	/**
 	 *
@@ -41,7 +44,9 @@ public:
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfDevice &d);
 
-	virtual tByteVectorMap convertToByteVectorMap() const;
+    std::string getName() { return name; }
+
+    virtual std::vector<std::string> createSQLInsertObj() const;
 };
 }
 

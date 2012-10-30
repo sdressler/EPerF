@@ -4,7 +4,8 @@
 
 namespace ENHANCE {
 
-EPerfDevice::EPerfDevice(std::string n) {
+EPerfDevice::EPerfDevice(int _id, std::string n) {
+    id = _id;
 	name = n;
 }
 	
@@ -26,6 +27,35 @@ std::ostream& operator<<(std::ostream &out, const EPerfDevice &d) {
 	return out;
 }
 
+std::vector<std::string> EPerfDevice::createSQLInsertObj() const {
+
+    std::vector<std::string> x;
+
+    std::stringstream q;
+    
+    q   << "INSERT OR IGNORE INTO devices (id, name) VALUES("
+        << id << ", '" << name << "')";
+
+    x.push_back(q.str());
+
+    std::vector<int>::const_iterator it;
+    for (it = subDevices.begin(); it != subDevices.end(); ++it) {
+
+        q.str("");
+        q.clear();
+
+        q << "INSERT OR IGNORE INTO subdevices (id_left, id_right) VALUES("
+          << id << ", " << *it << ")";
+
+        x.push_back(q.str());
+
+    }
+
+    return x;
+
+}
+
+/*
 tByteVectorMap EPerfDevice::convertToByteVectorMap() const {
 
     tByteVectorMap map;
@@ -62,5 +92,5 @@ tByteVectorMap EPerfDevice::convertToByteVectorMap() const {
 	return map;
 
 }
-
+*/
 }

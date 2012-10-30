@@ -53,16 +53,18 @@ AS_IF(
 )
 
 # Check whether Berkeley DB > 4.x is installed
-AX_PATH_BDB(
-    [4],
-    [],
-    AC_MSG_ERROR([BerkeleyDB not found.])
-)
+#AX_PATH_BDB(
+#    [4],
+#    [],
+#    AC_MSG_ERROR([BerkeleyDB not found.])
+#)
 
 AX_CHECK_OPENSSL(
     AC_SUBST(LSSL, -lssl),
     AC_MSG_ERROR([OpenSSL not found.])
 )
+
+AX_LIB_SQLITE3([3.6.0])
 
 AC_LANG(C)
 
@@ -82,13 +84,12 @@ AC_CHECK_HEADERS([sys/utsname.h])
 
 AC_LANG(C++)
 
-
 # Check whether the C++ header for BDB is also installed
-AC_CHECK_HEADER(
-    [db_cxx.h],
-    [],
-    AC_MSG_ERROR([Berkeley DB C++ header not found.])
-)
+#AC_CHECK_HEADER(
+#    [db_cxx.h],
+#    [],
+#    AC_MSG_ERROR([Berkeley DB C++ header not found.])
+#)
 
 # C / FORTRAN API
 AC_ARG_ENABLE(
