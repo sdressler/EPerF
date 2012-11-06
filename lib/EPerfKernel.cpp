@@ -50,7 +50,7 @@ void EPerfKernel::insertKernelConf(const EPerfKernelConf &c) {
 
     std::string hash = c.getKernelConfHash();
     config.insert(std::pair<std::string, EPerfKernelConf>(hash, c));
-    std::cout << "Inserted configuration: " << hash << "\n";
+//    std::cout << "Inserted configuration: " << hash << "\n";
 
 }
 
