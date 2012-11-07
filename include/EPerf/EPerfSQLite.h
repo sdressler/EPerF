@@ -109,11 +109,16 @@ protected:
 public:
     EPerfSQLite(std::string _db_file = "") : db_file(_db_file) {
 
+        if (_db_file == "") {
+            db_file = std::string("eperf.db");
+        }
+
         int ret = sqlite3_open(db_file.c_str(), &db);
 
         if (ret != SQLITE_OK) {
             std::stringstream err;
             err << "Could not open SQLite DB. Reason: " << sqlite3_errmsg(db);
+            err << " Path was: " << db_file;
             throw std::runtime_error(err.str());
         }
 
