@@ -130,7 +130,7 @@ public:
 
     void executeInsertQuery(const std::string &q) {
 
-        std::cout << q << "\n";
+//        std::cout << q << "\n";
 
         sqlite3_stmt *stmt;
 
