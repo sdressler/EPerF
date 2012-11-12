@@ -9,6 +9,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <omp.h>
+
 #include "../include/EPerf/EPerf.h"
 #include "../include/EPerf/EPerfSQLite.h"
 #include "../include/EPerf/EPerfC.h"
@@ -25,6 +27,7 @@ EPerf::EPerf(const std::string &_dbFileName) {
     } else {
         dbFileName = _dbFileName;
     }
+
 }
 
 EPerf::~EPerf() {
@@ -63,22 +66,39 @@ void EPerf::commitToDB() {
 
     }
 
+    db.beginTransaction();
+
     for (tDataSet::iterator it = data.begin(); it != data.end(); ++it) {
         db.executeInsertQuery(it->createSQLInsertObj());
     }
 
+    db.endTransaction();
+
 }
 
-void EPerf::checkDeviceExistance(const int ID) {
-    if (devices.find(ID) == devices.end()) {
-        throw std::invalid_argument("Device ID not valid.");
-    }
-}
+void EPerf::resizeTemporaryDataObject() {
 
-void EPerf::checkKernelExistance(const int ID) {
-    if (kernels.find(ID) == kernels.end()) {
-        throw std::invalid_argument("Kernel ID not valid.");
+    #pragma omp parallel
+    {
+        if (omp_get_thread_num() == 0) {
+
+//            size_t currentSize = tempData.size();
+
+            size_t k_size = kernels.size();
+            size_t d_size = devices.size();
+            size_t num_threads = omp_get_num_threads();
+
+            size_t requestedSize = (k_size + d_size) * num_threads;
+
+            tempData.clear();
+
+            for (size_t i = 0; i < requestedSize; i++) {
+                tempData.push_back(EPerfData());
+            }
+
+        }
     }
+
 }
 
 // Add a new kernel with unique ID and optional kernel name
@@ -92,6 +112,8 @@ tKernelMap::iterator EPerf::addKernel(const int ID, const std::string &kName) {
     if (r.second == false) {
         throw std::runtime_error("Kernel already exists.");
     }
+
+    resizeTemporaryDataObject();
 
     return r.first;
 }
@@ -107,6 +129,8 @@ tDeviceMap::iterator EPerf::addDevice(const int ID, const std::string &dName) {
     if (r.second == false) {
         throw std::runtime_error("Device already exists.");
     }
+
+    resizeTemporaryDataObject();
 
     return r.first;
 }
@@ -138,77 +162,122 @@ double EPerf::convTimeSpecToDoubleSeconds(const struct timespec &t) {
 // Start the time measurement of a specific kernel
 void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernelConf &c) {
 
-    checkKernelExistance(KernelID);
-    checkDeviceExistance(DeviceID);
+//    checkKernelExistance(KernelID);
+//    checkDeviceExistance(DeviceID);
+
+    //uint64_t position = ;
 
     /* Lock operation */
-    sem_wait(&synchronize);
-    
-//    std::cerr << "Start Timer: " << getThreadID() << "\n";
-    
-    // Add the configuration to the kernel
-    kernels.find(KernelID)->second.insertKernelConf(c);
+    //sem_wait(&synchronize);
 
-    // Insert a new temporary object and get a reference to it
-    // Possibly an entry already exists from KDV
-    std::pair<tTempDataMap::iterator, bool> x;
-
-    x = tempData.insert(std::make_pair(ID_type(KernelID, DeviceID, getThreadID()), EPerfData()));
-
-    // Set the configuration reference
-    (x.first)->second.kConfigHash = c.getKernelConfHash();
-
-    // Start the timers
-    (x.first)->second.startAllTimers();
+//    uint64_t position = omp_get_thread_num();
+    uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
+    uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
+    tempData[position].startAllTimers();
 
     /* Unlock */
-    sem_post(&synchronize);
+    //sem_post(&synchronize);
+
+    //tempData[(KernelID + DeviceID) * omp_get_thread_num()].startAllTimers();
+
+//    std::cerr << "Start Timer: " << getThreadID() << "\n";
+    
+/*
+    #pragma omp critical
+    {
+        // Add the configuration to the kernel
+//        kernels.find(KernelID)->second.insertKernelConf(c);
+//        tempData[position].kConfigHash = c.getKernelConfHash();
+    }
+*/
+    // Insert a new temporary object and get a reference to it
+    // Possibly an entry already exists from KDV
+    //std::pair<tTempDataMap::iterator, bool> *x = new std::pair<tTempDataMap::iterator, bool>();
+    
+/*
+    tempData.insert(std::make_pair(
+        ID_type(KernelID, DeviceID, getThreadID()), EPerfData()
+    ));
+*/
+
+    //std::cout << "Thread: " << omp_get_thread_num() << " of "
+    //        << omp_get_num_threads() << "\n";
+
+
+    // Set the configuration reference
+    //(x.first)->second.kConfigHash = c.getKernelConfHash();
+
+    // Start the timers
+    //(x->first)->second.startAllTimers();
 };
 
 // Stop the time measurement and save the measured time
 void EPerf::stopTimer(const int KernelID, const int DeviceID) {
 
-    /* Lock operation */
-    sem_wait(&synchronize);
-    
-//    std::cerr << "Stop Timer: " << getThreadID() << "\n";
+    //uint64_t position = ;
 
-    // Get the entry
+    uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
+    uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
+    tempData[position].stopAllTimers();
+
+    /* Unlock */
+    //sem_post(&synchronize);
+
+    tempData[position].KernelID = KernelID;
+    tempData[position].DeviceID = DeviceID;
+    tempData[position].ThreadID = omp_get_thread_num();
+    //tempData[position].PID = getpid();
+
+    /*
+//    std::cerr << "Stop Timer: " << getThreadID() << "\n";
+   
     tTempDataMap::iterator x = tempData.find(ID_type(KernelID, DeviceID, getThreadID()));
+   
     if (x == tempData.end()) {
         throw std::runtime_error("Timer was not started!");
     }
 
     // Stop the timers
     x->second.stopAllTimers();
-
+//    (*x->second).stopAllTimers();
+    
     // Copy to set and remove temporary entry
     x->second.KernelID = KernelID;
     x->second.DeviceID = DeviceID;
     x->second.ThreadID = getThreadID();
     x->second.PID = getpid();
-    
-    std::pair<tDataSet::const_iterator, bool> test = data.insert(x->second);
+*/
+
+//    std::pair<tDataSet::const_iterator, bool> test =
+
+    /* Lock operation */
+    //sem_wait(&synchronize);
+
+    #pragma omp critical
+    {
+        data.insert(tempData[position]);
+    }
+/*
     if (!test.second) {
         throw std::runtime_error("Something went wrong on data insertion.");
     }
-
-    tempData.erase(ID_type(KernelID, DeviceID, getThreadID()));
-
+*/
     /* Unlock operation */
-    sem_post(&synchronize);
+    //sem_post(&synchronize);
+
+    //tempData.erase(ID_type(KernelID, DeviceID, getThreadID()));
 
 }
 
 void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes) {
 
     // Check IDs
-    checkKernelExistance(KernelID);
-    checkDeviceExistance(DeviceID);
+//    checkKernelExistance(KernelID);
+//    checkDeviceExistance(DeviceID);
 
     /* LOCK */
-    sem_wait(&synchronize);
-
+//    sem_wait(&synchronize);
+/*
     // Insert a new temporary object and get a reference to it
     // Possibly an entry already exists from KDV
     std::pair<tTempDataMap::iterator, bool> x;
@@ -219,8 +288,15 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, in
     (x.first)->second.inBytes  = inBytes;
     (x.first)->second.outBytes = outBytes;
 
+*/
+
+    uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
+    uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
+    tempData[position].inBytes = inBytes;
+    tempData[position].outBytes = outBytes;
+
     /* UNLOCK */
-    sem_post(&synchronize);
+//    sem_post(&synchronize);
 
 }
 
