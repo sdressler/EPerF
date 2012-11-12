@@ -33,9 +33,11 @@ private:
 	int KernelID;		///< Holds the reference to the used kernel
 	int DeviceID;		///< Holds the reference to the used device
     int ThreadID;       ///< Holds the reference to the used thread
-    int PID;            ///< Holds the PID of the caller
+    //int PID;            ///< Holds the PID of the caller
 
 	std::string kConfigHash; ///< A reference to the kernel configuration hash
+
+	bool timerIsRunning;
 
 public:
 	/**
@@ -47,22 +49,52 @@ public:
 	inline int getKernelID() const { return KernelID; }
 	inline int getDeviceID() const { return DeviceID; }
     inline int getThreadID() const { return ThreadID; }
-    inline int getPID() const { return PID; }
+//    inline int getPID() const { return PID; }
 	inline EPerfClock& getTimeStamp() const { return const_cast<EPerfClock&>(timestamp); }
 
 	inline void startAllTimers() {
 		timestamp.takeStartStamp();
 		clocks[0].takeStartStamp();
-		clocks[1].takeStartStamp();
+//		clocks[1].takeStartStamp();
+		timerIsRunning = true;
 	}
 
 	inline void stopAllTimers() {
-		clocks[1].takeStopStamp();
+	    if (timerIsRunning == false) {
+	        throw std::runtime_error("Timer was not started!");
+	    }
+
+//		clocks[1].takeStopStamp();
 		clocks[0].takeStopStamp();
 		timestamp.takeStopStamp();
+
+		timerIsRunning = false;
 	}
 
-	friend bool operator<(const EPerfData &x, const EPerfData &y);
+    inline friend bool operator<(const EPerfData &x, const EPerfData &y) {
+        // Test whether we have different kernels
+        if (x.KernelID < y.KernelID) {
+            return true;
+        } else {
+            // Kernels are equal, check more properties
+            // Test whether we are on different devices
+            if (x.DeviceID < y.DeviceID) {
+                return true;
+            } else {
+    /*			// Equal devices, configurations should be different
+                if (x.kConfigHash < y.kConfigHash) {
+                    return true;
+                } else {
+    */
+                    // Not -> Timestamps are left
+                    return x.timestamp < y.timestamp;
+    //			}
+            }
+        }
+
+        // Error otherwise
+        return false;			
+    }
 
 	/**
 	 * Print the class' content to a stream. If the stream is an ofstream the

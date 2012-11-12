@@ -61,7 +61,7 @@ private:
         inline ID_type(int _K, int _D, int _T) : K(_K), D(_D), T(_T) { }
 
         // This implements strict weak ordering for the map
-        bool operator<(const ID_type &oID) const {
+        inline bool operator<(const ID_type &oID) const {
             if (K != oID.K) {
                 return (K < oID.K);
             }
@@ -74,8 +74,10 @@ private:
         }
     };
 
-    typedef std::map<ID_type, EPerfData> tTempDataMap;
-    tTempDataMap tempData;
+//    typedef std::map<ID_type, EPerfData> tTempDataMap;
+//    tTempDataMap tempData;
+
+    std::vector<EPerfData> tempData;
 
     inline pid_t getThreadID() { return syscall(__NR_gettid); }
 
@@ -95,7 +97,11 @@ private:
 	 * @exception std::invalid_argument If the device does not exist
 	 * @param[in] ID The ID of the device
 	 * */
-	void checkDeviceExistance(const int ID);
+    inline void checkDeviceExistance(const int ID) {
+        if (devices.find(ID) == devices.end()) {
+            throw std::invalid_argument("Device ID not valid.");
+        }
+    }
 	
 	/**
 	 * Checks whether a specific kernel ID exists
@@ -103,9 +109,15 @@ private:
 	 * @exception std::invalid_argument If the kernel does not exist
 	 * @param[in] ID The ID of the kernel
 	 * */
-	void checkKernelExistance(const int ID);
+    inline void checkKernelExistance(const int ID) {
+        if (kernels.find(ID) == kernels.end()) {
+            throw std::invalid_argument("Kernel ID not valid.");
+        }
+    }
 
 	int BDB_getDevice(Db *sbdbp, const Dbt *pkey, const Dbt *pvalue, Dbt *skey);
+
+	void resizeTemporaryDataObject();
 
 public:
 

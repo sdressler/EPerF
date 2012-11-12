@@ -8,52 +8,29 @@ EPerfData::EPerfData() {
 	DeviceID = -1;
 	inBytes = 0;
 	outBytes = 0;
-	
+	timerIsRunning = false;
+/*
     #ifdef __MACH__
         clocks.push_back(EPerfClock());
     #else
         clocks.push_back(EPerfClock(CLOCK_MONOTONIC));
     #endif
     clockNames[0] = "wall-clock";
+*/
 
     #ifdef __MACH__
         clocks.push_back(EPerfClock());
     #else
 	    clocks.push_back(EPerfClock(CLOCK_PROCESS_CPUTIME_ID));
     #endif
-    clockNames[1] = "CPU clock";
-}
-
-bool operator<(const EPerfData &x, const EPerfData &y) {
-	// Test whether we have different kernels
-	if (x.KernelID < y.KernelID) {
-		return true;
-	} else {
-		// Kernels are equal, check more properties
-		// Test whether we are on different devices
-		if (x.DeviceID < y.DeviceID) {
-			return true;
-		} else {
-/*			// Equal devices, configurations should be different
-			if (x.kConfigHash < y.kConfigHash) {
-				return true;
-			} else {
-*/
-				// Not -> Timestamps are left
-				return x.timestamp < y.timestamp;
-//			}
-		}
-	}
-
-	// Error otherwise
-	return false;			
+    clockNames[0] = "CPU clock";
 }
 
 std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
 
 	out << "KernelID: "  << d.KernelID
         << " DeviceID: " << d.DeviceID 
-        << " PID: " << d.PID
+//        << " PID: " << d.PID
         << " ThreadID: " << d.ThreadID
         << "\n";
     out << "Config Hash: " << d.kConfigHash << "\n";
@@ -83,15 +60,15 @@ std::vector<std::string> EPerfData::createSQLInsertObj() const {
         <<      "ts_start_ns, "
         <<      "ts_stop_s, "
         <<      "ts_stop_ns, "
-        <<      "wclock_start_s, "
-        <<      "wclock_start_ns, "
-        <<      "wclock_stop_s, "
-        <<      "wclock_stop_ns, "
+//        <<      "wclock_start_s, "
+//        <<      "wclock_start_ns, "
+//        <<      "wclock_stop_s, "
+//        <<      "wclock_stop_ns, "
         <<      "cpuclock_start_s, "
         <<      "cpuclock_start_ns, "
         <<      "cpuclock_stop_s, "
         <<      "cpuclock_stop_ns, "
-        <<      "pid, tid, data_in, data_out"
+        <<      "tid, data_in, data_out"
         << ") "
         << "VALUES ("
         <<      KernelID << ", "
@@ -107,8 +84,8 @@ std::vector<std::string> EPerfData::createSQLInsertObj() const {
         q << clockval[0] << ", " << clockval[1] << ", " << clockval[2] << ", " << clockval[3] << ", ";
     }
 
-    q   <<      PID << ", "
-        <<      ThreadID << ", "
+//    q   <<      PID << ", "
+      q <<      ThreadID << ", "
         <<      inBytes << ", "
         <<      outBytes
         << ")";

@@ -79,15 +79,10 @@ private:
                     ts_start_ns INTEGER, \
                     ts_stop_s INTEGER, \
                     ts_stop_ns INTEGER, \
-                    wclock_start_s INTEGER, \
-                    wclock_start_ns INTEGER, \
-                    wclock_stop_s INTEGER, \
-                    wclock_stop_ns INTEGER, \
                     cpuclock_start_s INTEGER, \
                     cpuclock_start_ns INTEGER, \
                     cpuclock_stop_s INTEGER, \
                     cpuclock_stop_ns INTEGER, \
-                    pid INTEGER, \
                     tid INTEGER, \
                     data_in INTEGER, \
                     data_out INTEGER, \
@@ -162,6 +157,9 @@ public:
         }
 
     }
+
+    void beginTransaction() { sqlite3_exec(db, "BEGIN", 0, 0, 0); }
+    void endTransaction() { sqlite3_exec(db, "COMMIT", 0, 0, 0); }
 
 };
 }
