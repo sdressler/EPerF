@@ -12,7 +12,7 @@ namespace ENHANCE {
 class IEPerfSQLite {
 public:
     virtual std::vector<std::string> createSQLInsertObj() const = 0;
- 
+    virtual ~IEPerfSQLite() { }
 };
 
 class EPerfSQLite {
@@ -62,6 +62,7 @@ private:
 
             executeInsertQuery(sql);
 */
+/*
             sql = "CREATE TABLE kernelConfigurations ( \
                     hash VARCHAR(64), \
                     key VARCHAR(255), \
@@ -70,11 +71,10 @@ private:
                    )";
 
             executeInsertQuery(sql);
-
+*/
             sql = "CREATE TABLE data ( \
                     id_kernel INTEGER, \
                     id_device INTEGER, \
-                    conf_hash TEXT, \
                     ts_start_s INTEGER, \
                     ts_start_ns INTEGER, \
                     ts_stop_s INTEGER, \
@@ -87,7 +87,7 @@ private:
                     data_in INTEGER, \
                     data_out INTEGER, \
                     PRIMARY KEY( \
-                        id_kernel, id_device, conf_hash, \
+                        id_kernel, id_device, \
                         ts_start_s, ts_start_ns, \
                         ts_stop_s, ts_stop_ns \
                     ) \
@@ -121,7 +121,7 @@ public:
     
     }
 
-    ~EPerfSQLite() { sqlite3_close(db); }
+    virtual ~EPerfSQLite() { sqlite3_close(db); }
 
     void executeInsertQuery(const std::string &q) {
 

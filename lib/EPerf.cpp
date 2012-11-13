@@ -53,7 +53,7 @@ void EPerf::commitToDB() {
             db.executeInsertQuery(
                 (it->second).createSQLInsertObj()
             );
-
+/*
         // Write the configuration maps for the kernel
         std::pair<tKConfMap::iterator, tKConfMap::iterator> cMap = (it->second).getConfMapIterators();
 
@@ -63,7 +63,7 @@ void EPerf::commitToDB() {
                 (cit->second).createSQLInsertObj()
             );
         }
-
+*/
     }
 
     db.beginTransaction();

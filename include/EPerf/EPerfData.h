@@ -35,7 +35,7 @@ private:
     int ThreadID;       ///< Holds the reference to the used thread
     //int PID;            ///< Holds the PID of the caller
 
-	std::string kConfigHash; ///< A reference to the kernel configuration hash
+	//std::string kConfigHash; ///< A reference to the kernel configuration hash
 
 	bool timerIsRunning;
 
@@ -45,6 +45,8 @@ public:
 	 *
 	 * */
 	EPerfData();
+
+	virtual ~EPerfData() { }
 
 	inline int getKernelID() const { return KernelID; }
 	inline int getDeviceID() const { return DeviceID; }
@@ -71,6 +73,7 @@ public:
 		timerIsRunning = false;
 	}
 
+
     inline friend bool operator<(const EPerfData &x, const EPerfData &y) {
         // Test whether we have different kernels
         if (x.KernelID < y.KernelID) {
@@ -81,11 +84,11 @@ public:
             if (x.DeviceID < y.DeviceID) {
                 return true;
             } else {
-    /*			// Equal devices, configurations should be different
+/*    			// Equal devices, configurations should be different
                 if (x.kConfigHash < y.kConfigHash) {
                     return true;
                 } else {
-    */
+*/
                     // Not -> Timestamps are left
                     return x.timestamp < y.timestamp;
     //			}
@@ -95,6 +98,7 @@ public:
         // Error otherwise
         return false;			
     }
+
 
 	/**
 	 * Print the class' content to a stream. If the stream is an ofstream the
