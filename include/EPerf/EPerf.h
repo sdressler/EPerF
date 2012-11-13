@@ -48,9 +48,11 @@
 
 namespace ENHANCE {
 
+typedef std::vector<std::vector<EPerfData> > tDataVector;
+
 class EPerf : public EPerfContainer {
 private:
-
+/*
     class ID_type {
     private:
         int K;
@@ -73,11 +75,14 @@ private:
             return (T < oID.T);
         }
     };
-
+*/
 //    typedef std::map<ID_type, EPerfData> tTempDataMap;
 //    tTempDataMap tempData;
 
-    std::vector<EPerfData> tempData;
+    //typedef std::vector<std::vector<EPerfData> > tDataVector;
+
+    tDataVector data;
+    std::vector<unsigned int> dataSizeVector;
 
     inline pid_t getThreadID() { return syscall(__NR_gettid); }
 

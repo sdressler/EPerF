@@ -85,8 +85,8 @@ int cpp_callback_EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID
  * 		E_NOK if the kernel was not found,
  * 		E_NOD if the device was not found
  * */
-int EPerfStartTimer(EPerf *e, int KernelID, int DeviceID, EPerfKernelConf *c);
-int cpp_callback_EPerfStartTimer(EPerf *e, int KernelID, int DeviceID, EPerfKernelConf *c);
+int EPerfStartTimer(EPerf *e, int KernelID, int DeviceID);
+int cpp_callback_EPerfStartTimer(EPerf *e, int KernelID, int DeviceID);
 
 /**
  * Stops the time measurement for a specific kernel / device combination

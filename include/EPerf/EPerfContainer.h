@@ -17,14 +17,14 @@ namespace ENHANCE {
 typedef std::map<int, EPerfKernel> tKernelMap;
 typedef std::map<int, EPerfDevice> tDeviceMap;
 
-typedef std::set<EPerfData> tDataSet;
+//typedef std::set<EPerfData> tDataSet;
 
 class EPerfContainer {
 
 protected:
 	tKernelMap kernels;	///< Holds the kernels with ID and name
 	tDeviceMap devices;	///< Holds the devices with ID and name
-	tDataSet data;		///< Holds the performance data
+	//tDataSet data;		///< Holds the performance data
 
 	tDeviceMap& getDevices() { return devices; }
 
