@@ -21,8 +21,8 @@ int EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID) {
 	return cpp_callback_EPerfAddSubDeviceToDevice(e, ID, sID);
 }
 
-int EPerfStartTimer(EPerf *e, int KernelID, int DeviceID, EPerfKernelConf *c) {
-	return cpp_callback_EPerfStartTimer(e, KernelID, DeviceID, c);
+int EPerfStartTimer(EPerf *e, int KernelID, int DeviceID) {
+	return cpp_callback_EPerfStartTimer(e, KernelID, DeviceID);
 }
 
 int EPerfStopTimer(EPerf *e, int KernelID, int DeviceID) {

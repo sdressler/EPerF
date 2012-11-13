@@ -68,9 +68,20 @@ void EPerf::commitToDB() {
 
     db.beginTransaction();
 
+    //std::cout << data.size() << "\n";
+
+
+    for (unsigned int i = 0; i < data.size(); i++) {
+        for (unsigned int j = 0; j < dataSizeVector[i]; j++) {
+            db.executeInsertQuery(data[i][j].createSQLInsertObj());
+        }
+    }
+
+    /*
     for (tDataSet::iterator it = data.begin(); it != data.end(); ++it) {
         db.executeInsertQuery(it->createSQLInsertObj());
     }
+    */
 
     db.endTransaction();
 
@@ -90,12 +101,17 @@ void EPerf::resizeTemporaryDataObject() {
 
             size_t requestedSize = (k_size + d_size) * num_threads;
 
-            tempData.clear();
+            //data.clear();
+            data.resize(requestedSize, std::vector<EPerfData>(1000));
+            dataSizeVector.resize(requestedSize, 0);
 
+//            dataSizeVector.clear();
+/*
             for (size_t i = 0; i < requestedSize; i++) {
-                tempData.push_back(EPerfData());
+                data.push_back(std::vector<EPerfData>(1));
+                dataSizeVector.resize();
             }
-
+*/
         }
     }
 
@@ -162,110 +178,31 @@ double EPerf::convTimeSpecToDoubleSeconds(const struct timespec &t) {
 // Start the time measurement of a specific kernel
 void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernelConf &c) {
 
-//    checkKernelExistance(KernelID);
-//    checkDeviceExistance(DeviceID);
-
-    //uint64_t position = ;
-
-    /* Lock operation */
-    //sem_wait(&synchronize);
-
-//    uint64_t position = omp_get_thread_num();
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
-    tempData[position].startAllTimers();
 
-    /* Unlock */
-    //sem_post(&synchronize);
-
-    //tempData[(KernelID + DeviceID) * omp_get_thread_num()].startAllTimers();
-
-//    std::cerr << "Start Timer: " << getThreadID() << "\n";
-    
-/*
-    #pragma omp critical
-    {
-        // Add the configuration to the kernel
-//        kernels.find(KernelID)->second.insertKernelConf(c);
-//        tempData[position].kConfigHash = c.getKernelConfHash();
-    }
-*/
-    // Insert a new temporary object and get a reference to it
-    // Possibly an entry already exists from KDV
-    //std::pair<tTempDataMap::iterator, bool> *x = new std::pair<tTempDataMap::iterator, bool>();
-    
-/*
-    tempData.insert(std::make_pair(
-        ID_type(KernelID, DeviceID, getThreadID()), EPerfData()
-    ));
-*/
-
-    //std::cout << "Thread: " << omp_get_thread_num() << " of "
-    //        << omp_get_num_threads() << "\n";
-
-
-    // Set the configuration reference
-    //(x.first)->second.kConfigHash = c.getKernelConfHash();
-
-    // Start the timers
-    //(x->first)->second.startAllTimers();
+    data[position][dataSizeVector[position]].startAllTimers();
 };
 
 // Stop the time measurement and save the measured time
 void EPerf::stopTimer(const int KernelID, const int DeviceID) {
 
-    //uint64_t position = ;
-
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
-    tempData[position].stopAllTimers();
+    data[position][dataSizeVector[position]].stopAllTimers();
 
     /* Unlock */
     //sem_post(&synchronize);
 
-    tempData[position].KernelID = KernelID;
-    tempData[position].DeviceID = DeviceID;
-    tempData[position].ThreadID = omp_get_thread_num();
-    //tempData[position].PID = getpid();
+    data[position][dataSizeVector[position]].KernelID = KernelID;
+    data[position][dataSizeVector[position]].DeviceID = DeviceID;
+    data[position][dataSizeVector[position]].ThreadID = omp_get_thread_num();
 
-    /*
-//    std::cerr << "Stop Timer: " << getThreadID() << "\n";
-   
-    tTempDataMap::iterator x = tempData.find(ID_type(KernelID, DeviceID, getThreadID()));
-   
-    if (x == tempData.end()) {
-        throw std::runtime_error("Timer was not started!");
+    dataSizeVector[position]++;
+
+    if (data[position].size() - dataSizeVector[position] < 100) {
+        data[position].resize(data[position].size() + 5000);
     }
-
-    // Stop the timers
-    x->second.stopAllTimers();
-//    (*x->second).stopAllTimers();
-    
-    // Copy to set and remove temporary entry
-    x->second.KernelID = KernelID;
-    x->second.DeviceID = DeviceID;
-    x->second.ThreadID = getThreadID();
-    x->second.PID = getpid();
-*/
-
-//    std::pair<tDataSet::const_iterator, bool> test =
-
-    /* Lock operation */
-    //sem_wait(&synchronize);
-
-    #pragma omp critical
-    {
-        data.insert(tempData[position]);
-    }
-/*
-    if (!test.second) {
-        throw std::runtime_error("Something went wrong on data insertion.");
-    }
-*/
-    /* Unlock operation */
-    //sem_post(&synchronize);
-
-    //tempData.erase(ID_type(KernelID, DeviceID, getThreadID()));
 
 }
 
@@ -277,23 +214,11 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, in
 
     /* LOCK */
 //    sem_wait(&synchronize);
-/*
-    // Insert a new temporary object and get a reference to it
-    // Possibly an entry already exists from KDV
-    std::pair<tTempDataMap::iterator, bool> x;
-    
-    // Get or create a (new) entry 
-    x = tempData.insert(std::make_pair(ID_type(KernelID, DeviceID, getThreadID()), EPerfData()));
-
-    (x.first)->second.inBytes  = inBytes;
-    (x.first)->second.outBytes = outBytes;
-
-*/
 
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
-    tempData[position].inBytes = inBytes;
-    tempData[position].outBytes = outBytes;
+    data[position][dataSizeVector[position]].inBytes = inBytes;
+    data[position][dataSizeVector[position]].outBytes = outBytes;
 
     /* UNLOCK */
 //    sem_post(&synchronize);
@@ -317,9 +242,19 @@ std::ostream& operator<<(std::ostream &out, const EPerf &e) {
     out << "\n";
     
     out << "Timings & Data volumes:\n";
+
+    /*
     for (tDataSet::const_iterator it = e.data.begin(); it != e.data.end(); ++it) {
         out << *it << "\n";
     }
+    */
+
+    for (unsigned int i = 0; i < e.data.size(); i++) {
+        for (unsigned int j = 0; j < e.dataSizeVector[i]; j++) {
+            out << e.data[i][j] << "\n";
+        }
+    }
+
     out << "\n";
 
     return out;

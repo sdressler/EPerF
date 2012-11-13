@@ -50,14 +50,14 @@ program fibonacci
 ! Fib number to generate
         f = i  * 10
 ! Initialize Kernel Configuration
-        eperfKernelConf = EPerfInitKernelConf()
+!        eperfKernelConf = EPerfInitKernelConf()
 ! Write Configuration String
-        write(s,'(I10)')f
-        err=EPerfInsertKernelConfPair(eperfKernelConf, "number"// C_NULL_CHAR, s// C_NULL_CHAR)
+!        write(s,'(I10)')f
+!        err=EPerfInsertKernelConfPair(eperfKernelConf, "number"// C_NULL_CHAR, s// C_NULL_CHAR)
 ! Set KD    
         err = EPerfAddKernelDataVolumes(eperf, 1, 0, 8_8, 8_8)
 ! Start Timer      
-        err = EPerfStartTimer(eperf, 1, 0, eperfKernelConf)
+        err = EPerfStartTimer(eperf, 1, 0)
 ! Run Kernel
         fNum = fib(f)  
 ! Stop Timer

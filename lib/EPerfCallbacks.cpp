@@ -60,13 +60,15 @@ int cpp_callback_EPerfAddSubDeviceToDevice(EPerf *e, const int ID, const int sID
 	return E_OK;
 }
 
-int cpp_callback_EPerfStartTimer(EPerf *e, int KernelID, int DeviceID, EPerfKernelConf *c) {
+int cpp_callback_EPerfStartTimer(EPerf *e, int KernelID, int DeviceID) {
 	try {
-        if (c == NULL) {
-    		e->startTimer(KernelID, DeviceID);
+//        if (c == NULL) {
+ 		e->startTimer(KernelID, DeviceID);
+/*
         } else {
             e->startTimer(KernelID, DeviceID, *c);
         }
+*/
 	} catch (std::invalid_argument &e) {
 		// Decode exception
 		std::string what = e.what();

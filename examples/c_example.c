@@ -20,7 +20,7 @@ int main(void) {
     EPerf *e = EPerfInit("");
 
     // Holds the configurations
-    EPerfKernelConf *c;
+    //EPerfKernelConf *c;
 
     printf("Adding kernel.\n");
     err = EPerfAddKernel(e, 0, "Fibonacci");
@@ -42,17 +42,17 @@ int main(void) {
         f = (i + 1) * 10;
 
         // Initialize Kernel Configuration
-        c = EPerfInitKernelConf();
+        //c = EPerfInitKernelConf();
 
         // Write Configuration String
-        sprintf(s, "%d", f);
-        EPerfInsertKernelConfPair(c, "number", s);
+        //sprintf(s, "%d", f);
+        //EPerfInsertKernelConfPair(c, "number", s);
 
         // Set KDV
         EPerfAddKernelDataVolumes(e, 0, 0, 4, 4);
 
         // Start Timer
-        EPerfStartTimer(e, 0, 0, c);
+        EPerfStartTimer(e, 0, 0);
         
         // Run Kernel
         f = fib(f);
