@@ -88,6 +88,8 @@ private:
 
     std::string dbFileName;
 
+	unsigned long max_threads;
+
 	/**
 	 * Captures the current time and converts it to double
 	 *

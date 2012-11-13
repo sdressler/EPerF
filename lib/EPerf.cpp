@@ -28,6 +28,8 @@ EPerf::EPerf(const std::string &_dbFileName) {
         dbFileName = _dbFileName;
     }
 
+	max_threads = omp_get_num_procs();
+
 }
 
 EPerf::~EPerf() {
@@ -89,31 +91,35 @@ void EPerf::commitToDB() {
 
 void EPerf::resizeTemporaryDataObject() {
 
+/*
     #pragma omp parallel
     {
+    
         if (omp_get_thread_num() == 0) {
-
+*/
+	size_t num_threads = omp_get_num_procs();
 //            size_t currentSize = tempData.size();
 
-            size_t k_size = kernels.size();
-            size_t d_size = devices.size();
-            size_t num_threads = omp_get_num_threads();
+	size_t k_size = kernels.size();
+	size_t d_size = devices.size();
 
-            size_t requestedSize = (k_size + d_size) * num_threads;
+	size_t requestedSize = (k_size + d_size) * num_threads;
 
-            //data.clear();
-            data.resize(requestedSize, std::vector<EPerfData>(1000));
-            dataSizeVector.resize(requestedSize, 0);
+/*
+	std::cout << k_size << " " << d_size << " " << num_threads << " " << requestedSize << "\n";
+*/
+
+	//data.clear();
+	data.resize(requestedSize, std::vector<EPerfData>(1000));
+	dataSizeVector.resize(requestedSize, 0);
 
 //            dataSizeVector.clear();
 /*
-            for (size_t i = 0; i < requestedSize; i++) {
-                data.push_back(std::vector<EPerfData>(1));
-                dataSizeVector.resize();
-            }
+	for (size_t i = 0; i < requestedSize; i++) {
+		data.push_back(std::vector<EPerfData>(1));
+		dataSizeVector.resize();
+	}
 */
-        }
-    }
 
 }
 
@@ -180,7 +186,13 @@ void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernel
 
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
-
+/*
+	#pragma omp critical
+	{
+		std::cout << KernelID << " " << DeviceID << " " << omp_get_thread_num() << " " << omp_get_num_threads() << " " << position 
+					<< " " << data.size() << "\n";
+	}
+*/
     data[position][dataSizeVector[position]].startAllTimers();
 };
 
