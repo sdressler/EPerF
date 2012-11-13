@@ -95,6 +95,12 @@ private:
 
             executeInsertQuery(sql);
 
+            sql = "CREATE INDEX ts_start_s_index ON data(ts_start_s)";
+            executeInsertQuery(sql);
+            
+            sql = "CREATE INDEX ts_start_ns_index ON data(ts_start_ns)";
+            executeInsertQuery(sql);
+
         }
 
     }
