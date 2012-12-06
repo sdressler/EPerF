@@ -1,4 +1,6 @@
-AC_INIT(EPerF, version-0.5.1)
+AC_INIT([EPerF],[version-0.5.1])
+
+m4_include([m4/ax_lib_sqlite3.m4])
 
 AC_ARG_ENABLE(
     [fortran-api],
@@ -59,14 +61,15 @@ AS_IF(
 #    AC_MSG_ERROR([BerkeleyDB not found.])
 #)
 
-AX_CHECK_OPENSSL(
-    AC_SUBST(LSSL, -lssl),
-    AC_MSG_ERROR([OpenSSL not found.])
-)
-
-AX_LIB_SQLITE3([3.6.0])
+#AX_CHECK_OPENSSL(
+#    AC_SUBST(LSSL, -lssl),
+#    AC_MSG_ERROR([OpenSSL not found.])
+#)
 
 AC_LANG(C)
+
+#AX_LIB_SQLITE3([3.6.0])
+AX_LIB_SQLITE3([3.6.0])
 
 AC_CHECK_LIB(
     rt,
@@ -74,11 +77,11 @@ AC_CHECK_LIB(
     AC_SUBST(LRT, -lrt)
 )
 
-AC_CHECK_LIB(
-    crypto,
-    SHA256_Init,
-    AC_SUBST(LCRYPTO, -lcrypto)
-)
+#AC_CHECK_LIB(
+#    crypto,
+#    SHA256_Init,
+#    AC_SUBST(LCRYPTO, -lcrypto)
+#)
 
 AC_CHECK_HEADERS([sys/utsname.h])
 
@@ -100,8 +103,10 @@ AC_ARG_ENABLE(
     )
 )
 
-AC_OUTPUT(Makefile)
-AC_OUTPUT(Makefile.inc)
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+AC_CONFIG_FILES([Makefile.inc])
+AC_OUTPUT
 
 [echo]
 [echo ======= SUMMARY =======]

@@ -122,7 +122,7 @@ private:
         }
     }
 
-	int BDB_getDevice(Db *sbdbp, const Dbt *pkey, const Dbt *pvalue, Dbt *skey);
+//	int BDB_getDevice(Db *sbdbp, const Dbt *pkey, const Dbt *pvalue, Dbt *skey);
 
 	void resizeTemporaryDataObject();
 

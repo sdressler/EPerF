@@ -33,6 +33,7 @@ std::ostream& operator<<(std::ostream &out, const EPerfExperiment &e) {
 	return out;
 }
 
+/*
 tByteVectorMap EPerfExperiment::convertToByteVectorMap() const {
 
     tByteVectorMap map;
@@ -98,5 +99,5 @@ tByteVectorMap EPerfExperiment::convertToByteVectorMap() const {
     return map;
 
 }
-
+*/
 }

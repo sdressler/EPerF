@@ -5,8 +5,6 @@
 #include "EPerfDevice.h"
 #include "EPerfData.h"
 
-#include "DB/IBDBObject.h"
-
 #include <string>
 #include <set>
 #include <map>

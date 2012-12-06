@@ -4,7 +4,7 @@ CFLAGS = @CFLAGS@ -Wall
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@ -Wall -fopenmp
 
-LLIB = @LRT@ @LSSL@ @LCRYPTO@ @SQLITE3_LDFLAGS@ -fopenmp
+LLIB = @LRT@ @SQLITE3_LDFLAGS@ -fopenmp
 
 FC = @FC@
 FFLAGS = -std=f2003 -J../include/EPerf

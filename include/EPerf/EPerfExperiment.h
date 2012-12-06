@@ -7,10 +7,8 @@
 
 #include <ctime>
 
-#include "DB/IBDBObject.h"
-
 namespace ENHANCE {
-class EPerfExperiment : public IBDBObject {
+class EPerfExperiment {
 private:
 	std::string name;       ///< Experiment identifier
     std::string osinfo;     ///< Version of OS
@@ -38,7 +36,7 @@ public:
 	 * */
 	friend std::ostream& operator<<(std::ostream &out, const EPerfExperiment &e);
 
-	virtual tByteVectorMap convertToByteVectorMap() const;
+//	virtual tByteVectorMap convertToByteVectorMap() const;
 };
 }
 
