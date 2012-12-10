@@ -26,26 +26,7 @@ std::vector<std::string> EPerfKernel::createSQLInsertObj() const {
     return x;
 
 }
-/*
-tByteVectorMap EPerfKernel::convertToByteVectorMap() const {
 
-    tByteVectorMap map;
-
-    std::string key = "name";
-	std::vector<char> value(name.size() + 1);
-	
-	// Place the name of the kernel
-	memcpy(
-        static_cast<void*>(&value[0]),
-        static_cast<const char*>(name.c_str()),
-        name.size() + 1
-    );
-    map.insert(std::make_pair(key, value));
-
-	return map;
-
-}
-*/
 void EPerfKernel::insertKernelConf(const EPerfKernelConf &c) {
 
     std::string hash = c.getKernelConfHash();

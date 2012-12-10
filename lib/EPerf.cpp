@@ -55,23 +55,9 @@ void EPerf::commitToDB() {
             db.executeInsertQuery(
                 (it->second).createSQLInsertObj()
             );
-/*
-        // Write the configuration maps for the kernel
-        std::pair<tKConfMap::iterator, tKConfMap::iterator> cMap = (it->second).getConfMapIterators();
-
-        tKConfMap::iterator cit;
-        for (cit = cMap.first; cit != cMap.second; ++cit) {
-            db.executeInsertQuery(
-                (cit->second).createSQLInsertObj()
-            );
-        }
-*/
     }
 
     db.beginTransaction();
-
-    //std::cout << data.size() << "\n";
-
 
     for (unsigned int i = 0; i < data.size(); i++) {
         for (unsigned int j = 0; j < dataSizeVector[i]; j++) {
@@ -79,47 +65,22 @@ void EPerf::commitToDB() {
         }
     }
 
-    /*
-    for (tDataSet::iterator it = data.begin(); it != data.end(); ++it) {
-        db.executeInsertQuery(it->createSQLInsertObj());
-    }
-    */
-
     db.endTransaction();
 
 }
 
 void EPerf::resizeTemporaryDataObject() {
 
-/*
-    #pragma omp parallel
-    {
-    
-        if (omp_get_thread_num() == 0) {
-*/
-	size_t num_threads = omp_get_num_procs();
-//            size_t currentSize = tempData.size();
+    size_t num_threads = omp_get_num_procs();
 
 	size_t k_size = kernels.size();
 	size_t d_size = devices.size();
 
 	size_t requestedSize = (k_size + d_size) * num_threads;
 
-/*
-	std::cout << k_size << " " << d_size << " " << num_threads << " " << requestedSize << "\n";
-*/
-
 	//data.clear();
 	data.resize(requestedSize, std::vector<EPerfData>(1000));
 	dataSizeVector.resize(requestedSize, 0);
-
-//            dataSizeVector.clear();
-/*
-	for (size_t i = 0; i < requestedSize; i++) {
-		data.push_back(std::vector<EPerfData>(1));
-		dataSizeVector.resize();
-	}
-*/
 
 }
 
@@ -186,13 +147,7 @@ void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernel
 
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
-/*
-	#pragma omp critical
-	{
-		std::cout << KernelID << " " << DeviceID << " " << omp_get_thread_num() << " " << omp_get_num_threads() << " " << position 
-					<< " " << data.size() << "\n";
-	}
-*/
+
     data[position][dataSizeVector[position]].startAllTimers();
 };
 
@@ -202,9 +157,6 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
     data[position][dataSizeVector[position]].stopAllTimers();
-
-    /* Unlock */
-    //sem_post(&synchronize);
 
     data[position][dataSizeVector[position]].KernelID = KernelID;
     data[position][dataSizeVector[position]].DeviceID = DeviceID;
@@ -220,20 +172,10 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
 
 void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes) {
 
-    // Check IDs
-//    checkKernelExistance(KernelID);
-//    checkDeviceExistance(DeviceID);
-
-    /* LOCK */
-//    sem_wait(&synchronize);
-
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
     data[position][dataSizeVector[position]].inBytes = inBytes;
     data[position][dataSizeVector[position]].outBytes = outBytes;
-
-    /* UNLOCK */
-//    sem_post(&synchronize);
 
 }
 
@@ -254,12 +196,6 @@ std::ostream& operator<<(std::ostream &out, const EPerf &e) {
     out << "\n";
     
     out << "Timings & Data volumes:\n";
-
-    /*
-    for (tDataSet::const_iterator it = e.data.begin(); it != e.data.end(); ++it) {
-        out << *it << "\n";
-    }
-    */
 
     for (unsigned int i = 0; i < e.data.size(); i++) {
         for (unsigned int j = 0; j < e.dataSizeVector[i]; j++) {
