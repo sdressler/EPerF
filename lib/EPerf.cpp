@@ -142,6 +142,7 @@ double EPerf::convTimeSpecToDoubleSeconds(const struct timespec &t) {
     return tt;
 }
 
+// TODO: KernelConfiguration
 // Start the time measurement of a specific kernel
 void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernelConf &c) {
 
