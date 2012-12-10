@@ -20,16 +20,8 @@ warranty and it may eat your babies.
 Usage
 -----
 
-First, please execute ./configure and set the desired options. Actually
-two options are available:
-
-	--disable-c-api (Disables the C API interface)
-	--disable-fortran-api (Disables the FORTRAN API interface)
-
-Please note, that when you disable the C API you will also have to disable
-the FORTRAN API.
-
-After configure simply type:
+First, have a look at Makefile.inc in order to change some configuration parameters.
+The, simply type
 
     make (build lib + examples)
 	make doc (build doxygen documentation)

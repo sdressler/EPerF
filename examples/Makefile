@@ -1,4 +1,4 @@
-include ../Makefile.inc
+include ../Makefile.include
 
 TARGET_CPP	= cpp_example
 TARGET_MDEV	= multidevice
