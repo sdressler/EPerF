@@ -70,6 +70,11 @@ AC_LANG(C)
 
 #AX_LIB_SQLITE3([3.6.0])
 AX_LIB_SQLITE3([3.6.0])
+AC_CHECK_DECL(
+    HAVE_SQLITE3,
+    ,
+    AC_MSG_ERROR([SQLite3 > 3.6.0 was not found but is mandatory.])
+)
 
 AC_CHECK_LIB(
     rt,
