@@ -9,7 +9,7 @@ EPerfKernel::EPerfKernel(int _id, std::string s) {
 
     // Create "empty" hash
     EPerfKernelConf c;
-    actConfHash = c.getKernelConfHash();
+    //actConfHash = c.igetKernelConfHash();
 }
 
 std::vector<std::string> EPerfKernel::createSQLInsertObj() const {
@@ -29,15 +29,15 @@ std::vector<std::string> EPerfKernel::createSQLInsertObj() const {
 
 void EPerfKernel::insertKernelConf(const EPerfKernelConf &c) {
 
-    std::string hash = c.getKernelConfHash();
-    config.insert(std::pair<std::string, EPerfKernelConf>(hash, c));
+//    std::string hash = c.getKernelConfHash();
+    //config.insert(std::pair<std::string, EPerfKernelConf>(hash, c));
 //    std::cout << "Inserted configuration: " << hash << "\n";
 
 }
 
 void EPerfKernel::activateKernelConfWithPrototype(const EPerfKernelConf &proto) {
     
-    activateKernelConfWithHash(proto.getKernelConfHash());
+    //activateKernelConfWithHash(proto.getKernelConfHash());
 
 }
 
