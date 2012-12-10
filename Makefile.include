@@ -1,0 +1,15 @@
+CC = gcc
+CFLAGS = -g -O2 -Wall
+
+CXX = g++
+CXXFLAGS = -g -O2 -Wall -fopenmp
+
+LLIB = -lrt -lsqlite3 -fopenmp
+
+FC = gfortran
+FFLAGS = -std=f2003 -J../include/EPerf
+
+# Change these to either activate the C API (CAPI)
+# or the FORTRAN API (FAPI) or both or none
+WITH_CAPI = YES
+WITH_FAPI = YES
