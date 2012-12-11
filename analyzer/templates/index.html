@@ -1,0 +1,55 @@
+<html>
+<head>
+	<title>ePerF Analyzer</title>
+	
+	<link rel="stylesheet" type="text/css" media="all" href="{{url_for('static', filename='css/style.css')}}" />
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,600,700' rel='stylesheet' type='text/css'>
+	
+</head>
+<body>
+
+<div id="title">ePerF Analyzer</div>
+
+<div class="container">
+
+	<div class="section" id="devices">
+		<div class="section_title">Devices</div>
+		<div class="section_body">
+			{% for device in devices %}
+			    <li class="entry device">{{device[0]}}: {{device[1]}}</li>
+			{% endfor %}
+		</div>
+	</div>
+	<div class="clear"></div>
+	<div class="section" id="kernels">
+		<div class="section_title">Kernels</div>
+		<div class="section_body">
+			{% for kernel in kernels %}
+		    	<li class="entry kernel">{{kernel[0]}}: {{kernel[1]}}</li>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+
+<div class="section" id="data">
+	<div class="section_title">Data</div>
+	<div class="section_body" id="data_table">
+	</div>
+</div>
+
+<div class="clear"></div>
+
+<input type="button" value="plot" id="plot_btn"></input>
+
+<div id="visualization"></div>
+
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery-1.8.0.min.js') }}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/functions.js') }}"></script>
+
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">
+	google.load('visualization', '1', {packages: ['corechart', 'table']});
+</script>
+
+</body>
+</html>
