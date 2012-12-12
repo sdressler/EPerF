@@ -59,3 +59,13 @@ body {
 .clear {
 	clear: both;
 }
+
+.chart {
+	margin-top: 20px;
+}
+
+.chart rect {
+	stroke: white;
+	stroke-width: 2pt;
+	fill: #00B1E6;
+}

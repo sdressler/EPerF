@@ -27,7 +27,7 @@ class db_query:
     def db_query_devices(self):
         return self.db_query_full_table("devices");
     
-    def db_query_data_table(self, device_ids, kernel_ids):
+    def db_query_data_table(self, device_ids, kernel_ids, start_time, stop_time):
         devices = ""
         kernels = ""
         
@@ -40,14 +40,21 @@ class db_query:
         query = "SELECT \
                     tid, \
                     ts_start_s - ts_start_ns * 1.0e-9, \
-                    ts_start_s - ts_start_ns * 1.0e-9, \
-                    (ts_stop_s - ts_stop_ns * 1.0e-9) - (ts_start_s - ts_start_ns * 1.0e-9), \
-                    (ts_stop_s - ts_stop_ns * 1.0e-9) - (ts_start_s - ts_start_ns * 1.0e-9) \
+                    ts_stop_s - ts_stop_ns * 1.0e-9 \
                  FROM data WHERE" + devices + kernels
-        
-            
+                 
         # Remove the last " OR"
         query = query[:len(query) - 3]
+                 
+        if (start_time > 0.0):
+            query += " AND ts_start_s - ts_start_ns * 1.0e-9 > " + str(start_time)
+            #query += " AND ts_start_s > " + str(int(start_time))
+            #query += " AND ts_start_ns > " + str(int((start_time - int(start_time)) * 1.0e9))
+                    
+        if (stop_time > 0.0):
+            query += " AND ts_stop_s - ts_stop_ns * 1.0e-9 < " + str(stop_time)
+            #query += " AND ts_stop_s < " + str(int(stop_time))
+            #query += " AND ts_stop_ns < " + str(int((stop_time - int(start_time)) * 1.0e9))
             
         return self.db_query(query)
     
