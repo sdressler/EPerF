@@ -45,16 +45,16 @@ class db_query:
                  
         # Remove the last " OR"
         query = query[:len(query) - 3]
-                 
+        
+        query += " ORDER BY tid"
+        
+        '''
         if (start_time > 0.0):
             query += " AND ts_start_s - ts_start_ns * 1.0e-9 > " + str(start_time)
-            #query += " AND ts_start_s > " + str(int(start_time))
-            #query += " AND ts_start_ns > " + str(int((start_time - int(start_time)) * 1.0e9))
                     
         if (stop_time > 0.0):
             query += " AND ts_stop_s - ts_stop_ns * 1.0e-9 < " + str(stop_time)
-            #query += " AND ts_stop_s < " + str(int(stop_time))
-            #query += " AND ts_stop_ns < " + str(int((stop_time - int(start_time)) * 1.0e9))
-            
+        '''
+        
         return self.db_query(query)
     

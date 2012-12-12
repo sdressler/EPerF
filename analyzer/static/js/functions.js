@@ -1,24 +1,4 @@
-$(document).ready(function(){
-	
-	max_width = Math.max.apply(null, [$("#devices").width(), $("#kernels").width()]);
-	$("#devices").width(max_width);
-	$("#kernels").width(max_width);
-/*
-	$("#result_data").width(
-		$(window).width() - $("#result_data").offset().left - 20	
-	);
-*/	
-	$(".entry").click(function(){
-		$(this).toggleClass("selected");
-		
-		// Trigger a data update
-		data_update();
-		
-	});
-	
-	$("#plot_btn").click(plot());
-	
-});
+
 
 //var draw_data;
 
@@ -33,31 +13,23 @@ var on_x_ax_left = false;
 var on_x_ax_right = false;
 
 var min_x, max_x;
+var min_width = 5;
 
-var bottom_border = 30;
+var bottom_border = 20;
 
 var loaded_data;
 
-var chart = d3.select("body").append("svg")
+//var chart = d3.select("#data_svg")
+/*.append("svg")
 	.attr("class", "chart")
 	.attr("id", "data_plot")
-	.attr("width", $(window).width() - 10)
-	.attr("padding-left", "5px")
-	.attr("padding-right", "5px")
-	.attr("height", 200);
-
-var chart_width = chart.attr("width");
-var chart_height = chart.attr("height") - bottom_border;
-
-chart.append("line")
-	.attr("x1", 0)
-	.attr("x2", chart_width)
-	.attr("y1", chart_height)
-	.attr("y2", chart_height)
-	.style("stroke", "#000")
-	.style("stroke-width", "8px")
-	//.append("svg:title")
-	//.text("Move axis for zoom.")
+	.attr("width", 500)
+	.attr("height", 500)
+//	.attr("width", window.innerWidth - $("data").position().left)
+//	.attr("height", window.innerHeight)
+	//.attr("height", window.innerHeight - ($("#data").position().top + $("#data").outerHeight()))
+*/
+/*
 	.on("mousedown", function(d) {
 		if ((d3.svg.mouse(chart[0][0])[0] / chart_width) < 0.5) {
 			on_x_ax_left = true;
@@ -65,6 +37,53 @@ chart.append("line")
 			on_x_ax_right = true;
 		};
 	});
+*/
+
+var chart;
+
+var chart_width; // = chart.attr("width");
+var chart_height; // = chart.attr("height") - bottom_border;
+
+$(document).ready(function(){
+	
+	max_width = Math.max.apply(null, [$("#devices").width(), $("#kernels").width()]);
+	$("#devices").width(max_width);
+	$("#kernels").width(max_width);
+
+	$("#data").width(
+		window.innerWidth - $("#data").position().left - 20	
+	);
+	
+	$("#data_content").height(
+		window.innerHeight -$("#data").position().top - 100 	
+	);
+	
+	// Resize the chart
+	chart_width = $("#data_content").innerWidth();
+	chart_height = $("#data_conent").innerHeight();
+	
+	chart = d3.select("#data_content").append("svg")
+		.attr("class", "chart")
+		.attr("id", "data_plot")
+		.attr("width", chart_width)
+		.attr("height", chart_height)
+		.on("mousedown", function(d) {
+			if ((d3.svg.mouse(chart[0][0])[0] / chart_width) < 0.5) {
+				on_x_ax_left = true;
+			} else {
+				on_x_ax_right = true;
+			};
+		});
+	
+	$(".entry").click(function(){
+		$(this).toggleClass("selected");
+		
+		// Trigger a data update
+		data_update();
+		
+	});	
+	
+});
 
 function data_update() {
 	
@@ -95,35 +114,20 @@ function data_update() {
 			stop_time: 0
 		}, function(data) {	
 			
-			table = '<table border="1"><tr>';
-			table += '<td>#</td><td>TID</td><td>Start [s]</td><td>Stop [s]</td>';
-			table += '</tr>';
-			
-			$.each(data.result, function(i, row) {			
-				table += '<tr>';
-				table += '<td>' + i + '</td><td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td>';  
-				table += '</tr>';
-			});
-			
+			// Set the global variable
 			loaded_data = data.result;
-				
-			table += '</tr></table>'
-				
-			$("#data_table").html(table);
-
-			var draw_data = data.result;
 			
-			min_x = d3.min(draw_data.map(function(value,index) { return value[1]; }));
-			max_x = d3.max(draw_data.map(function(value,index) { return value[2]; })); 
+			min_x = d3.min(loaded_data.map(function(value,index) { return value[1]; }));
+			max_x = d3.max(loaded_data.map(function(value,index) { return value[2]; })); 
 			
 			x = d3.scale.linear()
-		     .domain([min_x, min_x + 5])
+			 .domain([min_x, max_x])
 		     .range([0, chart_width]);
 		
 			y = d3.scale.ordinal()
 				.domain([
-					d3.min(draw_data.map(function(value,index) { return value[0]; })),
-				    d3.max(draw_data.map(function(value,index) { return value[0] + 1; }))		 
+					d3.min(loaded_data.map(function(value,index) { return value[0]; })),
+				    d3.max(loaded_data.map(function(value,index) { return value[0] + 1; }))		 
 			    ])
 			    .rangeBands([0, chart_height / 3]);
 			
@@ -135,72 +139,75 @@ function data_update() {
 }
 
 function plot() {
+
+	//var chart = d3.select("#data_plot");
 	
-	// min/max range must be available
-	if (typeof min_x == 'undefined') {
-		return;
-	}
+	//this_draw_data = data.result;
 	
-	// Load partial data from within the domain
-	// Trigger request to DB
-	/*
-	$.getJSON('/get_data', {
-		devices: selected_device_ids,
-		kernels: selected_kernel_ids,
-		start_time: x.domain()[0],
-		stop_time: x.domain()[1]
-	}, function(data) {	
-	*/
-		var chart = d3.select("#data_plot");
+	// Preselect values
+	this_draw_data = loaded_data.filter(function(elem) {
+
+		if (elem[2] < x.domain()[0] || elem[1] > x.domain()[1]) {
+			return false;
+		}
 		
-		//this_draw_data = data.result;
-		this_draw_data = loaded_data.filter(function(elem) {
-			return elem[1] > x.domain()[0] && elem[2] < x.domain()[1];
-		});
+		return true;
 		
-		console.log(this_draw_data.length);
-		
-		return;
-		
-		rects = chart.selectAll("rect")
-		rects.remove();
-		
-		chart.selectAll("rect")
-			.data(this_draw_data)
-			.enter().append("rect")
-				.attr("y", function(d, i) { return y.rangeBand() * (d[0] + 1); })
-				.attr("x", function(d, i) { return x(d[1]); })
-				.attr("width", function(d, i) { return Math.abs(parseFloat(x(d[2])) - parseFloat(x(d[1]))); })
-				.attr("height", y.rangeBand());
-		
-		chart.selectAll("#grid")
-			.remove();
-		
-		chart.selectAll("lines")
-			.data(x.ticks(num_ticks))
-			.enter().append("line")
-				.attr("x1", x)
-				.attr("x2", x)
-				.attr("y1", 0)
-				.attr("y2", chart_height)
-				.attr("id", "grid")
-				.style("stroke", "#000")
-				.style("stroke-width", "1px");
-		
-		chart.selectAll("#labels")
-			.remove();
-		
-		chart.selectAll(".rule")
-			.data(x.ticks(num_ticks))
-			.enter().append("text")
-				.attr("class", "rule")
-				.attr("id", "labels")
-				.attr("x", x)
-				.attr("y", chart_height + bottom_border)
-				.attr("dy", -3)
-				.attr("text-anchor", "middle")
-				.text(String);
-	//
+	});
+	
+	
+	//this_draw_data = loaded_data;
+	
+	//console.log(this_draw_data.length);
+	//console.log(this_draw_data);
+/*	
+	chart.selectAll("#grid")
+	.remove();
+
+	chart.selectAll("lines")
+		.data(x.ticks(num_ticks))
+		.enter().append("line")
+			.attr("x1", x)
+			.attr("x2", x)
+			.attr("y1", 0)
+			.attr("y2", chart_height - bottom_border)
+			.attr("id", "grid")
+			.style("stroke", "#000")
+			.style("stroke-width", "1px")
+			.style("stroke-dasharray", "5,5");
+	
+	rects = chart.selectAll("rect")
+	rects.remove();
+	
+	chart.selectAll("rect")
+		.data(this_draw_data)
+		.enter().append("rect")
+			.attr("y", function(d, i) { return y.rangeBand() * (d[0] + 1); })
+			.attr("x", function(d, i) { return x(d[1]); })
+			.attr("width", function(d, i) {
+				width = Math.abs(parseFloat(x(d[2])) - parseFloat(x(d[1])));
+				if (width < min_width) {
+					return min_width;
+				}
+				return width;
+			})
+			.attr("height", y.rangeBand());
+			//.attr("fill-opacity", 0.9);
+	
+	chart.selectAll("#labels")
+		.remove();
+	
+	chart.selectAll(".rule")
+		.data(x.ticks(num_ticks))
+		.enter().append("text")
+			.attr("class", "rule")
+			.attr("id", "labels")
+			.attr("x", x)
+			.attr("y", chart_height)
+			.attr("dy", -3)
+			.attr("text-anchor", "middle")
+			.text(String);
+*/	
 }
 
 d3.select('body')
