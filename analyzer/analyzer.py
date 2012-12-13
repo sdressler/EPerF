@@ -1,7 +1,6 @@
 from flask import Flask, render_template, g, request, jsonify
 
-from Analyzer import db_query, filter
-from boto.sdb.db.sequence import double
+from Analyzer import db_query
 
 app = Flask(__name__)
 
@@ -14,6 +13,17 @@ def add_header(response):
     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=0'
     return response
+
+@app.route('/get_experiments')
+def get_experiments():
+    db = db_query.db_query();
+    return jsonify(result=db.db_query_experiments())
+
+@app.route('/get_experiment_overview')
+def get_experiment_overview():
+    db = db_query.db_query()
+    e_id = request.args.get('id', "", type=str)
+    return jsonify(result=db.db_query_experiment_overview(e_id))
 
 @app.route('/')
 def hello_world():

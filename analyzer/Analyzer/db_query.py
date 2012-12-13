@@ -21,6 +21,25 @@ class db_query:
     def db_query_full_table(self, table):
         return self.db_query("SELECT * FROM " + table)
         
+    def db_query_experiments(self):
+        return self.db_query("SELECT DISTINCT id_experiment FROM data;")
+        
+    def db_query_experiment_overview(self, e_id):
+        
+        kernels = self.db_query(
+            "SELECT DISTINCT kernels.id, kernels.name \
+             FROM kernels \
+             INNER JOIN data on kernels.id = data.id_kernel \
+             WHERE id_experiment = '" + e_id + "'")
+
+        devices = self.db_query(
+            "SELECT DISTINCT devices.id, devices.name \
+             FROM devices \
+             INNER JOIN data on devices.id = data.id_device \
+             WHERE id_experiment = '" + e_id + "'")
+        
+        return [kernels, devices]
+        
     def db_query_kernels(self):
         return self.db_query_full_table("kernels");
     
