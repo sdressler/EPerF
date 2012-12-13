@@ -34,6 +34,7 @@
 #include <map>
 #include <cmath>
 #include <string>
+#include <list>
 #include <vector>
 #include <iostream>
 #include <iomanip>
@@ -48,7 +49,8 @@
 
 namespace ENHANCE {
 
-typedef std::vector<std::vector<EPerfData> > tDataVector;
+//typedef std::vector<std::vector<EPerfData> > tDataVector;
+typedef std::vector<std::list<EPerfData> > tDataVector;
 
 class EPerf : public EPerfContainer {
 private:
