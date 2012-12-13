@@ -11,16 +11,17 @@
 
 #include <omp.h>
 
+#include <boost/uuid/uuid_io.hpp>
+
 #include "../include/EPerf/EPerf.h"
 #include "../include/EPerf/EPerfSQLite.h"
 #include "../include/EPerf/EPerfC.h"
 
 namespace ENHANCE {
 
-sem_t synchronize;
+std::string EPerf::experiment_id = "";
 
 EPerf::EPerf(const std::string &_dbFileName) {
-    sem_init(&synchronize, 1, 1);
 
     if (_dbFileName == std::string("")) {
         dbFileName = std::string("eperf.db");
@@ -30,11 +31,15 @@ EPerf::EPerf(const std::string &_dbFileName) {
 
 	max_threads = omp_get_num_procs();
 
+	// Create experiment UUID
+	std::stringstream id;
+	boost::uuids::uuid u;
+	id << u;
+	experiment_id = id.str();
+
 }
 
-EPerf::~EPerf() {
-    sem_destroy(&synchronize);
-}
+EPerf::~EPerf() { }
 
 void EPerf::finalize() { commitToDB(); }
 
@@ -60,11 +65,6 @@ void EPerf::commitToDB() {
     db.beginTransaction();
 
     for (unsigned int i = 0; i < data.size(); i++) {
-/*        
-        for (unsigned int j = 0; j < dataSizeVector[i]; j++) {
-            db.executeInsertQuery(data[i][j].createSQLInsertObj());
-        }
-*/
 
         //tDataVector::const_iterator it;
         std::list<EPerfData>::const_iterator it;
@@ -75,6 +75,16 @@ void EPerf::commitToDB() {
     }
 
     db.endTransaction();
+
+    // Write the experiment
+    std::stringstream q;
+
+    q << "INSERT OR IGNORE INTO experiments (id, ts_start_s, ts_start_ns, ts_stop_s, ts_stop_ns) VALUES("
+      << "'" << experiment_id << "', " << "')";
+/*
+    q   << "INSERT OR IGNORE INTO kernels (id, name) VALUES("
+        << id << ", '" << name << "')";
+*/
 
 }
 
@@ -87,10 +97,7 @@ void EPerf::resizeTemporaryDataObject() {
 
 	size_t requestedSize = (k_size + d_size) * num_threads;
 
-	//data.clear();
-	//data.resize(requestedSize, std::vector<EPerfData>(10));
-	//dataSizeVector.resize(requestedSize, 0);
-    data.clear();
+	data.clear();
     data.resize(requestedSize, std::list<EPerfData>());
 
 }
@@ -160,7 +167,6 @@ void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernel
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
 
-//    data[position][dataSizeVector[position]].startAllTimers();
     data[position].push_back(EPerfData());
     data[position].back().startAllTimers();
 };
@@ -176,19 +182,6 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
     data[position].back().DeviceID = DeviceID;
     data[position].back().ThreadID = omp_get_thread_num();
 
-/*    data[position][dataSizeVector[position]].stopAllTimers();
-
-    data[position][dataSizeVector[position]].KernelID = KernelID;
-    data[position][dataSizeVector[position]].DeviceID = DeviceID;
-    data[position][dataSizeVector[position]].ThreadID = omp_get_thread_num();
-
-    dataSizeVector[position]++;
-*/    
-/*
-    if (data[position].size() - dataSizeVector[position] < 100) {
-        data[position].resize(data[position].size() + 5000);
-    }
-*/
 }
 
 void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes) {
@@ -198,9 +191,6 @@ void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, in
 
     data[position].back().inBytes = inBytes;
     data[position].back().outBytes = outBytes;
-
-//    data[position][dataSizeVector[position]].inBytes = inBytes;
-//    data[position][dataSizeVector[position]].outBytes = outBytes;
 
 }
 
@@ -223,13 +213,12 @@ std::ostream& operator<<(std::ostream &out, const EPerf &e) {
     out << "Timings & Data volumes:\n";
 
     for (unsigned int i = 0; i < e.data.size(); i++) {
-        /*for (unsigned int j = 0; j < e.dataSizeVector[i]; j++) {
-            out << e.data[i][j] << "\n";
-        }*/
+
         std::list<EPerfData>::const_iterator it;
         for (it = e.data[i].begin(); it != e.data[i].end(); ++it) {
             out << *it << "\n";
         }
+
     }
 
     out << "\n";

@@ -54,6 +54,17 @@ private:
 
             executeInsertQuery(sql);
 /*
+            sql = "CREATE TABLE experiments ( \
+                    id VARCHAR(36) PRIMARY KEY, \
+                    ts_start_s INTEGER \
+                    ts_start_ns INTEGER \
+                    ts_stop_s INTEGER \
+                    ts_stop_ns INTEGER \
+                   )";
+
+            executeInsertQuery(sql);
+*/
+/*
             sql = "CREATE TABLE kernelHasConfigurations ( \
                     id_kernel INTEGER, \
                     hash VARCHAR(64), \
@@ -86,6 +97,7 @@ private:
                     tid INTEGER, \
                     data_in INTEGER, \
                     data_out INTEGER, \
+                    id_experiment VARCHAR(36), \
                     PRIMARY KEY( \
                         id_kernel, id_device, \
                         ts_start_s, ts_start_ns, \

@@ -1,4 +1,5 @@
 #include "../include/EPerf/EPerfData.h"
+#include "../include/EPerf/EPerf.h"
 
 #include <cstring>
 
@@ -55,7 +56,8 @@ std::vector<std::string> EPerfData::createSQLInsertObj() const {
         <<      "cpuclock_start_ns, "
         <<      "cpuclock_stop_s, "
         <<      "cpuclock_stop_ns, "
-        <<      "tid, data_in, data_out"
+        <<      "tid, data_in, data_out,"
+        <<      "id_experiment"
         << ") "
         << "VALUES ("
         <<      KernelID << ", "
@@ -72,7 +74,8 @@ std::vector<std::string> EPerfData::createSQLInsertObj() const {
 
       q <<      ThreadID << ", "
         <<      inBytes << ", "
-        <<      outBytes
+        <<      outBytes << ", "
+        <<      "'" << EPerf::getExperimentID() << "'"
         << ")";
 
     x.push_back(q.str());
