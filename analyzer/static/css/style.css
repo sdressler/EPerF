@@ -3,12 +3,8 @@ body {
 	font-size: 11pt;
 	font-weight: 200;
 	//background-color: #222;
-}
-
-#title {
-	font-size: 24pt;
-	font-weight: bold;
-	text-align: center;
+	padding: 0;
+	margin: 0;
 }
 
 #overlay {
@@ -59,10 +55,18 @@ body {
 
 .entry {
 	cursor: pointer;
+	margin: 1px;
 	padding: 5px;
-	list-style: none;
+	padding-left: 10px;
+	padding-right: 10px;
 	float: left;
 	display: block;
+}
+
+.eheading {
+	font-weight: bold;
+	padding-right: 0px;
+	width: 15px;
 }
 
 .entry.selected {

@@ -40,12 +40,13 @@ $(document).ready(function(){
 	$("#data").width(
 		window.innerWidth - $("#data").position().left - 20	
 	);
-*/	
+*/
+/*	
 	$("#data_content").height(
 		//window.innerHeight - $("#experiments_title").outerHeight() - $("#experiments").outerHeight()
 		window.innerHeight - $("#data_content").position().top - 10
 	);
-	
+*/	
 	// Resize the chart
 	chart_width = $("#data_content").width();
 	chart_height = $("#data_content").height();
@@ -67,13 +68,92 @@ $(document).ready(function(){
 				pan = true;
 			};
 		});
-
-	$(".entry").click(function(){
-		$(this).toggleClass("selected");
-		data_update();
-	});
+	
+	load_experiments();
+	
 	
 });
+
+function load_experiments() {
+	
+	var e = $("#experiments");
+	
+	//e.append('<div><strong>Fetching data...</strong></div>');
+	//show_overlay();
+	
+	$.getJSON('/get_experiments', {}, function(data) {	
+		
+		data.result.forEach(function(value) {
+			
+			show_overlay();
+			
+			e_id = value[0];
+			
+		// Make them selectable
+		/*
+		$(".experiment").click(function(){
+			$(this).toggleClass("selected");
+			
+			if ($(this).hasClass("selected")) {
+				load_experiment_overview(this);
+			} else {
+				$('#overview_' + $(this)[0].id).remove();
+			}
+			//data_update();
+		});
+		*/
+			
+			e.append('<div class="entry experiment" id="' + e_id + '">' + e_id + '</div>');
+			
+			$.getJSON('/get_experiment_overview', {
+				id: e_id
+			}, function(data) {
+				
+				
+//				alert(data.result);
+/*				
+				elem = $("#overview_" + value).html("");
+				
+				elem.append('<div class="entry"><strong>' + experiment.id + '</strong></div><div class="clear"></div>');
+*/				
+				e.append('<div class="entry eheading">K: </div>');
+				
+				data.result[0].forEach(function(value) {
+					e.append('<div class="entry kernels ' + e_id + '">' + value[0] + ': ' + value[1] + '</div>');
+				});
+				
+/*				
+				elem.append('<div class="clear"></div>')
+				
+				elem.append('<div class="entry eheading">D: </div>');
+				data.result[1].forEach(function(value) {
+					elem.append('<div class="entry devices ' + experiment.id + '">' + value[0] + ': ' + value[1] + '</div>');
+				})
+				
+				$(".kernels, .devices").click(function(){
+					$(this).toggleClass("selected");
+					//load_experiment_overview(this);
+					//data_update();
+				});
+*/				
+				
+				hide_overlay();
+				
+			});
+		
+		});
+		
+	});
+	
+}
+
+function load_experiment_overview(experiment) {
+	//alert(experiment.id);
+	
+	//$("#overview").append('<div class="section_title">' + experiment.id + '</div>');
+	$("#overview").append('<div class="section" id="overview_' + experiment.id + '"><div class="entry"><strong>Fetching data...</strong></div></div>');
+	
+}
 
 function data_update() {
 	
