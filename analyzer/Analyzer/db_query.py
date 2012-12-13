@@ -46,10 +46,9 @@ class db_query:
         # Remove the last " OR"
         query = query[:len(query) - 3]
         
-        query += " ORDER BY ts_start_s and ts_start_ns"
+        query += " ORDER BY tid ASC, ts_start_s ASC, ts_start_ns ASC"
         
-        print query
-        
+        print query 
         
         '''
         if (start_time > 0.0):

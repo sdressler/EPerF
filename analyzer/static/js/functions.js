@@ -4,15 +4,20 @@
 
 var x, y;
 
-var num_ticks = 10;
+var num_ticks = 15;
 
 var prev_x_pos = 0.0;
 
-var on_x_ax_left = false;
-var on_x_ax_right = false;
+//var on_x_ax_left = false;
+//var on_x_ax_right = false;
+var zoom_left = false;
+var zoom_right = false;
+var pan = false;
 
 var min_x, max_x;
-var min_width = 5;
+
+var min_width = 1;
+var min_dist = min_width;
 
 var loaded_data;
 
@@ -26,16 +31,19 @@ var bottom_space = 20;
 
 $(document).ready(function(){
 	
+	$("#overlay").hide();
+	
 	max_width = Math.max.apply(null, [$("#devices").width(), $("#kernels").width()]);
 	$("#devices").width(max_width);
 	$("#kernels").width(max_width);
-
+/*
 	$("#data").width(
 		window.innerWidth - $("#data").position().left - 20	
 	);
-	
+*/	
 	$("#data_content").height(
-		window.innerHeight -$("#data").position().top - 100 	
+		//window.innerHeight - $("#experiments_title").outerHeight() - $("#experiments").outerHeight()
+		window.innerHeight - $("#data_content").position().top - 10
 	);
 	
 	// Resize the chart
@@ -48,20 +56,22 @@ $(document).ready(function(){
 		.attr("width", chart_width)
 		.attr("height", chart_height)
 		.on("mousedown", function(d) {
-			if ((d3.svg.mouse(chart[0][0])[0] / chart_width) < 0.5) {
-				on_x_ax_left = true;
-			} else {
-				on_x_ax_right = true;
+			
+			rel_mouse_position = (d3.svg.mouse(chart[0][0])[0] / chart_width);
+			
+			if (rel_mouse_position < 0.4) {
+				zoom_left = true;
+			} else if (rel_mouse_position > 0.6) {
+				zoom_right = true;
+			} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
+				pan = true;
 			};
 		});
 
 	$(".entry").click(function(){
 		$(this).toggleClass("selected");
-		
-		// Trigger a data update
 		data_update();
-		
-	});	
+	});
 	
 });
 
@@ -85,7 +95,9 @@ function data_update() {
 	});
 	
 	if ((selected_kernel_ids.length != 0) || (selected_device_ids.length != 0)) {
-			
+		
+		show_overlay();
+		
 		// Trigger request to DB
 		$.getJSON('/get_data', {
 			devices: selected_device_ids,
@@ -104,15 +116,16 @@ function data_update() {
 			max_threads = d3.max(loaded_data.map(function(value,index) { return value[0]; }));			
 		
 			x = d3.scale.linear()
-				.domain([min_x, max_x])
-				.range([0, chart_width]);
-				//.rangeRound([0, chart_width]);
+				.domain([0, max_x - min_x])
+				.range([10, chart_width - 10]);
 		
 			y = d3.scale.linear()
 				.domain([min_threads - 1, max_threads + 1])
 			    .rangeRound([0, chart_height]);
 			
 			plot()
+			
+			hide_overlay();
 			
 		});
 		
@@ -124,7 +137,7 @@ function plot() {
 	// Preselect values	
 	filtered_data = loaded_data.filter(function(elem) {
 
-		if (elem[2] < x.domain()[0] || elem[1] > x.domain()[1]) {
+		if (elem[2] - min_x < x.domain()[0] || elem[1] - min_x > x.domain()[1]) {
 			return false;
 		}
 		
@@ -134,40 +147,46 @@ function plot() {
 	
 	// Convert to drawing range
 	filtered_data.forEach(function(value, index, array) {
-		array[index] = [y(value[0] - 0.5), x(value[1]), x(value[2])];
+		array[index] = [y(value[0] - 0.5), x(value[1] - min_x), x(value[2] - min_x)];
 	});
 	
 	// Remove duplicates
-	var this_draw_data = filtered_data;
-	var prev_value = NaN;
-	/*
-	filtered_data.forEach(function(elem, index, array) {
-		if (prev_value != d3.round(elem[1], 2)) {
-			this_draw_data.push(elem);
-		}
-		
-		prev_value = d3.round(elem[1], 2);
-	});
-	*/
-	/*
-	this_draw_data = filtered_data.filter(function(elem, index, array) {
-		
-		if (index > 0) {
-			prev_elem = array[index - 1];
-			if (prev_elem[1] == elem[1]) {
-				return false;
-			}
-		}
-		
-		return true;
-		
-	});
-	*/
+	//var this_draw_data = filtered_data;
+	var this_draw_data = [];
+
+	var cur_thread = NaN
+	var prev_end = NaN
 	
-	//this_draw_data = filtered_data;
+	filtered_data.forEach(function(value, index, array) {
+		
+		if (cur_thread != value[0]) {
+			cur_thread = value[0];
+			
+			this_draw_data.push(value);
+			prev_end = value[2];
+		
+			return;
+		}
+		
+		
+		// Calculate the distance between start of
+		// value and end of previous value
+		dist = value[1] - prev_end;
+		
+		// If the distance is below threshold, set
+		// this end as new end, if not, push the
+		// current value into the array
+		if (dist < min_dist) {
+			this_draw_data[this_draw_data.length - 1][2] = value[2];
+		} else {
+			this_draw_data.push(value);
+		}
+
+		prev_end = value[2];
+		
+	});
 	
 	console.log(this_draw_data.length);
-	//console.log(this_draw_data);
 	
 	// Draw the grid
 	chart.selectAll("#vgrid")
@@ -216,35 +235,47 @@ function plot() {
 			.attr("dy", -3)
 			.attr("text-anchor", "middle")
 			.attr("fill", "#fff")
-			.text(String);
+			.text(function(value) { return d3.round(value, 9); });
 
 }
 
 d3.select('body')
 	.on("mousemove", function(d) {
 		
-		
 		var old_x;
 		
-		if (on_x_ax_left || on_x_ax_right) {
+		if (zoom_left || zoom_right || pan) {
+			
 			old_x = x.domain();
+			
 		} else {
+			
 			prev_x_pos = d3.svg.mouse(chart[0][0])[0];
-			return
-		}
-		
-		if (on_x_ax_left) {
-			
-			new_x = old_x[0] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * 0.001;
-			x.domain([new_x, old_x[1]]);
+			return;
 			
 		}
 		
-		if (on_x_ax_right) {
-			
-			new_x = old_x[1] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * 0.001;
-			x.domain([old_x[0], new_x]);
-			
+		//granularity = Math.log(1 / ((max_x - min_x) / (old_x[1] - old_x[0]) * 100) + 1) / Math.log(10); 
+		
+		//console.log(granularity)
+		
+		console.log((old_x[1] - old_x[0]) / (max_x - min_x));
+		
+		new_x1 = old_x[0] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * 0.1;
+		new_x2 = old_x[1] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * 0.1;
+	
+		if (zoom_left) {
+			if (new_x1 > -0.1) {
+				x.domain([new_x1, old_x[1]]);
+			}
+		}
+		
+		else if	(zoom_right) { x.domain([old_x[0], new_x2]);   }
+		
+		else if	(pan) {
+			if (new_x1 > -0.1) {
+				x.domain([new_x1, new_x2]);
+			}
 		}
 		
 		prev_x_pos = d3.svg.mouse(chart[0][0])[0];
@@ -254,7 +285,7 @@ d3.select('body')
 	})
 	
 	.on("mouseup", function(d) {
-		//console.log("mouse up");
-		on_x_ax_left = false;
-		on_x_ax_right = false;
+		zoom_left = false;
+		zoom_right = false;
+		pan = false;
 	});

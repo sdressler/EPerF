@@ -1,7 +1,8 @@
 body {
-	font-family: sans-serif;
+	font-family: Open Sans, sans-serif;
 	font-size: 11pt;
-	font-weight: normal;
+	font-weight: 200;
+	//background-color: #222;
 }
 
 #title {
@@ -9,6 +10,25 @@ body {
 	font-weight: bold;
 	text-align: center;
 }
+
+#overlay {
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: #000;
+	z-level: 99;
+	opacity:0.8;
+	filter:alpha(opacity=80); /* For IE8 and earlier */
+}
+
+#overlay_content {
+	color: #fff;
+	display: block;
+	position: fixed;
+}
+
 
 .container {
 	/* border: 1px dashed; */
@@ -21,12 +41,15 @@ body {
 }
 
 .section_title {
+/*	
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
+*/	
 	padding: 5px;
-	text-align: center;
+	text-align: left;
+	color: #00B1E6;
 	font-weight: bold;
-	background-color: #00B1E6;
+	background-color: #222;
 }
 
 .section_body {
@@ -37,9 +60,9 @@ body {
 .entry {
 	cursor: pointer;
 	padding: 5px;
-	padding-left: 10px;
-	padding-right: 10px;
 	list-style: none;
+	float: left;
+	display: block;
 }
 
 .entry.selected {
@@ -56,9 +79,9 @@ body {
 }
 
 #data_content {
-	background-color: #444;
-	padding: 5px;
-	border: solid 1px #444;
+	background-color: #222;
+	padding: 0px;
+	width: 100%;
 }
 
 #visualization {
@@ -71,7 +94,7 @@ body {
 }
 
 .chart {
-	background-color: #444;
+	background-color: #222;
 }
 
 .chart rect {
