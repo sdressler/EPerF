@@ -39,14 +39,17 @@ class db_query:
             
         query = "SELECT \
                     tid, \
-                    ts_start_s - ts_start_ns * 1.0e-9, \
-                    ts_stop_s - ts_stop_ns * 1.0e-9 \
-                 FROM data WHERE" + devices + kernels
+                    ts_start_s + ts_start_ns * 1.0e-9, \
+                    ts_stop_s + ts_stop_ns * 1.0e-9 \
+                 FROM data WHERE " + devices + kernels
                  
         # Remove the last " OR"
         query = query[:len(query) - 3]
         
-        query += " ORDER BY tid"
+        query += " ORDER BY ts_start_s and ts_start_ns"
+        
+        print query
+        
         
         '''
         if (start_time > 0.0):
