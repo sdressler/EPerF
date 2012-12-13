@@ -20,6 +20,8 @@ warranty and it may eat your babies.
 Requirements
 ------------
 
+* C++ compiler (C / FORTRAN compiler for API support)
+* OpenMP
 * boost::functional::hash
 * boost::uuid
 
