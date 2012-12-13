@@ -89,6 +89,7 @@ private:
     inline pid_t getThreadID() { return syscall(__NR_gettid); }
 
     std::string dbFileName;
+    static std::string experiment_id;
 
 	unsigned long max_threads;
 
@@ -129,6 +130,8 @@ private:
 	void resizeTemporaryDataObject();
 
 public:
+
+	static std::string& getExperimentID() { return experiment_id; }
 
     /**
      *
