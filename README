@@ -21,6 +21,7 @@ Requirements
 ------------
 
 * C++ compiler (C / FORTRAN compiler for API support)
+* SQLite (> 3.6)
 * OpenMP
 * boost::functional::hash
 * boost::uuid
