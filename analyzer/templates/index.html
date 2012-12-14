@@ -3,31 +3,33 @@
 	<title>ePerF Analyzer</title>
 	
 	<link rel="stylesheet" type="text/css" media="all" href="{{url_for('static', filename='css/style.css')}}" />
+	<link rel="stylesheet" type="text/css" media="all" href="{{url_for('static', filename='js/jquery-miniColors/jquery.miniColors.css')}}" />
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,600,700' rel='stylesheet' type='text/css'>
 	
 </head>
 <body>
 
-<div id="experiments_title" class="section_title">Experiments</div>
-<div id="experiments" class="section">
-	<!-- {% for device in devices %}
-	    <li class="entry device">{{device[0]}}: {{device[1]}}</li>
-	{% endfor %}
-	-->
-</div>
+<div id="overlay"><div id="overlay_content">Loading data ... please be patient</div></div>
 
-<!-- <div class="clear"></div>
-<div id="overview_title" class="section_title">Overview</div>
-<div id="overview" class="section"></div>
--->
+<div id="experiments_title" class="section_title">Experiments</div>
+<div id="experiments" class="section"></div>
 
 <div class="clear"></div>
 <div id="data_title" class="section_title">Data</div>
 <div id="data_content"></div>
 
-<div id="overlay"><div id="overlay_content">Loading data ... please be patient</div></div>
+<div class="clear"></div>
+<div id="footer" class="footer">
+	<div style="width: 40%;" class="footer section info">Zoom left side</div>
+	<div style="width: 5%;"  class="footer section">&nbsp;</div>
+	<div style="width: 10%;" class="footer section info">Pan</div>
+	<div style="width: 5%;"  class="footer section">&nbsp;</div>
+	<div style="width: 40%;" class="footer section info">Zoom right side</div>
+	<div class="clear"></div>
+</div>
 
 <script type="text/javascript" src="{{url_for('static', filename='js/jquery-1.8.0.min.js') }}"></script>
+<script type="text/javascript" src="{{url_for('static', filename='js/jquery-miniColors/jquery.miniColors.js') }}"></script>
 <script type="text/javascript" src="{{url_for('static', filename='js/d3.v2.js') }}"></script>
 <script type="text/javascript" src="{{url_for('static', filename='js/functions.js') }}"></script>
 <script type="text/javascript" src="{{url_for('static', filename='js/eyecandy.js') }}"></script>

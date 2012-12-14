@@ -40,11 +40,12 @@ def get_data():
     
     d = request.form.getlist('d[]')
     k = request.form.getlist('k[]')
+    e = request.form.getlist('e[]')
 
-    return jsonify(result=db.db_query_data_table(d, k))
+    return jsonify(result=db.db_query_data_table(d, k, e))
 
 
 if __name__ == '__main__':
     app.debug = True
     #app.run(host='0.0.0.0', port=80)
-    app.run()
+    app.run(port=80)

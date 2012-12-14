@@ -46,10 +46,17 @@ class db_query:
     def db_query_devices(self):
         return self.db_query_full_table("devices");
     
-    def db_query_data_table(self, d, k):
+    def db_query_data_table(self, d, k, E):
         
         # [u'0', u'00000000-0000-0000-604a-feded57f0000', u'1', u'00000000-0000-0000-604a-feded57f0000', u'2', u'00000000-0000-0000-604a-feded57f0000']
         
+        ranges = dict();
+        for e in E:
+            ranges[e] = self.db_query(
+                "SELECT min(ts_start_s + ts_start_ns * 1.0e-9) \
+                 FROM data \
+                 WHERE id_experiment = '" + e + "'")[0][0]
+            
         devices = str()
         kernels = str()
 
@@ -65,7 +72,8 @@ class db_query:
         query = "SELECT \
                     tid, \
                     ts_start_s + ts_start_ns * 1.0e-9, \
-                    ts_stop_s + ts_stop_ns * 1.0e-9 \
+                    ts_stop_s + ts_stop_ns * 1.0e-9, \
+                    id_experiment, id_kernel, id_device \
                  FROM data WHERE "
                      
         if (len(devices) != 0 and len(kernels) != 0):
@@ -75,5 +83,15 @@ class db_query:
                     
         query += " ORDER BY tid ASC, ts_start_s ASC, ts_start_ns ASC"
         
-        return self.db_query(query)
+        result = self.db_query(query)
+        
+        result_list = [];
+        for r in result:
+            r = list(r)
+            r[1] -= ranges[r[3]]
+            r[2] -= ranges[r[3]]
+            
+            result_list.append(r);
+       
+        return result_list;
     
