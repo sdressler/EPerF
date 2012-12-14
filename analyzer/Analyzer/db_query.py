@@ -46,36 +46,34 @@ class db_query:
     def db_query_devices(self):
         return self.db_query_full_table("devices");
     
-    def db_query_data_table(self, device_ids, kernel_ids, start_time, stop_time):
-        devices = ""
-        kernels = ""
+    def db_query_data_table(self, d, k):
         
-        for did in device_ids:
-            devices += " id_device = " + did + " OR"
-            
-        for kid in kernel_ids:
-            kernels += " id_kernel = " + kid + " OR"
-            
+        # [u'0', u'00000000-0000-0000-604a-feded57f0000', u'1', u'00000000-0000-0000-604a-feded57f0000', u'2', u'00000000-0000-0000-604a-feded57f0000']
+        
+        devices = str()
+        kernels = str()
+
+        for i in range(0, len(d), 2):
+            devices += " (id_device = " + d[i] + " AND id_experiment = '" + d[i+1] + "') OR"
+
+        for i in range(0, len(k), 2):
+            kernels += " (id_kernel = " + k[i] + " AND id_experiment = '" + k[i+1] + "') OR"
+
+        devices = devices[:len(devices) - 3]
+        kernels = kernels[:len(kernels) - 3]
+        
         query = "SELECT \
                     tid, \
                     ts_start_s + ts_start_ns * 1.0e-9, \
                     ts_stop_s + ts_stop_ns * 1.0e-9 \
-                 FROM data WHERE " + devices + kernels
-                 
-        # Remove the last " OR"
-        query = query[:len(query) - 3]
-        
-        query += " ORDER BY tid ASC, ts_start_s ASC, ts_start_ns ASC"
-        
-        print query 
-        
-        '''
-        if (start_time > 0.0):
-            query += " AND ts_start_s - ts_start_ns * 1.0e-9 > " + str(start_time)
+                 FROM data WHERE "
+                     
+        if (len(devices) != 0 and len(kernels) != 0):
+            query += kernels + " AND " + devices
+        else:
+            query += kernels + devices
                     
-        if (stop_time > 0.0):
-            query += " AND ts_stop_s - ts_stop_ns * 1.0e-9 < " + str(stop_time)
-        '''
+        query += " ORDER BY tid ASC, ts_start_s ASC, ts_start_ns ASC"
         
         return self.db_query(query)
     

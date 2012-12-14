@@ -34,19 +34,14 @@ def hello_world():
     
     return render_template('index.html', kernels=kernels, devices=devices)
 
-@app.route('/get_data')
+@app.route('/get_data', methods=['POST'])
 def get_data():
     db = db_query.db_query()
     
-    devices = request.args.get('devices', [], type=list)
-    kernels = request.args.get('kernels', [], type=list)
-    start_time = request.args.get('start_time', 0.0, type=float)
-    stop_time = request.args.get('stop_time', 0.0, type=float)
-    
-    return jsonify(result=db.db_query_data_table(
-        devices, kernels,
-        start_time, stop_time
-    ))
+    d = request.form.getlist('d[]')
+    k = request.form.getlist('k[]')
+
+    return jsonify(result=db.db_query_data_table(d, k))
 
 
 if __name__ == '__main__':
