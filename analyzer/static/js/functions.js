@@ -27,33 +27,46 @@ var chart_height;
 
 var padding = 10;
 
-var bottom_space = 20;
+var bottom_space = 30;
 
+/*
+ * Initial routines
+ */
 $(document).ready(function(){
 	
 	$("#overlay").hide();
+	load_experiments();
 	
-	max_width = Math.max.apply(null, [$("#devices").width(), $("#kernels").width()]);
-	$("#devices").width(max_width);
-	$("#kernels").width(max_width);
+});
+
+$(window).resize(function() {
+	resize_data_content();
+	update_scales();
+	plot();
+});
+
 /*
-	$("#data").width(
-		window.innerWidth - $("#data").position().left - 20	
-	);
-*/
-/*	
+ * 
+ * This function is necessary in order to make the plotting SVG bigger without
+ * oversizing the window
+ * 
+ */
+function resize_data_content() {
+	
 	$("#data_content").height(
-		//window.innerHeight - $("#experiments_title").outerHeight() - $("#experiments").outerHeight()
-		window.innerHeight - $("#data_content").position().top - 10
+		window.innerHeight - $("#data_content").offset().top
 	);
-*/	
+	
 	// Resize the chart
 	chart_width = $("#data_content").width();
 	chart_height = $("#data_content").height();
 	
-	chart = d3.select("#data_content").append("svg")
+	d3.select("#data_content_svg")
+		.remove();
+	
+	chart = d3.select("#data_content").append("svg:svg")	
 		.attr("class", "chart")
-		.attr("id", "data_plot")
+		.attr("id", "data_content_svg")
 		.attr("width", chart_width)
 		.attr("height", chart_height)
 		.on("mousedown", function(d) {
@@ -67,154 +80,164 @@ $(document).ready(function(){
 			} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
 				pan = true;
 			};
+			
 		});
 	
-	load_experiments();
-	
-	
-});
+}
 
 function load_experiments() {
 	
 	var e = $("#experiments");
 	
-	//e.append('<div><strong>Fetching data...</strong></div>');
-	//show_overlay();
+	show_overlay();
 	
-	$.getJSON('/get_experiments', {}, function(data) {	
-		
-		data.result.forEach(function(value) {
-			
-			show_overlay();
-			
-			e_id = value[0];
-			
-		// Make them selectable
-		/*
-		$(".experiment").click(function(){
-			$(this).toggleClass("selected");
-			
-			if ($(this).hasClass("selected")) {
-				load_experiment_overview(this);
-			} else {
-				$('#overview_' + $(this)[0].id).remove();
-			}
-			//data_update();
+	var experiments = [];
+	
+	$.ajax({
+	    type: 'GET',
+	    url: '/get_experiments',
+	    dataType: 'json',
+	    data: {},
+	    async: false,
+	    success: function(data) {
+	    	data.result.forEach(function(value) {
+	    		experiments.push(value[0]);
+	    		e.append('\
+	    		    <div class="container" id="' + value[0] + '">\
+	    		        <div class="entry experiment">' + value[0] +'</div>\
+	    		        <div class="clear"></div> \
+	    		    </div>');
+	    	});
+	    }
+	});
+	
+	experiments.forEach(function(experiment) {
+	
+		$.ajax({
+		    type: 'GET',
+		    url: '/get_experiment_overview',
+		    dataType: 'json',
+		    data: { id: experiment },
+		    async: false,
+		    success: function(data) {
+		    	
+		    	var ex = $("#" + experiment);
+		    	
+		    	ex.append('<div class="entry eheader">K:</div>');
+	    		data.result[0].forEach(function(entry) {
+	    			ex.append('<div class="' + experiment + ' kernel entry selectable" id="' + entry[0] + '">' + entry[0] + ': ' + entry[1] + '</div>')
+	    		});
+	    		
+	    		ex.append('<div class="clear"></div>');
+	    		
+	    		ex.append('<div class="entry eheader">D:</div>');
+	    		data.result[1].forEach(function(entry) {
+	    			ex.append('<div class="' + experiment + ' device entry selectable" id="' + entry[0] + '">' + entry[0] + ': ' + entry[1] + '</div>')
+	    		});
+		    		
+		    }
 		});
-		*/
-			
-			e.append('<div class="entry experiment" id="' + e_id + '">' + e_id + '</div>');
-			
-			$.getJSON('/get_experiment_overview', {
-				id: e_id
-			}, function(data) {
-				
-				
-//				alert(data.result);
-/*				
-				elem = $("#overview_" + value).html("");
-				
-				elem.append('<div class="entry"><strong>' + experiment.id + '</strong></div><div class="clear"></div>');
-*/				
-				e.append('<div class="entry eheading">K: </div>');
-				
-				data.result[0].forEach(function(value) {
-					e.append('<div class="entry kernels ' + e_id + '">' + value[0] + ': ' + value[1] + '</div>');
-				});
-				
-/*				
-				elem.append('<div class="clear"></div>')
-				
-				elem.append('<div class="entry eheading">D: </div>');
-				data.result[1].forEach(function(value) {
-					elem.append('<div class="entry devices ' + experiment.id + '">' + value[0] + ': ' + value[1] + '</div>');
-				})
-				
-				$(".kernels, .devices").click(function(){
-					$(this).toggleClass("selected");
-					//load_experiment_overview(this);
-					//data_update();
-				});
-*/				
-				
-				hide_overlay();
-				
-			});
+	
+	});
+	
+	// Make them all selectable
+	$(".selectable").click(function(event) {
 		
-		});
+		if ($(this).hasClass("selected")) {
+			
+			// Already selected
+			$(this).removeClass("selected");
+			
+		} else {
+			
+			// Not yet selected
+			$(this).addClass("selected");
+			fetch_data_from_db_for_selections();
+		}
 		
+	});
+	
+	resize_data_content();
+	
+	hide_overlay();
+}
+
+function fetch_data_from_db_for_selections() {
+	
+	var k = [];
+	var d = [];
+	
+	$(".selected").each(function(idx, elem) {
+		
+		var experiment = elem.classList[0];
+		var type = elem.classList[1];
+		var id = elem.id;
+
+		if (type == "kernel") {
+			k.push(id);
+			k.push(experiment);
+		} else if (type == "device") {
+			d.push(id);
+			d.push(experiment);
+		} else {
+			console.error("Error: Unknown Type.");
+		}
+		
+	});
+	
+	if (d.length == 0 && k.length == 0) { return; }
+	
+	show_overlay();
+	
+	// Data request
+	$.ajax({
+	    type: 'POST',
+	    url: '/get_data',
+	    dataType: 'json',
+	    data: { d: d, k: k },
+	    async: false,
+	    success: function(data) {
+	    
+	    	loaded_data = data.result;
+			
+			update_scales();
+			
+			plot();
+			
+	    	hide_overlay();
+	    	
+	    }
 	});
 	
 }
 
-function load_experiment_overview(experiment) {
-	//alert(experiment.id);
+function update_scales() {
 	
-	//$("#overview").append('<div class="section_title">' + experiment.id + '</div>');
-	$("#overview").append('<div class="section" id="overview_' + experiment.id + '"><div class="entry"><strong>Fetching data...</strong></div></div>');
+	// Only if data is available
+	if (typeof loaded_data == "undefined") { return; }
 	
-}
+	min_x = d3.min(loaded_data.map(function(value,index) { return value[1]; }));
+	max_x = d3.max(loaded_data.map(function(value,index) { return value[2]; }));
+	
+	min_threads = d3.min(loaded_data.map(function(value,index) { return value[0]; }));
+	max_threads = d3.max(loaded_data.map(function(value,index) { return value[0]; }));
+	
+	x = d3.scale.linear()
+		.domain([0, max_x - min_x])
+		.range([10, chart_width - 10]);
 
-function data_update() {
+	y = d3.scale.linear()
+		.domain([min_threads - 1, max_threads + 1])
+	    .rangeRound([0, chart_height]);
 	
-	selected_kernel_ids = [];
-	selected_device_ids = [];
-	
-	$.each($(".entry.selected"), function(index, value) {
-	
-		id = $(value).html().split(":", 1);
-		
-		if ($(value).hasClass("kernel")) {
-			selected_kernel_ids += id;
-		}
-		
-		if ($(value).hasClass("device")) {
-			selected_device_ids += id;
-		}
-	
-	});
-	
-	if ((selected_kernel_ids.length != 0) || (selected_device_ids.length != 0)) {
-		
-		show_overlay();
-		
-		// Trigger request to DB
-		$.getJSON('/get_data', {
-			devices: selected_device_ids,
-			kernels: selected_kernel_ids,
-			start_time: 0,
-			stop_time: 0
-		}, function(data) {	
-			
-			// Set the global variable
-			loaded_data = data.result;
-			
-			min_x = d3.min(loaded_data.map(function(value,index) { return value[1]; }));
-			max_x = d3.max(loaded_data.map(function(value,index) { return value[2]; }));
-			
-			min_threads = d3.min(loaded_data.map(function(value,index) { return value[0]; }));
-			max_threads = d3.max(loaded_data.map(function(value,index) { return value[0]; }));			
-		
-			x = d3.scale.linear()
-				.domain([0, max_x - min_x])
-				.range([10, chart_width - 10]);
-		
-			y = d3.scale.linear()
-				.domain([min_threads - 1, max_threads + 1])
-			    .rangeRound([0, chart_height]);
-			
-			plot()
-			
-			hide_overlay();
-			
-		});
-		
-	}
 }
 
 function plot() {
 
-	// Preselect values	
+	// Only if data is available
+	if (typeof loaded_data == "undefined") { return; }
+	
+	// Preselect values
 	filtered_data = loaded_data.filter(function(elem) {
 
 		if (elem[2] - min_x < x.domain()[0] || elem[1] - min_x > x.domain()[1]) {
@@ -311,7 +334,7 @@ function plot() {
 			.attr("class", "rule")
 			.attr("id", "labels")
 			.attr("x", x)
-			.attr("y", chart_height)
+			.attr("y", chart_height - 10)
 			.attr("dy", -3)
 			.attr("text-anchor", "middle")
 			.attr("fill", "#fff")
@@ -339,23 +362,21 @@ d3.select('body')
 		
 		//console.log(granularity)
 		
-		console.log((old_x[1] - old_x[0]) / (max_x - min_x));
+		zoom_level = (old_x[1] - old_x[0]) / (max_x - min_x); 
 		
-		new_x1 = old_x[0] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * 0.1;
-		new_x2 = old_x[1] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * 0.1;
+		new_x1 = old_x[0] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.0001;
+		new_x2 = old_x[1] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.0001;
 	
+		console.log([new_x1, new_x2]);
+		
 		if (zoom_left) {
-			if (new_x1 > -0.1) {
-				x.domain([new_x1, old_x[1]]);
-			}
+			x.domain([new_x1, old_x[1]]);
 		}
 		
 		else if	(zoom_right) { x.domain([old_x[0], new_x2]);   }
 		
 		else if	(pan) {
-			if (new_x1 > -0.1) {
-				x.domain([new_x1, new_x2]);
-			}
+			x.domain([new_x1, new_x2]);
 		}
 		
 		prev_x_pos = d3.svg.mouse(chart[0][0])[0];
