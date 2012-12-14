@@ -1,8 +1,8 @@
 body {
-	font-family: Open Sans, sans-serif;
+	font-family: Helvetica, sans-serif;
 	font-size: 11pt;
 	font-weight: 200;
-	//background-color: #222;
+	background-color: #222;
 	padding: 0;
 	margin: 0;
 }
@@ -14,6 +14,7 @@ body {
 	top: 0;
 	left: 0;
 	background-color: #000;
+	display: block;
 	z-level: 99;
 	opacity:0.8;
 	filter:alpha(opacity=80); /* For IE8 and earlier */
@@ -55,7 +56,8 @@ body {
 
 .entry {
 	cursor: pointer;
-	margin: 1px;
+	margin: 2px;
+	margin-bottom: 10px;
 	padding: 5px;
 	padding-left: 10px;
 	padding-right: 10px;
@@ -63,27 +65,19 @@ body {
 	display: block;
 }
 
-.entry.selectable:hover {
-	background-color: #B0BC00;
+.selectable {
+	font-weight: bold;
+	float: left;
+}
+
+.selectable:hover {
+	color: #00B1E6;
 }
 
 .eheading {
 	font-weight: bold;
 	padding-right: 0px;
 	width: 15px;
-}
-
-.entry.selected {
-	background-color: #B0BC00;
-}
-
-#data_table {
-	height: 40%;
-	overflow-y: scroll;
-}
-
-#data {
-	margin-bottom: 10px;
 }
 
 #data_content {
@@ -94,23 +88,40 @@ body {
 	height: 100%;
 }
 
-#visualization {
-	width: 100%;
-	height: 50%;
-}
-
 .clear {
 	clear: both;
 }
 
 .chart {
 	background-color: #222;
+	display: block;
+}
+/*
+.chart rect {
+	fill: #B0BC00;
+}
+*/
+#experiments {
+	color: #fff;
 }
 
-.chart rect {
-/*	
-	stroke: #444;
-	stroke-width: 1px;
-*/	
-	fill: #B0BC00;
+#footer {
+	background-color: #222;
+	margin: 0px;
+	padding: 0px;
+	padding-top: 10px;
+}
+
+.footer {
+	font-size: 10pt;
+	margin: 0px;
+	padding: 0px;
+}
+
+.footer.section.info {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	background-color: #00B1E6;
+	color: #000;
+	text-align: center;
 }
