@@ -46,6 +46,10 @@ Note that before building the examples you should build the library.
 Changelog
 ---------
 
+* 2012-12-15 / 0.6.4 / Two changes
+    - Identification string for experiments
+    - DB name must be explicitly provided now
+
 * 2012-12-13 / 0.6.3 / Added UUID for experiments
 
 * 2012-12-10 / 0.6.2 / Removed configure, replaced by Makefiles only

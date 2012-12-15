@@ -53,17 +53,15 @@ private:
                    )";
 
             executeInsertQuery(sql);
-/*
+
             sql = "CREATE TABLE experiments ( \
                     id VARCHAR(36) PRIMARY KEY, \
-                    ts_start_s INTEGER \
-                    ts_start_ns INTEGER \
-                    ts_stop_s INTEGER \
-                    ts_stop_ns INTEGER \
+                    date INTEGER, \
+                    name VARCHAR(255) \
                    )";
 
             executeInsertQuery(sql);
-*/
+
 /*
             sql = "CREATE TABLE kernelHasConfigurations ( \
                     id_kernel INTEGER, \
@@ -106,13 +104,7 @@ private:
                    )";
 
             executeInsertQuery(sql);
-
-            sql = "CREATE INDEX ts_start_s_index ON data(ts_start_s)";
-            executeInsertQuery(sql);
-            
-            sql = "CREATE INDEX ts_start_ns_index ON data(ts_start_ns)";
-            executeInsertQuery(sql);
-
+        
         }
 
     }

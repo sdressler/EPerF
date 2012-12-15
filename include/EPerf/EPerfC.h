@@ -31,8 +31,8 @@ extern "C" {
  * @retval EPerf Pointer to a valid EPerf object or NULL if something went wrong
  *
  * */
-EPerf* EPerfInit(const char *dbName);
-EPerf* cpp_callback_EPerfInit(const char *dbName);
+EPerf* EPerfInit(const char *dbName, const char *expName);
+EPerf* cpp_callback_EPerfInit(const char *dbName, const char *expName);
 
 EPerfKernelConf* EPerfInitKernelConf();
 EPerfKernelConf* cpp_callback_EPerfInitKernelConf();
