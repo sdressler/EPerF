@@ -1,5 +1,10 @@
-<html>
+<html lang="en">
 <head>
+
+	<meta charset="UTF-8" />
+  	<meta name="google" content="notranslate">
+  	<meta http-equiv="Content-Language" content="en" />
+
 	<title>ePerF Analyzer</title>
 	
 	<link rel="stylesheet" type="text/css" media="all" href="{{url_for('static', filename='css/style.css')}}" />
@@ -9,7 +14,19 @@
 </head>
 <body>
 
-<div id="overlay"><div id="overlay_content">Loading data ... please be patient</div></div>
+<div id="overlay">
+	<div id="overlay_content" class="section_title">Loading data ... please be patient</div>
+</div>
+
+<div id="db_selector">
+
+	<div id="db_entries">
+	<div class="section_title">Select the DB you want to work with...</div>
+	{% for db in dbs %}
+		<div class="db_entry selectable">{{ db }}</div>
+	{% endfor %}
+	</div>
+</div>
 
 <div id="experiments_title" class="section_title">Experiments</div>
 <div id="experiments" class="section"></div>

@@ -16,20 +16,40 @@ body {
 	background-color: #000;
 	display: block;
 	opacity:0.8;
-	filter:alpha(opacity=80); /* For IE8 and earlier */
 	z-index: 1000;
 }
 
 #overlay_content {
-	color: #fff;
-	display: block;
+	width: 100%;
 	position: fixed;
 }
 
+#db_selector {
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: #222;
+	display: block;
+	z-index: 1000;
+}
 
 .container {
 	/* border: 1px dashed; */
 	float: left;
+}
+
+.container.experiment {
+	background-color: #444;
+	padding: 4px;
+	margin: 4px;
+	border-radius: 4px;
+}
+
+.entry.experiment.title {
+	color: #00B1E6;
+	margin-bottom: 5px;
 }
 
 .section {
@@ -56,18 +76,28 @@ body {
 
 .entry {
 	cursor: pointer;
-	margin: 2px;
-	margin-bottom: 10px;
-	padding: 5px;
-	padding-left: 10px;
-	padding-right: 10px;
+	margin-top: 5px;
+	margin-right: 20px;
 	float: left;
 	display: block;
 }
 
+#db_entries {
+	background-color: #333;
+	position: relative;
+	overflow: auto;
+	margin: 0;
+	left: 0;
+}
+
+.db_entry {
+	cursor: pointer;
+	color: #fff;
+	margin: 5px;
+}
+
 .selectable {
 	font-weight: bold;
-	float: left;
 }
 
 .selectable:hover {
@@ -128,4 +158,10 @@ body {
 	background-color: #00B1E6;
 	color: #000;
 	text-align: center;
+}
+
+.miniColors-triggerWrap {
+	float: left;
+	margin-right: 5px;
+	margin-bottom: 5px;
 }
