@@ -190,12 +190,6 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
 
     EPerfData *edata = &(data[position].back());
-/*
-    data[position].back().stopAllTimers();
-    data[position].back().KernelID = KernelID;
-    data[position].back().DeviceID = DeviceID;
-    data[position].back().ThreadID = omp_get_thread_num();
-*/
 
     edata->stopAllTimers();
     edata->KernelID = KernelID;
@@ -233,7 +227,7 @@ std::ostream& operator<<(std::ostream &out, const EPerf &e) {
     out << "Timings & Data volumes:\n";
 
     for (unsigned int i = 0; i < e.data.size(); i++) {
-
+        
         std::list<EPerfData>::const_iterator it;
         for (it = e.data[i].begin(); it != e.data[i].end(); ++it) {
             out << *it << "\n";
