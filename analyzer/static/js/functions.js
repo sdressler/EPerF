@@ -14,12 +14,13 @@ var pan = false;
 
 //var min_x = NaN;
 var max_x = NaN;
+var bar_count = NaN;
 
 var min_width = 2;
 var min_dist = min_width;
 
 var loaded_data;
-var colors_data;
+var colors_per_key = {};
 
 var chart;
 var chart_width;
@@ -38,9 +39,18 @@ var num_experiments_to_load;
  */
 $(document).ready(function(){
 	//$("#overlay").hide();
-	hide_footer(0.1);
+
+	$("#db_entries").css('top', window.innerHeight / 2 - $("#db_entries").height() / 2);
+
+	$("#db_entries").each(function (index, value) {
+		$(this).click(function(event) { select_db($(event.target).html()); });
+	});
+		
 	resize_data_content();
-	load_experiments();
+	hide_footer(0.1);
+	
+	//select_db("octree_multiple.db");
+	
 });
 
 $(window).resize(function() {
@@ -49,6 +59,11 @@ $(window).resize(function() {
 	plot();
 });
 
+function select_db(db) {	
+	$("#db_selector").fadeOut();
+	load_experiments(db);
+}
+
 /*
  * 
  * This function is necessary in order to make the plotting SVG bigger without
@@ -56,8 +71,6 @@ $(window).resize(function() {
  * 
  */
 function resize_data_content() {
-	
-	console.log("resize");
 	
 	$("#data_content").height(
 		window.innerHeight - $("#data_content").offset().top - $("#footer").outerHeight()
@@ -152,26 +165,16 @@ function create_color_pickers() {
 	$('.color-picker').each(function(index, value) {
 		$(this).miniColors({
 			disabled: true,
-			open: function(hex, rgba) {
-				set_selector_color(this, hex);
-			},
 			change: function(hex, rgba) {
-				set_selector_color(this, hex);
+				$($(this).parent().children()[2]).css('color', hex);
+				colors_per_key[$(this).attr('id')] = hex;
 				plot();
-			},
-			close: function(hex, rgba) {
-				//plot
 			}
 		})
 	});
 }
 
-function set_selector_color(trigger, color) {
-	selector = $(trigger).attr('id').slice(6);
-	$('#' + selector).css('color', color);
-}
-
-function load_experiments() {
+function load_experiments(db) {
 	
 	var e = $("#experiments");
 	
@@ -183,27 +186,31 @@ function load_experiments() {
 	    type: 'GET',
 	    url: '/get_experiments',
 	    dataType: 'json',
-	    data: {},
+	    data: { db: db },
 	    async: true,
 	    success: function(data) {
 	    	
 	    	num_experiments_to_load = data.result.length - 1;
 	    	
 	    	data.result.forEach(function(value) {
+	    		
 	    		experiments.push(value[0]);
+	    		
+	    		var date = new Date(value[1] * 1000);
+	    		
 	    		e.append('\
-	    		    <div class="container" id="' + value[0] + '">\
-	    		        <div class="entry experiment">' + value[0] +'</div>\
-	    		        <div class="clear"></div> \
+	    		    <div class="container experiment" id="' + value[0] + '">\
+	    		        <div class="entry experiment title">'
+	    		    		+ '<div style="font-weight: bold">' + value[2] + '</div>'
+	    		    		+ '<div>' + date.toString() + '</div> \
+	    		        </div> \
+	    		    	<div class="clear"></div> \
 	    		    </div>');
 	    		
 	    		load_experiment_detail(value[0]);
 	    		
 	    	});
 	    	
-		    //load_experiments_finalize();
-
-			
 	    }
 	});
 		
@@ -221,35 +228,17 @@ function load_experiment_detail(experiment) {
 	    	
 	    	var ex = $("#" + experiment);
 	    	
-	    	ex.append('<div class="entry eheader">K:</div>');
-    		data.result[0].forEach(function(entry) {
-    			ex.append(    					
-    			    '<div class="' + experiment + ' kernel entry"> \
-    			    	 <div style="float: left;"><input class="color-picker" type="hidden" value="#B0BC00" id="color_k_' + entry[0] + '"></div> \
-    			    	 <div class="selectable" kid="' + entry[0] + '" id="k_' + entry[0] + '">'
-    			         	+ '&nbsp; ' + entry[0] + ':&nbsp;' + entry[1] +
-    			         '</div> \
-    			     </div>'
-    			);
+	    	data.result.forEach(function(entry) {
+	    		ex.append(
+	    			'<div>' +
+	    				'<input class="color-picker" type="hidden" value="#B0BC00" id="color_' + experiment + '-' + entry[0] + '-' + entry[2] + '">' +
+	    				'<div class="entry selectable" kid="' + entry[0] + '" did="' + entry[2] + '">'
+	    					+ entry[1] + ' - ' + entry[3] +
+	    				'</div>' +
+	    				'<div class="clear"></div>' +
+	    			'</div>'
+	    		);
     		});
-/*	    		
-	    		ex.append('<div class="clear"></div>');
-	    		
-	    		ex.append('<div class="entry eheader">D:</div>');
-	    		data.result[1].forEach(function(entry) {
-	    			ex.append(    					
-	    			    '<div class="' + experiment + ' device entry"> \
-	    			    	 <div style="float: left;"><input class="color-picker" type="hidden" value="#B0BC00" id="color_d_' + entry[0] + '"></div> \
-	    			    	 <div class="selectable" did="' + entry[0] + '" id="d_' + entry[0] + '">'
-	    			         	+ '&nbsp; ' + entry[0] + ':&nbsp;' + entry[1] +
-	    			         '</div> \
-	    			     </div>'
-	    			);
-	    		});
-*/		    
-			
-			//console.log("finalized?");
-			//hide_overlay();
     		
     		if (num_experiments_to_load == 0) {
     			load_experiments_finalize();
@@ -266,24 +255,31 @@ function load_experiment_detail(experiment) {
 function load_experiments_finalize() {
 	
 	resize_data_content();
-	
 	create_color_pickers();
 	
 	// Make them all selectable
 	$(".selectable").click(function(event) {
 		
+		var color_input = $(this).parent().children()[0];
+		var color = color_input.value;
+	
+		colors_per_key[color_input.id] = color; 
+		
 		if ($(this).hasClass("selected")) {
+			
 			// Already selected
 			$(this).removeClass("selected");
-			
-			$('#color_' + event.target.id).miniColors('disabled', true);
 			$(this).css('color', '#fff');
+			
+			$(color_input).miniColors('disabled', true);
+			
 		} else {
+			
 			// Not yet selected
 			$(this).addClass("selected");
+			$(this).css('color', color);
 			
-			$('#color_' + event.target.id).miniColors('disabled', false);
-			$(this).css('color', $('#color_' + event.target.id).attr('value'));
+			$(color_input).miniColors('disabled', false);
 		}
 
 		fetch_data_from_db_for_selections();
@@ -292,37 +288,24 @@ function load_experiments_finalize() {
 	
 	resize_data_content();
 	
-	console.log("finished");
 	hide_overlay();
 }
 
 function fetch_data_from_db_for_selections() {
-	
-	var k = [];
-	var d = [];
-	
-	var e = {};
+
+	var selection = [];
 	
 	$(".selected").each(function(idx, elem) {
 		
-		var experiment = elem.parentElement.classList[0];
-		var type = elem.parentElement.classList[1];
+		var experiment = $(elem).parent().parent().attr('id');
+		var kernel = $(elem).attr('kid');
+		var device = $(elem).attr('did');
+		
+		selection.push([experiment, kernel, device]);
 
-		e[experiment] = '';
-		
-		if (type == "kernel") {
-			k.push($(elem).attr('kid'));
-			k.push(experiment);
-		} else if (type == "device") {
-			d.push($(elem).attr('did'));
-			d.push(experiment);
-		} else {
-			console.error("Error: Unknown Type.");
-		}
-		
 	});
 	
-	if (d.length == 0 && k.length == 0) {
+	if (selection.length == 0) {
 		clear_plot();
 		return;
 	}
@@ -334,29 +317,32 @@ function fetch_data_from_db_for_selections() {
 	    type: 'POST',
 	    url: '/get_data',
 	    dataType: 'json',
-	    data: { d: d, k: k, e: Object.keys(e) },
+	    data: { sel: selection },
 	    async: true,
 	    success: function(data) {
-	    
+
 	    	// Initialize map
-	    	loaded_data = {};
-	    	colors_data = {};
+	    	loaded_data = [];
+	    	
+	    	keys = {};
+	    	bar_count = 0;
+	    	
+	    	data.result.forEach(function(value, index, array) {
+	    		key = value[3] + "-" + String(value[4]) + "-" + String(value[5]) + "-" + String(value[0]);
+	    	
+	    		if (typeof keys[key] == "undefined") {
+	    			keys[key] = 0;
+	    			bar_count++;
+	    		}
+	    		
+	    		value[0] = bar_count;
+	    		//loaded_data.push(value);
+	    		loaded_data.push([value[0], value[1], value[2], 'color_' + value[3] + '-' + value[4] + '-' + value[5]]);
+	    	
+	    	})
 	    	
 	    	//loaded_data = data.result;
-			data.result.forEach(function(value, index, array) {
-				
-				key = value[3] + "-" + String(value[4]) + "-" + String(value[5]) + "-" + String(value[0]);
-				
-				if (typeof loaded_data[key] == 'undefined') {
-					loaded_data[key] = [];
-					colors_data[key] = value[4];
-				}
-				
-				loaded_data[key].push([value[0], value[1], value[2]]);
-				
-			});
-			
-			//min_x = d3.min(data.result.map(function(value,index) { return value[1]; }));
+	    	
 			max_x = d3.max(data.result.map(function(value,index) { return value[2]; }));
 			
 			update_scales();
@@ -375,17 +361,13 @@ function update_scales() {
 	// Only if data is available
 	if (typeof loaded_data == "undefined") { return; }
 	
-	//console.log([min_x, max_x]);
-	
 	x = d3.scale.linear()
 		.domain([0, max_x])
 		.range([10, chart_width - 10]);
 
 	y = d3.scale.linear()
-		//.domain([min_threads - 1, max_threads + 1])
-		.domain([0, Object.keys(loaded_data).length])
+		.domain([0, bar_count])
 	    .rangeRound([bottom_space - 20, chart_height - bottom_space - 20]);
-	
 	
 	add_mouse_events();
 	
@@ -397,48 +379,59 @@ function plot() {
 	if (typeof loaded_data == "undefined") { return; }
 	
 	// Preselect values
-	filtered_data = {};
+	filtered_data = [];
 	
-	keys = Object.keys(loaded_data);
+	//keys = Object.keys(loaded_data);
+
+	//console.log(loaded_data[3]);
 	
-	keys.forEach(function(key) {
-		loaded_data[key].forEach(function(value) {
-			if (typeof filtered_data[key] == 'undefined') {
+	//keys.forEach(function(key) {
+		loaded_data.forEach(function(value) {
+			/*if (typeof filtered_data[key] == 'undefined') {
 				filtered_data[key] = [];
-			}
+			}*/
+			
+			//console.log(value[3]);
+			//value[3] = colors_per_key[value[3]];
 			
 			if (value[2] > x.domain()[0] || value[2] < x.domain()[1]) {
-				filtered_data[key].push(value);
+				filtered_data.push(value);
 			}
 		});
-	});
+	//});
 		
 	// Convert to drawing range
-	n = 0;
-	keys.forEach(function(key) {
-		filtered_data[key].forEach(function(value, index, array) {
-			array[index] = [y(n), x(value[1]), x(value[2])];
+	//n = 0;
+	//keys.forEach(function(key) {
+		filtered_data.forEach(function(value, index, array) {
+			
+			//childs = $('#' + 01000000-0000-0000-a0e4-e342ff7f0000").children()
+			
+			array[index] = [
+			    y(value[0] - 1), // y position
+			    x(value[1]),     // start
+			    x(value[2]),     // stop
+			    colors_per_key[value[3]]		 // color
+			];
 		});
-		n++;
-	});
-	
-	//console.log(filtered_data);
+//		n++;
+	//});
 	
 	// Remove duplicates
 	//var this_draw_data = filtered_data;
 	var this_draw_data = [];
 
-	var cur_key = ""
+	var cur_thread = ""
 	var prev_end = NaN
 	
-	keys.forEach(function(key) {
+	//keys.forEach(function(key) {
 		
-		filtered_data[key].forEach(function(value, index, array) {
+		filtered_data.forEach(function(value, index, array) {
 			
-			if (cur_key != key) {
-				cur_key = key;
+			if (cur_thread != value[0]) {
+				cur_thread = value[0];
 				
-				value.push(colors_data[key]);
+				//value.push(colors_data[key]);
 				this_draw_data.push(value);
 				
 				prev_end = value[2];
@@ -456,14 +449,14 @@ function plot() {
 			if (dist < min_dist) {
 				this_draw_data[this_draw_data.length - 1][2] = value[2];
 			} else {
-				value.push(colors_data[key]);
+				//value.push(colors_data[key]);
 				this_draw_data.push(value);
 			}
 
 			prev_end = value[2];
 			
 		});
-	});
+	//});
 	
 	// Draw the grid
 	chart.selectAll("#vgrid")
@@ -498,7 +491,7 @@ function plot() {
 				return width;
 			})
 			.attr("height", bar_height - 5)
-			.attr("fill", function(d, i) { return $('#color_k_' +  d[3]).attr('value'); });
+			.attr("fill", function(d, i) { return d[3]; });
 	
 	chart.selectAll("#labels")
 		.remove();
