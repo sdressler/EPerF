@@ -48,9 +48,6 @@ int main(void) {
         //sprintf(s, "%d", f);
         //EPerfInsertKernelConfPair(c, "number", s);
 
-        // Set KDV
-        EPerfAddKernelDataVolumes(e, 0, 0, 4, 4);
-
         // Start Timer
         EPerfStartTimer(e, 0, 0);
         
@@ -59,6 +56,9 @@ int main(void) {
 
         // Stop Timer
         EPerfStopTimer(e, 0, 0);
+
+        // Set KDV
+        EPerfAddKernelDataVolumes(e, 0, 0, 4, 4);
 
         printf("Fibonacci %d: %u\n", (i+1)*10, f);
     }

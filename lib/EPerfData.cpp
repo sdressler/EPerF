@@ -30,10 +30,12 @@ std::ostream& operator<<(std::ostream &out, const EPerfData &d) {
 	out << std::scientific << std::setprecision(9);
 	out << "Timestamp: " << d.timestamp;
 
-	for (unsigned int i = 0; i < d.clocks.size(); i++) {
-		std::string clockName = d.clockNames.find(i)->second;
-		out << "Clock " << clockName << "[s]:\t" << d.clocks[i].getTimeDifference() << "\n";
-	}
+//	for (unsigned int i = 0; i < d.clocks.size(); i++) {
+//		std::string clockName = d.clockNames.find(i)->second;
+//		out << "Clock " << clockName << "[s]:\t" << d.clocks[i].getTimeDifference() << "\n";
+//	}
+
+    out << "CPU Clock [s]:\t" << d.clocks[0].getTimeDifference() << "\n";
 
 	out << "Data in[byte]: " << d.inBytes << ", Data out[byte]: " << d.outBytes << "\n";
 

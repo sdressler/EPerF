@@ -173,13 +173,14 @@ double EPerf::convTimeSpecToDoubleSeconds(const struct timespec &t) {
 
 // TODO: KernelConfiguration
 // Start the time measurement of a specific kernel
-void EPerf::startTimer(const int KernelID, const int DeviceID, const EPerfKernelConf &c) {
+void EPerf::startTimer(const int KernelID, const int DeviceID) {
 
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
 
     data[position].push_back(EPerfData());
     data[position].back().startAllTimers();
+
 };
 
 // Stop the time measurement and save the measured time
@@ -188,10 +189,18 @@ void EPerf::stopTimer(const int KernelID, const int DeviceID) {
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
 
+    EPerfData *edata = &(data[position].back());
+/*
     data[position].back().stopAllTimers();
     data[position].back().KernelID = KernelID;
     data[position].back().DeviceID = DeviceID;
     data[position].back().ThreadID = omp_get_thread_num();
+*/
+
+    edata->stopAllTimers();
+    edata->KernelID = KernelID;
+    edata->DeviceID = DeviceID;
+    edata->ThreadID = omp_get_thread_num();    
 
 }
 
