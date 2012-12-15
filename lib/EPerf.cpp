@@ -12,6 +12,7 @@
 #include <omp.h>
 
 #include <boost/uuid/uuid_io.hpp>
+#include <ctime>
 
 #include "../include/EPerf/EPerf.h"
 #include "../include/EPerf/EPerfSQLite.h"
@@ -19,9 +20,11 @@
 
 namespace ENHANCE {
 
-std::string EPerf::experiment_id = "";
+std::string EPerf::experiment_id   = "";
+std::string EPerf::experiment_name = "";
+long int    EPerf::experiment_date = 0;
 
-EPerf::EPerf(const std::string &_dbFileName) {
+EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
 
     if (_dbFileName == std::string("")) {
         dbFileName = std::string("eperf.db");
@@ -35,7 +38,10 @@ EPerf::EPerf(const std::string &_dbFileName) {
 	std::stringstream id;
 	boost::uuids::uuid u;
 	id << u;
+
 	experiment_id = id.str();
+    experiment_name = expName;
+    experiment_date = static_cast<long int>(std::time(NULL));
 
 }
 
@@ -79,8 +85,13 @@ void EPerf::commitToDB() {
     // Write the experiment
     std::stringstream q;
 
-    q << "INSERT OR IGNORE INTO experiments (id, ts_start_s, ts_start_ns, ts_stop_s, ts_stop_ns) VALUES("
-      << "'" << experiment_id << "', " << "')";
+    q << "INSERT OR IGNORE INTO experiments (id, date, name) VALUES("
+      << "'" << experiment_id   << "', "
+             << experiment_date << ", "
+      << "'" << experiment_name << "')";
+
+    db.executeInsertQuery(q.str());
+
 /*
     q   << "INSERT OR IGNORE INTO kernels (id, name) VALUES("
         << id << ", '" << name << "')";

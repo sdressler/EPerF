@@ -5,7 +5,7 @@ using namespace ENHANCE;
 
 int main(void) {
 
-	EPerf e;
+	EPerf e("eperf.db", "Multidevice");
 
 	// Add two devices
 	e.addDevice(0, "CPU");

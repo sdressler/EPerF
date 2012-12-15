@@ -23,13 +23,13 @@ int main(void) {
 	std::cout << "Max threads: " << threads << "\n";
 
 	// Create ePerF object
-	EPerf e;
+	EPerf e("eperf.db", "Threads");
 
 	// Add kernel
     e.addKernel(0, "Fibonacci");
 
 	// Add device
-	e.addDevice(0, "Multicore CPU");
+	e.addDevice(4, "Multicore CPU");
 
 	std::cout << "Starting\n";
 

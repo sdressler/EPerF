@@ -16,7 +16,7 @@ unsigned int fib(unsigned int n) {
 
 int main(void) {
 
-    EPerf e;
+    EPerf e("eperf.db", "Fibonacci C++");
 
     cout << "Adding kernel.\n";
     e.addKernel(0, "Fibonacci");

@@ -16,12 +16,13 @@ MODULE m_eperf
     END ENUM
 
     INTERFACE
-        FUNCTION EPerfInit(dbFile) &
+        FUNCTION EPerfInit(dbFile, expName) &
 &           BIND(C, NAME="EPerfInit")
 
             USE, INTRINSIC :: ISO_C_BINDING, ONLY: C_PTR, C_CHAR
             IMPLICIT NONE
             CHARACTER(LEN=1, KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: dbFile
+            CHARACTER(LEN=1, KIND=C_CHAR), DIMENSION(*), INTENT(IN) :: expName
             TYPE(C_PTR) :: EPerfInit
         END FUNCTION EPerfInit
        

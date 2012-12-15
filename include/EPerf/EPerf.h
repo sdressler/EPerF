@@ -89,7 +89,10 @@ private:
     inline pid_t getThreadID() { return syscall(__NR_gettid); }
 
     std::string dbFileName;
+    
     static std::string experiment_id;
+    static std::string experiment_name;
+    static long int    experiment_date;
 
 	unsigned long max_threads;
 
@@ -140,7 +143,7 @@ public:
      *
      * @param[in] _dbFileName Where to store the DB
      * */
-	EPerf(const std::string &_dbFileName = std::string(""));
+	EPerf(const std::string &_dbFileName, const std::string &_expName);
 	~EPerf();
 
 	/**

@@ -29,7 +29,8 @@ program fibonacci
       character*256 :: s
 
       ! Call some C
-      eperf = EPerfInit("" // C_NULL_CHAR)
+      eperf = EPerfInit("eperf.db" // C_NULL_CHAR , &
+      &                 "Fibonacci FORTRAN" // C_NULL_CHAR)
 
       ! Add kernels
       print '(a)', "Adding kernel."

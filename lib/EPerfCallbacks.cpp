@@ -7,11 +7,11 @@
 
 using namespace ENHANCE;
 
-EPerf* cpp_callback_EPerfInit(const char *dbName) {
+EPerf* cpp_callback_EPerfInit(const char *dbName, const char *expName) {
 	EPerf *e;
 
 	try {
-		e = new EPerf(std::string(dbName));
+		e = new EPerf(std::string(dbName), std::string(expName));
 	} catch (...) {
 		return NULL;
 	}
