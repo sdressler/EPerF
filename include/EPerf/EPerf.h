@@ -192,7 +192,7 @@ public:
 	 * @param[in] KernelID The ID of the kernel
 	 * @param[in] DeviceID The ID of the device
 	 * */
-	void startTimer(const int KernelID, const int DeviceID, const EPerfKernelConf &c = EPerfKernelConf());
+	void startTimer(const int KernelID, const int DeviceID);
 
 	/**
 	 * Stops the time measurement for a specific kernel / device combination

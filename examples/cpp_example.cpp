@@ -33,23 +33,9 @@ int main(void) {
 
         // Fib number to generate
         f_src = (i + 1) * 10;
-        
-        // Initialize a Kernel Configuration
-        EPerfKernelConf c;
-
-        // Write Kernel Configuration
-        std::stringstream ss;
-        ss << f_src;
-        c.insertKernelConfPair("number", ss.str());
-
-        // Activate Kernel Configuration
-       // e.setKernelConf(0, c);
-
-        // Set KDV
-        e.addKernelDataVolumes(0, 0, 4, 4);
 
         // Start Timer
-        e.startTimer(0, 0, c);
+        e.startTimer(0, 0);
 
         // Run Kernel
         f = fib(f_src);
@@ -57,6 +43,9 @@ int main(void) {
 
         // Stop Timer
         e.stopTimer(0, 0);
+        
+        // Set KDV
+        e.addKernelDataVolumes(0, 0, 4, 4);
 
         cout << "Fibonacci " << f_src << ": " << f << "\n";
     }

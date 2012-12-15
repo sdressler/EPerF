@@ -44,27 +44,19 @@ int main(void) {
         // Fib number to generate
 //        f = (i + 1) * 20;
   
-        f = 43;
-
-        // Initialize a Kernel Configuration
-        EPerfKernelConf c;
-
-        // Write Kernel Configuration
-        std::stringstream ss;
-        ss << f;
-        c.insertKernelConfPair("number", ss.str());
-
-        // Set KDV
-        e.addKernelDataVolumes(0, 0, 4, 4);
+        f = 20;
 
         // Start Timer
-        e.startTimer(0, 0, c);
+        e.startTimer(0, 0);
 
         // Run Kernel
         f = fib(f);
 
         // Stop Timer
         e.stopTimer(0, 0);
+
+        // Set KDV
+        e.addKernelDataVolumes(0, 0, 4, 4);
 
 //        std::cout << "Fibonacci " << (i+1)*10 << ": " << f << "\n";
     }
