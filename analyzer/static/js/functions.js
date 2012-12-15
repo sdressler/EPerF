@@ -15,7 +15,7 @@ var pan = false;
 //var min_x = NaN;
 var max_x = NaN;
 
-var min_width = 1;
+var min_width = 2;
 var min_dist = min_width;
 
 var loaded_data;
@@ -39,7 +39,7 @@ var num_experiments_to_load;
 $(document).ready(function(){
 	//$("#overlay").hide();
 	hide_footer(0.1);
-	
+	resize_data_content();
 	load_experiments();
 });
 
@@ -57,9 +57,15 @@ $(window).resize(function() {
  */
 function resize_data_content() {
 	
+	console.log("resize");
+	
 	$("#data_content").height(
 		window.innerHeight - $("#data_content").offset().top - $("#footer").outerHeight()
 	);
+	
+	$("#footer")
+		.width(window.innerWidth)
+		.css('top', window.innerHeight - $("#footer").outerHeight() - 10);
 	
 	// Resize the chart
 	chart_width = $("#data_content").width();
@@ -210,7 +216,7 @@ function load_experiment_detail(experiment) {
 	    url: '/get_experiment_overview',
 	    dataType: 'json',
 	    data: { id: experiment },
-	    async: false,
+	    async: true,
 	    success: function(data) {
 	    	
 	    	var ex = $("#" + experiment);
@@ -283,7 +289,9 @@ function load_experiments_finalize() {
 		fetch_data_from_db_for_selections();
 		
 	});
-		
+	
+	resize_data_content();
+	
 	console.log("finished");
 	hide_overlay();
 }
@@ -327,7 +335,7 @@ function fetch_data_from_db_for_selections() {
 	    url: '/get_data',
 	    dataType: 'json',
 	    data: { d: d, k: k, e: Object.keys(e) },
-	    async: false,
+	    async: true,
 	    success: function(data) {
 	    
 	    	// Initialize map
@@ -352,7 +360,10 @@ function fetch_data_from_db_for_selections() {
 			max_x = d3.max(data.result.map(function(value,index) { return value[2]; }));
 			
 			update_scales();
+			
 			plot();
+			
+			hide_overlay();
 	    	
 	    }
 	});
@@ -373,7 +384,7 @@ function update_scales() {
 	y = d3.scale.linear()
 		//.domain([min_threads - 1, max_threads + 1])
 		.domain([0, Object.keys(loaded_data).length])
-	    .rangeRound([bottom_space - 10, chart_height - bottom_space - 10]);
+	    .rangeRound([bottom_space - 20, chart_height - bottom_space - 20]);
 	
 	
 	add_mouse_events();
@@ -511,6 +522,10 @@ function plot() {
 d3.select('body')
 	.on("mousemove", function(d) {
 		
+		if (typeof chart == "undefined") {
+			return;
+		}
+		
 		var old_x;
 		
 		if (zoom_left || zoom_right || pan) {
@@ -524,10 +539,12 @@ d3.select('body')
 			
 		}
 		
-		zoom_level = (old_x[1] - old_x[0]) / max_x; 
+		zoom_level = (old_x[1] - old_x[0]) / max_x;
 		
-		new_x1 = old_x[0] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.0001;
-		new_x2 = old_x[1] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.0001;
+		console.log([zoom_level, max_x]);
+		
+		new_x1 = old_x[0] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.01 * max_x;
+		new_x2 = old_x[1] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.01 * max_x;
 		
 		if (zoom_left) {			
 			x.domain([new_x1, old_x[1]]);
