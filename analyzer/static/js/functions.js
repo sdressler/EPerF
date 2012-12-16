@@ -12,13 +12,12 @@ var zoom_left = false;
 var zoom_right = false;
 var pan = false;
 
-//var min_x = NaN;
 var max_x = NaN;
-var bar_count = NaN;
 
 var min_width = 2;
 var min_dist = min_width;
 
+var db_data;
 var loaded_data;
 var colors_per_key = {};
 
@@ -49,6 +48,7 @@ $(document).ready(function(){
 	resize_data_content();
 	hide_footer(0.1);
 	
+	//select_db("sleep.db");
 	//select_db("octree_multiple.db");
 	
 });
@@ -321,32 +321,20 @@ function fetch_data_from_db_for_selections() {
 	    async: true,
 	    success: function(data) {
 
-	    	// Initialize map
-	    	loaded_data = [];
+	    	db_data = data.result;
+	    	max = [];
 	    	
-	    	keys = {};
-	    	bar_count = 0;
+	    	// Get the maximum value
+	    	Object.keys(db_data).forEach(function(key, index, array) {
+	    		max.push(
+	    			d3.max(db_data[key].map(function(value, index) { return value[1]; }))
+	    		)
+	    	});
 	    	
-	    	data.result.forEach(function(value, index, array) {
-	    		key = value[3] + "-" + String(value[4]) + "-" + String(value[5]) + "-" + String(value[0]);
+	    	max_x = d3.max(max);
 	    	
-	    		if (typeof keys[key] == "undefined") {
-	    			keys[key] = 0;
-	    			bar_count++;
-	    		}
-	    		
-	    		value[0] = bar_count;
-	    		//loaded_data.push(value);
-	    		loaded_data.push([value[0], value[1], value[2], 'color_' + value[3] + '-' + value[4] + '-' + value[5]]);
-	    	
-	    	})
-	    	
-	    	//loaded_data = data.result;
-	    	
-			max_x = d3.max(data.result.map(function(value,index) { return value[2]; }));
-			
 			update_scales();
-			
+
 			plot();
 			
 			hide_overlay();
@@ -359,14 +347,14 @@ function fetch_data_from_db_for_selections() {
 function update_scales() {
 	
 	// Only if data is available
-	if (typeof loaded_data == "undefined") { return; }
+	if (typeof db_data == "undefined") { return; }
 	
 	x = d3.scale.linear()
 		.domain([0, max_x])
 		.range([10, chart_width - 10]);
 
 	y = d3.scale.linear()
-		.domain([0, bar_count])
+		.domain([0, Object.keys(db_data).length])
 	    .rangeRound([bottom_space - 20, chart_height - bottom_space - 20]);
 	
 	add_mouse_events();
@@ -376,88 +364,56 @@ function update_scales() {
 function plot() {
 	
 	// Only if data is available
-	if (typeof loaded_data == "undefined") { return; }
+	if (typeof db_data == "undefined") { return; }
 	
-	// Preselect values
-	filtered_data = [];
+	key_list = Object.keys(db_data).sort();
 	
-	//keys = Object.keys(loaded_data);
-
-	//console.log(loaded_data[3]);
+	//filtered_data = {};
+	this_draw_data = [];
 	
-	//keys.forEach(function(key) {
-		loaded_data.forEach(function(value) {
-			/*if (typeof filtered_data[key] == 'undefined') {
-				filtered_data[key] = [];
-			}*/
+	// Preselect to match current plotting range
+	key_list.forEach(function(key, key_index) {
+		
+		filtered_data = [];
+		indices = [];
+		
+		db_data[key].forEach(function(value, index, array) {
 			
-			//console.log(value[3]);
-			//value[3] = colors_per_key[value[3]];
-			
-			if (value[2] > x.domain()[0] || value[2] < x.domain()[1]) {
+			if (value[1] > x.domain()[0] && value[0] < x.domain()[1]) {
 				filtered_data.push(value);
+				indices.push(index);
 			}
+			
 		});
-	//});
 		
-	// Convert to drawing range
-	//n = 0;
-	//keys.forEach(function(key) {
-		filtered_data.forEach(function(value, index, array) {
-			
-			//childs = $('#' + 01000000-0000-0000-a0e4-e342ff7f0000").children()
-			
-			array[index] = [
-			    y(value[0] - 1), // y position
-			    x(value[1]),     // start
-			    x(value[2]),     // stop
-			    colors_per_key[value[3]]		 // color
-			];
-		});
-//		n++;
-	//});
-	
-	// Remove duplicates
-	//var this_draw_data = filtered_data;
-	var this_draw_data = [];
-
-	var cur_thread = ""
-	var prev_end = NaN
-	
-	//keys.forEach(function(key) {
+		prev_end_index = 0;
+		prev_end = NaN;
 		
 		filtered_data.forEach(function(value, index, array) {
 			
-			if (cur_thread != value[0]) {
-				cur_thread = value[0];
-				
-				//value.push(colors_data[key]);
-				this_draw_data.push(value);
-				
-				prev_end = value[2];
-				
-				return;
-			}
+			this_start = x(value[0]);
+			this_end = x(value[1]);
 			
-			// Calculate the distance between start of
-			// value and end of previous value
-			dist = value[1] - prev_end;
+			dist = this_start - prev_end;
 			
-			// If the distance is below threshold, set
-			// a new end, if not, push the
-			// current value into the array
 			if (dist < min_dist) {
-				this_draw_data[this_draw_data.length - 1][2] = value[2];
+				this_draw_data[prev_end_index][1] = this_end;
 			} else {
-				//value.push(colors_data[key]);
-				this_draw_data.push(value);
+				this_draw_data.push([
+				    this_start, // Start
+				    this_end,   // Stop
+				    y(key_index), // y Position
+				    colors_per_key['color_' + key.slice(0, key.length - 2)] // Color
+				]);
 			}
-
-			prev_end = value[2];
 			
-		});
-	//});
-	
+			prev_end = this_end;
+			prev_end_index = this_draw_data.length - 1;
+			
+		})
+		
+	});
+
 	// Draw the grid
 	chart.selectAll("#vgrid")
 		.remove();
@@ -483,15 +439,11 @@ function plot() {
 	chart.selectAll("rect")
 		.data(this_draw_data)
 		.enter().append("rect")
-			.attr("y", function(d, i) { return d[0]; })
-			.attr("x", function(d, i) { return d[1]; })
-			.attr("width", function(d, i) {
-				width = Math.abs((d[2] - d[1]));
-				if (width < min_width) { return min_width; }
-				return width;
-			})
-			.attr("height", bar_height - 5)
-			.attr("fill", function(d, i) { return d[3]; });
+			.attr("y",     function(d) { return d[2];        })
+			.attr("x",     function(d) { return d[0];        })
+			.attr("width", function(d) { return d[1] - d[0]; })
+			.attr("fill",  function(d) { return d[3];        })
+			.attr("height", bar_height - 5);
 	
 	chart.selectAll("#labels")
 		.remove();
@@ -533,8 +485,6 @@ d3.select('body')
 		}
 		
 		zoom_level = (old_x[1] - old_x[0]) / max_x;
-		
-		console.log([zoom_level, max_x]);
 		
 		new_x1 = old_x[0] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.01 * max_x;
 		new_x2 = old_x[1] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.01 * max_x;

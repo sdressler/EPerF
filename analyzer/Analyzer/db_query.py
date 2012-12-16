@@ -5,6 +5,7 @@ Created on Dec 11, 2012
 '''
 
 import apsw
+from collections import defaultdict
 
 class db_query:
     def __init__(self, db):
@@ -36,46 +37,49 @@ class db_query:
     
     def db_query_data_table(self, selection):
         
-        conditions = []
-        ranges = dict()
+        #conditions = []
+        #ranges = dict()
+        
+        order_query = " ORDER BY tid ASC, ts_start_s ASC, ts_start_ns ASC"
+        
+        result_dict = dict()
         
         for s in selection:
-            ranges[s[0]] = self.db_query(
-                "SELECT min(ts_start_s + ts_start_ns * 1.0e-9) \
-                 FROM data \
-                 WHERE id_experiment = '" + s[0] + "'")[0][0]
-                 
-            conditions.append(
+            
+            # Get the overall minimum for the selected experiment
+            s_min = self.db_query(
+                "SELECT min(ts_start_s + ts_start_ns * 1.0e-9) " +
+                "FROM data " +
+                "WHERE id_experiment = '" + s[0] + "'"
+            )[0][0]
+           
+            s_min_str = "%.9f" % (s_min)
+           
+            # Generate the base query 
+            base_query = (
+                "SELECT " +
+                    "tid, " +
+                    "(ts_start_s + ts_start_ns * 1.0e-9) - " + s_min_str + ", " +
+                    "(ts_stop_s + ts_stop_ns * 1.0e-9) - " + s_min_str +
+                " FROM data WHERE "
+            )
+            
+            # Get the data
+            s_data = self.db_query(
+                base_query + 
                      "id_experiment = '" + s[0] + "'" +
                 " AND id_kernel = " + s[1] +
-                " AND id_device = " + s[2]
+                " AND id_device = " + s[2] +
+                order_query
             )
-
-        query = "SELECT \
-                    tid, \
-                    ts_start_s + ts_start_ns * 1.0e-9, \
-                    ts_stop_s + ts_stop_ns * 1.0e-9, \
-                    id_experiment, id_kernel, id_device \
-                 FROM data WHERE "
-                 
-        for c in conditions:
-            query += "(" + c + ") OR "
-              
-        # Remove last "OR "       
-        query = query[:len(query) - 3]
-        
-        # Append ordering             
-        query += " ORDER BY tid ASC, ts_start_s ASC, ts_start_ns ASC"
-        
-        result = self.db_query(query)
-        
-        result_list = [];
-        for r in result:
-            r = list(r)
-            r[1] -= ranges[r[3]]
-            r[2] -= ranges[r[3]]
             
-            result_list.append(r);
-       
-        return result_list;
+            temp_dict = defaultdict(list)
+            
+            for k, start, stop in s_data:
+                key = str(s[0]) + "-" + str(s[1]) + "-" + str(s[2]) + "-" + str(k) # Key is a combination of experiment, kernel, device, thread
+                temp_dict[key].append((start, stop)) 
+            
+            result_dict.update(dict((k, tuple(v)) for k, v in temp_dict.iteritems()))
+            
+        return result_dict
     
