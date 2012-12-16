@@ -16,7 +16,7 @@ else
 TARGET_F90	=
 endif
 
-LLIB		= -L../lib -leperf -fopenmp
+LLIB		= -L../lib -leperf
 
 FFLAGS		+= -I../include/eperf
 
