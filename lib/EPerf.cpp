@@ -8,9 +8,11 @@
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 #include <omp.h>
 
+#include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <ctime>
 
@@ -36,12 +38,15 @@ EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
 
 	// Create experiment UUID
 	std::stringstream id;
-	boost::uuids::uuid u;
+    boost::uuids::random_generator gen;
+	boost::uuids::uuid u = gen();
 	id << u;
 
 	experiment_id = id.str();
     experiment_name = expName;
     experiment_date = static_cast<long int>(std::time(NULL));
+
+    std::cout << experiment_id << "\n";
 
 }
 
