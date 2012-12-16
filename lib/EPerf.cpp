@@ -46,7 +46,7 @@ EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
     experiment_name = expName;
     experiment_date = static_cast<long int>(std::time(NULL));
 
-    std::cout << experiment_id << "\n";
+//    std::cout << experiment_id << "\n";
 
 }
 
