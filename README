@@ -14,16 +14,17 @@ BMBF grant no.: 01IH11004A-G
 Disclaimer
 ---------
 
-This software is currently in a very early stadium. We're **not** giving **any**
-warranty and it may eat your babies.
+This software is currently in a very early stadium. There is no guarantee
+that measurements are consistently correct and that the software is fully
+bug-free. Bug reports, feature requests and general feedback is welcome.
 
 Requirements
 ------------
 
 * C++ compiler (C / FORTRAN compiler for API support)
-* SQLite (> 3.6)
+* SQLite (>= 3.6)
 * OpenMP
-* boost::functional::hash
+* boost::functional::hash (>= 1.42)
 * boost::uuid
 
 Usage
