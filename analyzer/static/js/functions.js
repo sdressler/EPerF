@@ -50,7 +50,7 @@ $(document).ready(function(){
 		
 	resize_data_content();
 	
-	select_db("sleep.db");
+	//select_db("sleep.db");
 	//select_db("octree_multiple.db");
 	
 });
@@ -123,11 +123,12 @@ function add_mouse_events() {
 			} else if (zoom_left || true && zoom_right || true && pan || true) {
 				$("body").css('cursor', 'move');
 				
-				delta = (event.pageX - prev_x_position) * 0.1;
+				old_x = x.domain();
+				inv_zoom_level = (old_x[1] - old_x[0]) / max_x;
+				
+				delta = (event.pageX - prev_x_position) * max_x * 0.01 * inv_zoom_level;
 				
 				if (!isNaN(delta)) {
-					
-					old_x = x.domain();
 					
 					if (zoom_left == true) {
 						x.domain([old_x[0] - delta, old_x[1]]);
@@ -419,12 +420,18 @@ function plot() {
 			
 		});
 		
-		prev_end_index = 0;
+		prev_end_index = this_draw_data.length - 1;
 		prev_end = NaN;
+		
+		// For later
+		start_index = prev_end_index + 1; 
 		
 		filtered_data.forEach(function(value, index, array) {
 			
 			this_start = x(value[0]);
+			
+			//console.log(this_start);
+			
 			this_end = x(value[1]);
 			
 			dist = this_start - prev_end;
@@ -444,6 +451,13 @@ function plot() {
 			prev_end_index = this_draw_data.length - 1;
 			
 		})
+		
+		//console.log(this_draw_data.length);
+		
+		// Set correct start, if needed
+		if ((this_draw_data.length > 0) && (this_draw_data[start_index][0] < left_space + 10)) {
+			this_draw_data[start_index][0] = left_space + 10;
+		}
 		
 	});
 
@@ -498,54 +512,3 @@ function plot() {
 			.text(function(value) { return d3.round(value, 9); });
 	
 }
-/*
-$("body").bind("mousemove", function(event) {
-	console.log("test");
-});
-*/
-/*
-d3.select('body')
-	.on("mousemove", function(d) {
-		
-		if (typeof chart == "undefined") {
-			return;
-		}
-		
-		var old_x;
-		
-		if (zoom_left || zoom_right || pan) {
-			old_x = x.domain();
-		} else {
-			prev_x_pos = d3.svg.mouse(chart[0][0])[0];
-			return;
-		}
-		
-		zoom_level = (old_x[1] - old_x[0]) / max_x;
-		
-		new_x1 = old_x[0] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.01 * max_x;
-		new_x2 = old_x[1] - (d3.svg.mouse(chart[0][0])[0] - prev_x_pos) * zoom_level * 0.01 * max_x;
-		
-		if (zoom_left) {			
-			x.domain([new_x1, old_x[1]]);
-		} else if	(zoom_right) {
-			x.domain([old_x[0], new_x2]);
-		} else if (pan) {
-			x.domain([new_x1, new_x2]);
-		}
-		
-		prev_x_pos = d3.svg.mouse(chart[0][0])[0];
-		
-		console.log(old_x);
-		
-		plot();
-		
-	})
-	
-	.on("mouseup", function(d) {
-		zoom_left = false;
-		zoom_right = false;
-		pan = false;
-		$("body").css('cursor', 'auto');
-		$("#footer").html("");
-	});
-*/
