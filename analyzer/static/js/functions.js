@@ -28,10 +28,13 @@ var chart_height;
 var padding = 10;
 
 var bottom_space = 30;
+var left_space = 150;
 
 var rel_mouse_position = 0;
 
 var num_experiments_to_load;
+
+var prev_x_position = NaN;
 
 /*
  * Initial routines
@@ -46,9 +49,8 @@ $(document).ready(function(){
 	});
 		
 	resize_data_content();
-	hide_footer(0.1);
 	
-	//select_db("sleep.db");
+	select_db("sleep.db");
 	//select_db("octree_multiple.db");
 	
 });
@@ -100,20 +102,46 @@ function add_mouse_events() {
 	$("#data_content")
 		.mousemove(function(event) {
 			
-			rel_mouse_position = event.pageX / chart_width;
+			rel_mouse_position = (event.pageX - left_space) / chart_width;
 			
 			if (zoom_left == false && zoom_right == false && pan == false) {
-				if (rel_mouse_position < 0.4) {
+				
+				if (rel_mouse_position > 0.0 && rel_mouse_position < 0.4) {
 					$("body").css('cursor', 'ew-resize');
+					$("#footer").html("Drag to zoom left");
 				} else if (rel_mouse_position > 0.6) {
 					$("body").css('cursor', 'ew-resize');
+					$("#footer").html("Drag to zoom right");
 				} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
 					$("body").css('cursor', 'ew-resize');
+					$("#footer").html("Drag to pan");
 				} else {
 					$("body").css('cursor', 'auto');
+					$("#footer").html("");
 				};
+				
 			} else if (zoom_left || true && zoom_right || true && pan || true) {
 				$("body").css('cursor', 'move');
+				
+				delta = (event.pageX - prev_x_position) * 0.1;
+				
+				if (!isNaN(delta)) {
+					
+					old_x = x.domain();
+					
+					if (zoom_left == true) {
+						x.domain([old_x[0] - delta, old_x[1]]);
+					} else if (zoom_right == true) {
+						x.domain([old_x[0], old_x[1] - delta]);
+					} else if (pan == true) {
+						x.domain([old_x[0] - delta, old_x[1] - delta]);
+					}
+					
+					plot();
+				}
+				
+				prev_x_position = event.pageX;
+				
 			} else {
 				$("body").css('cursor', 'pointer');
 			}
@@ -123,7 +151,7 @@ function add_mouse_events() {
 			
 			event.originalEvent.preventDefault();
 			
-			if (rel_mouse_position < 0.4) {
+			if (rel_mouse_position > 0.0 & rel_mouse_position < 0.4) {
 				zoom_left = true;
 			} else if (rel_mouse_position > 0.6) {
 				zoom_right = true;
@@ -139,6 +167,14 @@ function add_mouse_events() {
 		
 		.mouseout(function(event) {
 			$("body").css("cursor", "auto");
+			$("#footer").html("");
+		})
+		
+		.mouseup(function(event) {
+			zoom_left = false;
+			zoom_right = false;
+			pan = false;
+			prev_x_position = NaN;
 		});
 
 }
@@ -154,9 +190,6 @@ function clear_plot() {
 	chart.selectAll("#vgrid").remove();
 	chart.selectAll("rect").remove();
 	chart.selectAll("#labels").remove();
-	
-	// Footer aways
-	hide_footer();
 	
 }
 
@@ -351,7 +384,7 @@ function update_scales() {
 	
 	x = d3.scale.linear()
 		.domain([0, max_x])
-		.range([10, chart_width - 10]);
+		.range([left_space + 10, chart_width - 20]);
 
 	y = d3.scale.linear()
 		.domain([0, Object.keys(db_data).length])
@@ -441,7 +474,11 @@ function plot() {
 		.enter().append("rect")
 			.attr("y",     function(d) { return d[2];        })
 			.attr("x",     function(d) { return d[0];        })
-			.attr("width", function(d) { return d[1] - d[0]; })
+			.attr("width", function(d) {
+				width = d[1] - d[0];
+				if (width < min_width) { return min_width; }
+				return width;
+			})
 			.attr("fill",  function(d) { return d[3];        })
 			.attr("height", bar_height - 5);
 	
@@ -460,10 +497,13 @@ function plot() {
 			.attr("fill", "#fff")
 			.text(function(value) { return d3.round(value, 9); });
 	
-	show_footer();
-	
 }
-
+/*
+$("body").bind("mousemove", function(event) {
+	console.log("test");
+});
+*/
+/*
 d3.select('body')
 	.on("mousemove", function(d) {
 		
@@ -474,14 +514,10 @@ d3.select('body')
 		var old_x;
 		
 		if (zoom_left || zoom_right || pan) {
-			
 			old_x = x.domain();
-			
 		} else {
-			
 			prev_x_pos = d3.svg.mouse(chart[0][0])[0];
 			return;
-			
 		}
 		
 		zoom_level = (old_x[1] - old_x[0]) / max_x;
@@ -491,16 +527,16 @@ d3.select('body')
 		
 		if (zoom_left) {			
 			x.domain([new_x1, old_x[1]]);
-		}
-		
-		else if	(zoom_right) { x.domain([old_x[0], new_x2]);   }
-		
-		else if	(pan) {
+		} else if	(zoom_right) {
+			x.domain([old_x[0], new_x2]);
+		} else if (pan) {
 			x.domain([new_x1, new_x2]);
 		}
 		
 		prev_x_pos = d3.svg.mouse(chart[0][0])[0];
-
+		
+		console.log(old_x);
+		
 		plot();
 		
 	})
@@ -510,4 +546,6 @@ d3.select('body')
 		zoom_right = false;
 		pan = false;
 		$("body").css('cursor', 'auto');
+		$("#footer").html("");
 	});
+*/
