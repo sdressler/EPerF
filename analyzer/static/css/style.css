@@ -7,7 +7,7 @@ body {
 	margin: 0;
 }
 
-#overlay {
+.overlay {
 	height: 100%;
 	width: 100%;
 	position: absolute;
@@ -17,6 +17,7 @@ body {
 	display: block;
 	opacity:0.8;
 	z-index: 1000;
+	color: #fff;
 }
 
 #overlay_content {
@@ -75,7 +76,6 @@ body {
 }
 
 .entry {
-	cursor: pointer;
 	margin-top: 5px;
 	margin-right: 20px;
 	float: left;
@@ -102,6 +102,7 @@ body {
 
 .selectable:hover {
 	color: #00B1E6;
+	cursor: pointer;
 }
 
 .eheading {
@@ -141,11 +142,13 @@ body {
 #footer {
 	position: fixed;
 	background-color: #222;
-	margin: 0px;
-	padding: 0px;
-	padding-top: 10px;
+	margin: 10px;
+	padding-bottom: 5px;
+	height: 20px;
+	color: #00B1E6;
+	font-weight: bold;
 }
-
+/*
 .footer {
 	font-size: 10pt;
 	margin: 0px;
@@ -159,7 +162,7 @@ body {
 	color: #000;
 	text-align: center;
 }
-
+*/
 .miniColors-triggerWrap {
 	float: left;
 	margin-right: 5px;
