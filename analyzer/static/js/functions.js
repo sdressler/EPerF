@@ -28,7 +28,7 @@ var chart_height;
 var padding = 10;
 
 var bottom_space = 30;
-var left_space = 150;
+var left_space = 250;
 
 var rel_mouse_position = 0;
 
@@ -94,6 +94,8 @@ function resize_data_content() {
 		.attr("id", "data_content_svg")
 		.attr("width", chart_width)
 		.attr("height", chart_height);
+	
+	static_plot();
 	
 }
 
@@ -369,6 +371,7 @@ function fetch_data_from_db_for_selections() {
 	    	
 			update_scales();
 
+			static_plot();
 			plot();
 			
 			hide_overlay();
@@ -510,5 +513,61 @@ function plot() {
 			.attr("text-anchor", "middle")
 			.attr("fill", "#fff")
 			.text(function(value) { return d3.round(value, 9); });
+	
+}
+
+var call_text = function(d) {
+	if (d > 1) {
+		return " Calls";
+	} else {
+		return " Call";
+	}
+}
+
+function static_plot() {
+	
+	if (typeof db_data == "undefined") { return; }
+	
+	key_list = Object.keys(db_data).sort();
+	
+	var text_data = [];
+	
+	key_list.forEach(function (key, key_index) {
+		text_data.push([
+		    key_index,
+		    0,
+		    db_data[key].length + "x"
+		]);
+		text_data.push([
+            key_index,
+            1,
+            d3.round(db_data[key][0][0], 9) + " s to " +
+		    d3.round(db_data[key][db_data[key].length - 1][1], 9) + " s"
+		]);
+		text_data.push([
+		    key_index,
+		    2,
+		    "Duration: " + d3.round(db_data[key][db_data[key].length - 1][1] - db_data[key][0][0], 9) + " s"
+		]);
+		text_data.push([
+            key_index,
+            3,
+            "Median: " + d3.round(d3.median(db_data[key].map(function(d) { return d[1] - d[0]; })), 9) + " s"
+		])
+	});
+	
+	chart.selectAll(".stats").remove();
+	
+	chart.selectAll(".stats")
+		.data(text_data)
+		.enter().append("text")
+			.attr("class", "stats")
+			.attr("x", 5)
+			.attr("y",  function(d) { return y(d[0]) + 11; })
+			.attr("dy", function(d) { return d[1] * 18; })
+			.attr("text-anchor", "left")
+			.attr("alignment-baseline", "middle")
+			.attr("fill", "#fff")
+			.text(function(d) { return d[2]; });
 	
 }
