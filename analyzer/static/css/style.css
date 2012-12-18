@@ -145,13 +145,19 @@ body {
 	position: fixed;
 	z-index: 1000;
 	width: 250;
-	height: 100;
+	height: 70;
 	pointer-events:none;
-	stroke-dasharray: 5,5;
+}
+
+#circle_circle {
+	stroke-dasharray: 2.5, 2.5;
+	stroke: #555;
+	opacity: 0.8;
 }
 
 #circle_text {
-	font-weight: bold;
+	font-weight: normal;
+	fill: #555;
 }
 
 #footer {

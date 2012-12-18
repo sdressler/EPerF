@@ -38,6 +38,8 @@ var prev_x_position = NaN;
 
 var circle_dim;
 
+var plot_empty = true;
+
 /*
  * Initial routines
  */
@@ -57,17 +59,9 @@ $(document).ready(function(){
 	//select_db("sleep.db");
 	//select_db("octree_multiple.db");
 	
-	circle_dim = [$("#circle").width() / 2, $("#circle").height() / 2];
+	circle_dim = [$("#circle").width(), $("#circle").height()];
 	
 });
-
-// Definitely disable zoom / pan
-$(document).mouseup(function(event) {
-	zoom_left = false;
-	zoom_right = false;
-	pan = false;
-	prev_x_position = NaN;
-})
 
 $(window).resize(function() {
 	resize_data_content();
@@ -113,88 +107,86 @@ function resize_data_content() {
 	
 }
 
-
-function add_mouse_events() {
-	
-	$("#data_content")
-		.mousemove(function(event) {
-			
-			rel_mouse_position = (event.pageX - left_space) / chart_width;
-			
-			if (zoom_left == false && zoom_right == false && pan == false) {
-				
-				if (rel_mouse_position > 0.0 && rel_mouse_position < 0.4) {
-					$("body").css('cursor', 'ew-resize');
-					show_circle("Drag to zoom");
-					circle_follow(event);
-				} else if (rel_mouse_position > 0.6) {
-					$("body").css('cursor', 'ew-resize');
-					show_circle("Drag to zoom");
-					circle_follow(event);
-				} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
-					$("body").css('cursor', 'ew-resize');
-					show_circle("Drag to pan");
-					circle_follow(event);
-				} else {
-					$("body").css('cursor', 'auto');
-					hide_circle();
-				};
-				
-			} else if (zoom_left || true && zoom_right || true && pan || true) {
-				$("body").css('cursor', 'move');
-				
-				old_x = x.domain();
-				inv_zoom_level = (old_x[1] - old_x[0]) / max_x;
-				
-				delta = (event.pageX - prev_x_position) * max_x * 0.01 * inv_zoom_level;
-				
-				if (!isNaN(delta)) {
-					
-					if (zoom_left == true) {
-						x.domain([old_x[0] - delta, old_x[1]]);
-					} else if (zoom_right == true) {
-						x.domain([old_x[0], old_x[1] - delta]);
-					} else if (pan == true) {
-						x.domain([old_x[0] - delta, old_x[1] - delta]);
-					}
-					
-					plot();
-				}
-				
-				prev_x_position = event.pageX;
-				
-			} else {
-				$("body").css('cursor', 'pointer');
-			}
-		})
+$(document)
+	.mouseup(function(event) {
+		zoom_left = false;
+		zoom_right = false;
+		pan = false;
+		prev_x_position = NaN;
+	})
+	.mousemove(function(event) {
 		
-		.mousedown(function(event) {
+		rel_mouse_position = (event.pageX - left_space) / chart_width;
+		
+		if (!plot_empty && !zoom_left && !zoom_right && !pan) {
 			
-			event.originalEvent.preventDefault();
-			
-			hide_circle();
-			
-			if (rel_mouse_position > 0.0 & rel_mouse_position < 0.4) {
-				zoom_left = true;
+			if (rel_mouse_position > 0.0 && rel_mouse_position < 0.4) {
+				$("body").css('cursor', 'ew-resize');
+				show_circle("Drag to zoom");
+				circle_follow(event);
 			} else if (rel_mouse_position > 0.6) {
-				zoom_right = true;
+				$("body").css('cursor', 'ew-resize');
+				show_circle("Drag to zoom");
+				circle_follow(event);
 			} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
-				pan = true;
+				$("body").css('cursor', 'ew-resize');
+				show_circle("Drag to pan");
+				circle_follow(event);
 			} else {
-				zoom_left = false;
-				zoom_right = false;
-				pan = false;
 				$("body").css('cursor', 'auto');
+				hide_circle();
 			};
 			
-		})
+		} else if (zoom_left || true && zoom_right || true && pan || true) {
+			$("body").css('cursor', 'move');
+			
+			if (typeof domain == "undefined") { return; }
+			
+			old_x = x.domain();
+			inv_zoom_level = (old_x[1] - old_x[0]) / max_x;
+			
+			delta = (event.pageX - prev_x_position) * max_x * 0.01 * inv_zoom_level;
+			
+			if (!isNaN(delta)) {
+				
+				if (zoom_left == true) {
+					x.domain([old_x[0] - delta, old_x[1]]);
+				} else if (zoom_right == true) {
+					x.domain([old_x[0], old_x[1] - delta]);
+				} else if (pan == true) {
+					x.domain([old_x[0] - delta, old_x[1] - delta]);
+				}
+				
+				plot();
+			}
+			
+			prev_x_position = event.pageX;
+			
+		} else {
+			$("body").css('cursor', 'pointer');
+		}
+	})
+	
+	.mousedown(function(event) {
 		
-		.mouseout(function(event) {
-			$("body").css("cursor", "auto");
-			hide_circle();
-		});
-
-}
+		event.originalEvent.preventDefault();
+		
+		hide_circle();
+		
+		if (rel_mouse_position > 0.0 & rel_mouse_position < 0.4) {
+			zoom_left = true;
+		} else if (rel_mouse_position > 0.6) {
+			zoom_right = true;
+		} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
+			pan = true;
+		} else {
+			zoom_left = false;
+			zoom_right = false;
+			pan = false;
+			$("body").css('cursor', 'auto');
+		};
+		
+	})
 
 function clear_plot() {
 	
@@ -207,6 +199,8 @@ function clear_plot() {
 	chart.selectAll("#vgrid").remove();
 	chart.selectAll("rect").remove();
 	chart.selectAll("#labels").remove();
+	
+	plot_empty = true;
 	
 }
 
@@ -408,7 +402,7 @@ function update_scales() {
 		.domain([0, Object.keys(db_data).length])
 	    .rangeRound([bottom_space - 20, chart_height - bottom_space - 20]);
 	
-	add_mouse_events();
+	//add_mouse_events();
 	
 }
 
@@ -526,6 +520,8 @@ function plot() {
 			.attr("text-anchor", "middle")
 			.attr("fill", "#fff")
 			.text(function(value) { return d3.round(value, 9); });
+
+	plot_empty = false;
 	
 }
 
