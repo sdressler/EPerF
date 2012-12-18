@@ -9,13 +9,20 @@
 	
 	<link rel="stylesheet" type="text/css" media="all" href="{{url_for('static', filename='css/style.css')}}" />
 	<link rel="stylesheet" type="text/css" media="all" href="{{url_for('static', filename='js/colorpicker/jquery.miniColors.css')}}" />
-	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,600,700' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
 	
 </head>
 <body>
 
 <div id="overlay" class="overlay">
 	<div id="overlay_content" class="section_title">Loading data ... please be patient</div>
+</div>
+
+<div id="circle">
+	<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+   		<circle id="circle_circle" cx="50" cy="50" r="40" stroke="#fff" stroke-width="5" fill="none" />
+   		<text id="circle_text" x="100" y="50" alignment-baseline="middle">Test</text>
+	</svg>
 </div>
 
 <div id="db_selector">
@@ -37,6 +44,7 @@
 
 <div class="clear"></div>
 <div id="footer" class="footer">
+	<label><input type="checkbox" id="show_hints" checked="checked">Show hints</label>
     <!--
 	<div style="width: 40%;" class="footer section info">Zoom left side</div>
 	<div style="width: 5%;"  class="footer section">&nbsp;</div>
