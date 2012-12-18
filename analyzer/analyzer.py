@@ -20,6 +20,8 @@ def add_header(response):
 def hello_world():
     path = os.path.dirname(os.path.realpath(__file__))
     
+    app.logger.info("Greetings!")
+
     files = []
     for f in os.listdir(path + '/static/db'):
         if f.endswith('.db'):
@@ -58,7 +60,7 @@ def get_data():
     return jsonify(result=db.db_query_data_table(selection))
 
 
-if __name__ == '__main__':
-    app.debug = True
-    app.run(host='0.0.0.0', port=12080)
-    #app.run(port=80)
+#if __name__ == '__main__':
+#    app.debug = True
+#    app.run(host='0.0.0.0', port=12080)
+#    #app.run(port=80)
