@@ -22,6 +22,6 @@ function hide_circle() { $("#circle").hide(); }
 
 function circle_follow(event) {
 	$("#circle")
-		.css('left', event.pageX - circle_dim[0] + 75)
-		.css('top', event.pageY - circle_dim[1]);
+		.css('left', event.pageX - circle_dim[0] + 215)
+		.css('top', event.pageY - circle_dim[1] + 35);
 }
