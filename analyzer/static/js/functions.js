@@ -56,7 +56,7 @@ $(document).ready(function(){
 		
 	resize_data_content();
 	
-	//select_db("sleep.db");
+	select_db("sleep.db");
 	//select_db("octree_multiple.db");
 	
 	circle_dim = [$("#circle").width(), $("#circle").height()];
@@ -114,56 +114,77 @@ $(document)
 		pan = false;
 		prev_x_position = NaN;
 	})
+/*	
+	.mouseout(function(event) {
+		zoom_left = false;
+		zoom_right = false;
+		pan = false;
+		prev_x_position = NaN;
+		hide_circle();
+	})
+*/	
 	.mousemove(function(event) {
 		
 		rel_mouse_position = (event.pageX - left_space) / chart_width;
 		
-		if (!plot_empty && !zoom_left && !zoom_right && !pan) {
-			
-			if (rel_mouse_position > 0.0 && rel_mouse_position < 0.4) {
-				$("body").css('cursor', 'ew-resize');
-				show_circle("Drag to zoom");
-				circle_follow(event);
-			} else if (rel_mouse_position > 0.6) {
-				$("body").css('cursor', 'ew-resize');
-				show_circle("Drag to zoom");
-				circle_follow(event);
-			} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
-				$("body").css('cursor', 'ew-resize');
-				show_circle("Drag to pan");
-				circle_follow(event);
+		if (event.pageY > $("#data_content").position().top) {
+		
+			if (!plot_empty && !zoom_left && !zoom_right && !pan) {
+				
+				if (rel_mouse_position > 0.0 && rel_mouse_position < 0.4) {
+					$("body").css('cursor', 'ew-resize');
+					show_circle("Drag to zoom");
+					circle_follow(event);
+				} else if (rel_mouse_position > 0.6) {
+					$("body").css('cursor', 'ew-resize');
+					show_circle("Drag to zoom");
+					circle_follow(event);
+				} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
+					$("body").css('cursor', 'ew-resize');
+					show_circle("Drag to pan");
+					circle_follow(event);
+				} else {
+					$("body").css('cursor', 'auto');
+					hide_circle();
+				};
+				
+			} else if (zoom_left || true && zoom_right || true && pan || true) {
+				$("body").css('cursor', 'move');
+				
+				if (typeof x == "undefined") { return; }
+				
+				old_x = x.domain();
+				inv_zoom_level = (old_x[1] - old_x[0]) / max_x;
+				
+				delta = (event.pageX - prev_x_position) * max_x * 0.01 * inv_zoom_level;
+				
+				if (!isNaN(delta)) {
+					
+					if (zoom_left == true) {
+						x.domain([old_x[0] - delta, old_x[1]]);
+					} else if (zoom_right == true) {
+						x.domain([old_x[0], old_x[1] - delta]);
+					} else if (pan == true) {
+						x.domain([old_x[0] - delta, old_x[1] - delta]);
+					}
+					
+					plot();
+				}
+				
+				prev_x_position = event.pageX;
+				
 			} else {
 				$("body").css('cursor', 'auto');
 				hide_circle();
-			};
-			
-		} else if (zoom_left || true && zoom_right || true && pan || true) {
-			$("body").css('cursor', 'move');
-			
-			if (typeof domain == "undefined") { return; }
-			
-			old_x = x.domain();
-			inv_zoom_level = (old_x[1] - old_x[0]) / max_x;
-			
-			delta = (event.pageX - prev_x_position) * max_x * 0.01 * inv_zoom_level;
-			
-			if (!isNaN(delta)) {
-				
-				if (zoom_left == true) {
-					x.domain([old_x[0] - delta, old_x[1]]);
-				} else if (zoom_right == true) {
-					x.domain([old_x[0], old_x[1] - delta]);
-				} else if (pan == true) {
-					x.domain([old_x[0] - delta, old_x[1] - delta]);
-				}
-				
-				plot();
 			}
-			
-			prev_x_position = event.pageX;
-			
+		
 		} else {
-			$("body").css('cursor', 'pointer');
+			$("body").css('cursor', 'auto');
+			hide_circle();
+			zoom_left = false;
+			zoom_right = false;
+			pan = false;
+			prev_x_position = NaN;
 		}
 	})
 	
