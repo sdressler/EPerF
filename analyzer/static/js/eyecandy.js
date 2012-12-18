@@ -8,3 +8,20 @@ function show_overlay() {
 }
 
 function hide_overlay() { $("#overlay").hide(); }
+
+function show_circle(msg) {
+	
+	if ($("#show_hints").prop("checked")) {
+		$("#circle_text").text(msg);
+		$("#circle").fadeIn();
+	}
+	
+}
+
+function hide_circle() { $("#circle").hide(); }
+
+function circle_follow(event) {
+	$("#circle")
+		.css('left', event.pageX - circle_dim[0] + 75)
+		.css('top', event.pageY - circle_dim[1]);
+}

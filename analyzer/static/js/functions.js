@@ -28,7 +28,7 @@ var chart_height;
 var padding = 10;
 
 var bottom_space = 30;
-var left_space = 250;
+var left_space = 200;
 
 var rel_mouse_position = 0;
 
@@ -36,12 +36,16 @@ var num_experiments_to_load;
 
 var prev_x_position = NaN;
 
+var circle_dim;
+
 /*
  * Initial routines
  */
 $(document).ready(function(){
 	//$("#overlay").hide();
 
+	hide_circle();
+	
 	$("#db_entries").css('top', window.innerHeight / 2 - $("#db_entries").height() / 2);
 
 	$("#db_entries").each(function (index, value) {
@@ -53,7 +57,17 @@ $(document).ready(function(){
 	//select_db("sleep.db");
 	//select_db("octree_multiple.db");
 	
+	circle_dim = [$("#circle").width() / 2, $("#circle").height() / 2];
+	
 });
+
+// Definitely disable zoom / pan
+$(document).mouseup(function(event) {
+	zoom_left = false;
+	zoom_right = false;
+	pan = false;
+	prev_x_position = NaN;
+})
 
 $(window).resize(function() {
 	resize_data_content();
@@ -99,6 +113,7 @@ function resize_data_content() {
 	
 }
 
+
 function add_mouse_events() {
 	
 	$("#data_content")
@@ -110,16 +125,19 @@ function add_mouse_events() {
 				
 				if (rel_mouse_position > 0.0 && rel_mouse_position < 0.4) {
 					$("body").css('cursor', 'ew-resize');
-					$("#footer").html("Drag to zoom left");
+					show_circle("Drag to zoom");
+					circle_follow(event);
 				} else if (rel_mouse_position > 0.6) {
 					$("body").css('cursor', 'ew-resize');
-					$("#footer").html("Drag to zoom right");
+					show_circle("Drag to zoom");
+					circle_follow(event);
 				} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
 					$("body").css('cursor', 'ew-resize');
-					$("#footer").html("Drag to pan");
+					show_circle("Drag to pan");
+					circle_follow(event);
 				} else {
 					$("body").css('cursor', 'auto');
-					$("#footer").html("");
+					hide_circle();
 				};
 				
 			} else if (zoom_left || true && zoom_right || true && pan || true) {
@@ -154,6 +172,8 @@ function add_mouse_events() {
 			
 			event.originalEvent.preventDefault();
 			
+			hide_circle();
+			
 			if (rel_mouse_position > 0.0 & rel_mouse_position < 0.4) {
 				zoom_left = true;
 			} else if (rel_mouse_position > 0.6) {
@@ -166,18 +186,12 @@ function add_mouse_events() {
 				pan = false;
 				$("body").css('cursor', 'auto');
 			};
+			
 		})
 		
 		.mouseout(function(event) {
 			$("body").css("cursor", "auto");
-			$("#footer").html("");
-		})
-		
-		.mouseup(function(event) {
-			zoom_left = false;
-			zoom_right = false;
-			pan = false;
-			prev_x_position = NaN;
+			hide_circle();
 		});
 
 }
@@ -367,7 +381,7 @@ function fetch_data_from_db_for_selections() {
 	    		)
 	    	});
 	    	
-	    	max_x = d3.max(max);
+	    	max_x = d3.max(max) + d3.max(max) * 0.01;
 	    	
 			update_scales();
 
@@ -499,14 +513,13 @@ function plot() {
 			.attr("fill",  function(d) { return d[3];        })
 			.attr("height", bar_height - 5);
 	
-	chart.selectAll("#labels")
+	chart.selectAll(".seconds")
 		.remove();
 	
-	chart.selectAll(".rule")
+	chart.selectAll(".seconds")
 		.data(x.ticks(num_ticks))
 		.enter().append("text")
-			.attr("class", "rule")
-			.attr("id", "labels")
+			.attr("class", "labels seconds")
 			.attr("x", x)
 			.attr("y", chart_height - 10)
 			.attr("dy", -3)
@@ -530,44 +543,34 @@ function static_plot() {
 	
 	key_list = Object.keys(db_data).sort();
 	
-	var text_data = [];
-	
-	key_list.forEach(function (key, key_index) {
-		text_data.push([
-		    key_index,
-		    0,
-		    db_data[key].length + "x"
-		]);
-		text_data.push([
-            key_index,
-            1,
-            d3.round(db_data[key][0][0], 9) + " s to " +
-		    d3.round(db_data[key][db_data[key].length - 1][1], 9) + " s"
-		]);
-		text_data.push([
-		    key_index,
-		    2,
-		    "Duration: " + d3.round(db_data[key][db_data[key].length - 1][1] - db_data[key][0][0], 9) + " s"
-		]);
-		text_data.push([
-            key_index,
-            3,
-            "Median: " + d3.round(d3.median(db_data[key].map(function(d) { return d[1] - d[0]; })), 9) + " s"
-		])
-	});
+	bar_height = y(1) - y(0);
 	
 	chart.selectAll(".stats").remove();
 	
 	chart.selectAll(".stats")
-		.data(text_data)
+		.data(key_list)
 		.enter().append("text")
-			.attr("class", "stats")
-			.attr("x", 5)
-			.attr("y",  function(d) { return y(d[0]) + 11; })
-			.attr("dy", function(d) { return d[1] * 18; })
-			.attr("text-anchor", "left")
+			.attr("class", "stats labels")
+			.attr("x", left_space - 10)
+			.attr("y",  function(d, i) { return y(i) + bar_height / 2; })
+			.attr("text-anchor", "end")
 			.attr("alignment-baseline", "middle")
 			.attr("fill", "#fff")
-			.text(function(d) { return d[2]; });
+			.text(function(key) {
+			
+				duration = db_data[key][db_data[key].length - 1][1] - db_data[key][0][0];
+				//duration = 0.0;
+				
+				duration_eff = 0.0;
+				
+				db_data[key].forEach(function (value, index, array) {
+					duration_eff += value[1] - value[0];
+				});
+				
+				return  db_data[key].length + "x, " +
+						d3.round(duration, 4) + "s (" +
+						d3.round(duration_eff, 4) +  "s)";
+				
+			});
 	
 }
