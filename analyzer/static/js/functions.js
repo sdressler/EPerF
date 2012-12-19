@@ -1,7 +1,3 @@
-
-
-//var draw_data;
-
 var x, y;
 
 var num_ticks = 20;
