@@ -25,6 +25,23 @@ body {
 	position: fixed;
 }
 
+#statistics {
+	float: left;
+	position: fixed;
+	width: 28;
+	background-color: #00B1E6;
+	background-image:url('../png/chart.png');
+	background-repeat: no-repeat;
+	background-position: center;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+}
+
+#statistics:hover {
+	cursor: pointer;
+	background-color: #00C4FF;
+}
+
 #db_selector {
 	height: 100%;
 	width: 100%;

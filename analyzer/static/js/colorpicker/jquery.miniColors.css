@@ -105,9 +105,10 @@ INPUT.miniColors {
 
 .miniColors-trigger, 
 .miniColors-triggerWrap {
-	width: 22px;
-	height: 22px;
+	width: 20px;
+	height: 20px;
 	display: inline-block;
+	margin-top: 3px;
 }
 
 .miniColors-triggerWrap {
@@ -115,14 +116,14 @@ INPUT.miniColors {
 }
 
 .miniColors-triggerWrap.disabled {
-	filter: alpha(opacity=50);
-	opacity: .5;
+	//filter: alpha(opacity=50);
+	//opacity: .5;
 }
 
 .miniColors-trigger {
 	vertical-align: middle;
 	outline: none;
-	background: url(images/trigger.png) 0 0 no-repeat;
+	background: url(images/trigger.png) center center no-repeat;
 }
 
 .miniColors-triggerWrap.disabled .miniColors-trigger {
