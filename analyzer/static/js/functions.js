@@ -28,7 +28,7 @@ var chart_height;
 var padding = 10;
 
 var bottom_space = 30;
-var left_space = 200;
+var left_space = 35;
 
 var rel_mouse_position = 0;
 
@@ -56,7 +56,7 @@ $(document).ready(function(){
 		
 	resize_data_content();
 	
-	select_db("sleep.db");
+	//select_db("sleep.db");
 	//select_db("octree_multiple.db");
 	
 	circle_dim = [$("#circle").width(), $("#circle").height()];
@@ -85,6 +85,8 @@ function resize_data_content() {
 	$("#data_content").height(
 		window.innerHeight - $("#data_content").offset().top - $("#footer").outerHeight()
 	);
+	
+	$("#statistics").height($("#data_content").height() - 10);
 	
 	$("#footer")
 		.width(window.innerWidth)
