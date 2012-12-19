@@ -22,13 +22,14 @@ var loaded_data;
 var colors_per_key = {};
 
 var chart;
+var stats;
+
 var chart_width;
 var chart_height;
 
 var padding = 10;
 
 var bottom_space = 30;
-var left_space = 35;
 
 var rel_mouse_position = 0;
 
@@ -40,6 +41,9 @@ var circle_dim;
 
 var plot_empty = true;
 
+var statistics_open = false;
+var statistics_width = 200;
+
 /*
  * Initial routines
  */
@@ -47,6 +51,8 @@ $(document).ready(function(){
 	//$("#overlay").hide();
 
 	hide_circle();
+	
+	$("#statistics_content").width(0);
 	
 	$("#db_entries").css('top', window.innerHeight / 2 - $("#db_entries").height() / 2);
 
@@ -56,10 +62,33 @@ $(document).ready(function(){
 		
 	resize_data_content();
 	
-	//select_db("sleep.db");
+	select_db("sleep.db");
 	//select_db("octree_multiple.db");
 	
 	circle_dim = [$("#circle").width(), $("#circle").height()];
+	
+	$("#statistics_btn").click(function(event) {
+		
+		if (statistics_open) {
+			
+			$(this).animate({width: 28})
+			$("#statistics_content").animate({width: 0})
+			statistics_open = false;
+			
+		} else {
+			
+			$(this).animate({width: statistics_width + 28});
+			$("#statistics_content").animate({width: statistics_width})
+			statistics_open = true;
+			
+		}
+	});
+	
+	stats = d3.select("#statistics_content").append("svg:svg")	
+		.attr("class", "stats")
+		.attr("id", "stats_svg")
+		.attr("width", "100%") //chart_width)
+		.attr("height", "100%"); //chart_height);
 	
 });
 
@@ -82,54 +111,64 @@ function select_db(db) {
  */
 function resize_data_content() {
 	
-	$("#data_content").height(
-		window.innerHeight - $("#data_content").offset().top - $("#footer").outerHeight()
-	);
+	$("#chart_container")
+		.width(window.innerWidth - $("#statistics").width())
+		.height(window.innerHeight -
+				$("#chart_container").offset().top -
+				$("#footer").outerHeight() - 10
+		 )
+		.css('left', $("#statistics").width() + 25)
+		.css('top', $("#statistics").position().top + 55);
 	
-	$("#statistics").height($("#data_content").height() - 10);
+	$("#statistics_content")
+		.height($("#chart_container").height())
+		.css('top', $("#statistics").css('top'));
 	
 	$("#footer")
 		.width(window.innerWidth)
 		.css('top', window.innerHeight - $("#footer").outerHeight() - 10);
 	
 	// Resize the chart
-	chart_width = $("#data_content").width();
-	chart_height = $("#data_content").height();
+	chart_width = $("#chart_container").width();
+	chart_height = $("#chart_container").height();
 	
-	d3.select("#data_content_svg")
+	d3.select("#chart_svg")
 		.remove();
 	
-	chart = d3.select("#data_content").append("svg:svg")	
+	chart = d3.select("#chart_container").append("svg:svg")	
 		.attr("class", "chart")
-		.attr("id", "data_content_svg")
-		.attr("width", chart_width)
-		.attr("height", chart_height);
+		.attr("id", "chart_svg")
+		.attr("width", "100%") //chart_width)
+		.attr("height", "100%"); //chart_height);
 	
 	static_plot();
 	
 }
 
-$(document)
+$("#chart_container")
 	.mouseup(function(event) {
 		zoom_left = false;
 		zoom_right = false;
 		pan = false;
 		prev_x_position = NaN;
+		$("body").css('cursor', 'auto');
 	})
-/*	
+	
 	.mouseout(function(event) {
 		zoom_left = false;
 		zoom_right = false;
 		pan = false;
 		prev_x_position = NaN;
 		hide_circle();
+		$("body").css('cursor', 'auto');
 	})
-*/	
+	
 	.mousemove(function(event) {
 		
-		rel_mouse_position = (event.pageX - left_space) / chart_width;
+		rel_mouse_position = event.pageX / chart_width;
 		
-		if (event.pageY > $("#data_content").position().top) {
+		//if (event.pageY > $("#data_content").position().top && $(".miniColors-selector").length == 0) {
+		if (true) {
 		
 			if (!plot_empty && !zoom_left && !zoom_right && !pan) {
 				
@@ -419,7 +458,7 @@ function update_scales() {
 	
 	x = d3.scale.linear()
 		.domain([0, max_x])
-		.range([left_space + 10, chart_width - 20]);
+		.range([10, chart_width - 50]);
 
 	y = d3.scale.linear()
 		.domain([0, Object.keys(db_data).length])
@@ -489,8 +528,8 @@ function plot() {
 		//console.log(this_draw_data.length);
 		
 		// Set correct start, if needed
-		if ((this_draw_data.length > 0) && (this_draw_data[start_index][0] < left_space + 10)) {
-			this_draw_data[start_index][0] = left_space + 10;
+		if ((this_draw_data.length > 0) && (this_draw_data[start_index][0] < 10)) {
+			this_draw_data[start_index][0] = 10;
 		}
 		
 	});
@@ -502,6 +541,7 @@ function plot() {
 	chart.selectAll("lines")
 		.data(x.ticks(num_ticks))
 		.enter().append("line")
+			.attr("class", "drawings")
 			.attr("x1", x)
 			.attr("x2", x)
 			.attr("y1", 0)
@@ -520,6 +560,7 @@ function plot() {
 	chart.selectAll("rect")
 		.data(this_draw_data)
 		.enter().append("rect")
+			.attr("class", "drawings")
 			.attr("y",     function(d) { return d[2];        })
 			.attr("x",     function(d) { return d[0];        })
 			.attr("width", function(d) {
@@ -536,7 +577,7 @@ function plot() {
 	chart.selectAll(".seconds")
 		.data(x.ticks(num_ticks))
 		.enter().append("text")
-			.attr("class", "labels seconds")
+			.attr("class", "labels seconds drawings")
 			.attr("x", x)
 			.attr("y", chart_height - 10)
 			.attr("dy", -3)
@@ -564,17 +605,17 @@ function static_plot() {
 	
 	bar_height = y(1) - y(0);
 	
-	chart.selectAll(".stats").remove();
+	stats.selectAll(".stats").remove();
 	
-	chart.selectAll(".stats")
+	stats.selectAll(".stats")
 		.data(key_list)
 		.enter().append("text")
 			.attr("class", "stats labels")
-			.attr("x", left_space - 10)
-			.attr("y",  function(d, i) { return y(i) + bar_height / 2; })
+			.attr("x", statistics_width - 10)
+			.attr("y",  function(d, i) { return y(i) + bar_height / 2 - 10; })
 			.attr("text-anchor", "end")
 			.attr("alignment-baseline", "middle")
-			.attr("fill", "#fff")
+			.attr("fill", "#000")
 			.text(function(key) {
 			
 				duration = db_data[key][db_data[key].length - 1][1] - db_data[key][0][0];

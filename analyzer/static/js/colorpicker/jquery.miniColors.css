@@ -105,8 +105,8 @@ INPUT.miniColors {
 
 .miniColors-trigger, 
 .miniColors-triggerWrap {
-	width: 20px;
-	height: 20px;
+	width: 19px;
+	height: 19px;
 	display: inline-block;
 	margin-top: 3px;
 }
@@ -116,6 +116,7 @@ INPUT.miniColors {
 }
 
 .miniColors-triggerWrap.disabled {
+	display: none;
 	//filter: alpha(opacity=50);
 	//opacity: .5;
 }
