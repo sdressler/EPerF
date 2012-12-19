@@ -62,7 +62,7 @@ $(document).ready(function(){
 		
 	resize_data_content();
 	
-	select_db("sleep.db");
+	//select_db("sleep.db");
 	//select_db("octree_multiple.db");
 	
 	circle_dim = [$("#circle").width(), $("#circle").height()];
