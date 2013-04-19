@@ -40,10 +40,12 @@ void EPerf::commitToDB() {
     // Write the experiment
     std::stringstream q;
 
-    q << "INSERT OR IGNORE INTO experiments (id, date, name) VALUES("
+    q << "INSERT OR IGNORE INTO experiments (id, date, name, start_s, start_ns) VALUES("
       << "'" << experiment_id   << "', "
              << experiment_date << ", "
-      << "'" << experiment_name << "')";
+      << "'" << experiment_name << "', "
+             << experiment_starttime.tv_sec << ", "
+             << experiment_starttime.tv_nsec << ")";
 
     db.executeInsertQuery(q.str());
 

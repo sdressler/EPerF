@@ -56,7 +56,9 @@ private:
             sql = "CREATE TABLE experiments ( \
                     id INTEGER PRIMARY KEY, \
                     date INTEGER, \
-                    name VARCHAR(255) \
+                    name VARCHAR(255), \
+                    start_s INTEGER, \
+                    start_ns INTEGER \
                    )";
 
             executeInsertQuery(sql);
