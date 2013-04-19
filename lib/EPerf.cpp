@@ -34,7 +34,13 @@ EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
         dbFileName = _dbFileName;
     }
 
-	max_threads = omp_get_num_procs();
+    DMSG("DB: " << _dbFileName);
+    DMSG("ExpName: " << expName);
+
+    max_threads = MAX_THREADS; // omp_get_num_procs();
+    tid_relative = 0;
+
+	DMSG("Max Threads: " << max_threads);
 
 	// Create experiment UUID
 	std::stringstream id;
@@ -46,67 +52,18 @@ EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
     experiment_name = expName;
     experiment_date = static_cast<long int>(std::time(NULL));
 
-//    std::cout << experiment_id << "\n";
+    DMSG("ExpID: " << id.str());
+    DMSG("Initialized");
 
 }
 
-EPerf::~EPerf() { }
+EPerf::~EPerf() { DMSG("EPerF Destructor."); }
 
 void EPerf::finalize() { commitToDB(); }
 
-void EPerf::commitToDB() {
-
-    EPerfSQLite db(dbFileName);
-
-    for (tDeviceMap::iterator it = devices.begin(); it != devices.end(); ++it) {
-
-            db.executeInsertQuery(
-                (it->second).createSQLInsertObj()
-            );
-
-    }
-
-    for (tKernelMap::iterator it = kernels.begin(); it != kernels.end(); ++it) {
-
-            db.executeInsertQuery(
-                (it->second).createSQLInsertObj()
-            );
-    }
-
-    db.beginTransaction();
-
-    for (unsigned int i = 0; i < data.size(); i++) {
-
-        //tDataVector::const_iterator it;
-        std::list<EPerfData>::const_iterator it;
-        for (it = data[i].begin(); it != data[i].end(); ++it) {
-            db.executeInsertQuery(it->createSQLInsertObj());
-        }
-
-    }
-
-    db.endTransaction();
-
-    // Write the experiment
-    std::stringstream q;
-
-    q << "INSERT OR IGNORE INTO experiments (id, date, name) VALUES("
-      << "'" << experiment_id   << "', "
-             << experiment_date << ", "
-      << "'" << experiment_name << "')";
-
-    db.executeInsertQuery(q.str());
-
-/*
-    q   << "INSERT OR IGNORE INTO kernels (id, name) VALUES("
-        << id << ", '" << name << "')";
-*/
-
-}
-
 void EPerf::resizeTemporaryDataObject() {
 
-    size_t num_threads = omp_get_num_procs();
+    size_t num_threads = max_threads; //omp_get_num_procs();
 
 	size_t k_size = kernels.size();
 	size_t d_size = devices.size();
@@ -176,37 +133,14 @@ double EPerf::convTimeSpecToDoubleSeconds(const struct timespec &t) {
     return tt;
 }
 
-// TODO: KernelConfiguration
-// Start the time measurement of a specific kernel
-void EPerf::startTimer(const int KernelID, const int DeviceID) {
-
-    uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
-    uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
-
-    data[position].push_back(EPerfData());
-    data[position].back().startAllTimers();
-
-};
-
-// Stop the time measurement and save the measured time
-void EPerf::stopTimer(const int KernelID, const int DeviceID) {
-
-    uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
-    uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
-
-    EPerfData *edata = &(data[position].back());
-
-    edata->stopAllTimers();
-    edata->KernelID = KernelID;
-    edata->DeviceID = DeviceID;
-    edata->ThreadID = omp_get_thread_num();    
-
-}
-
 void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes) {
 
     uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
-    uint64_t position = omp_get_thread_num() + (ID * omp_get_num_threads());
+    uint64_t tid = thr_map[getThreadID()];
+    uint64_t position = tid + (ID * max_threads);
+
+    DMSG("Stop timer: " << KernelID << " " << DeviceID << " " << tid <<
+                    " " << ID << " " << position);
 
     data[position].back().inBytes = inBytes;
     data[position].back().outBytes = outBytes;

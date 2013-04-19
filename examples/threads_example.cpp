@@ -7,15 +7,18 @@
 
 #include <omp.h>
 
+#define THREADS 32
+
 using namespace ENHANCE;
 
 int main(void) {
 
-	int threads = omp_get_max_threads();
-	std::cout << "Max threads: " << threads << "\n";
+	omp_set_num_threads(THREADS);
+
+	std::cout << "Max threads: " << THREADS << "\n";
 
 	// Create ePerF object
-	EPerf e("eperf.db", "Threads");
+	EPerf e("thread.db", "Threads");
 
 	// Add kernel
     e.addKernel(0, "Sleep");
@@ -29,7 +32,7 @@ int main(void) {
     {
 
     #pragma omp for
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < THREADS; i++) {
 
         // Start Timer
         e.startTimer(0, 0);

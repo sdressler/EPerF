@@ -1,15 +1,32 @@
-CC = gcc
-CFLAGS = -g -O2 -Wall
-
+CC  = gcc
 CXX = g++
-CXXFLAGS = -g -O2 -Wall -fopenmp
+FC  = gfortran
 
-LLIB = -lrt -lsqlite3 -fopenmp
-
-FC = gfortran
-FFLAGS = -std=f2003 -J../include/EPerf
 
 # Change these to either activate the C API (CAPI)
 # or the FORTRAN API (FAPI) or both or none
 WITH_CAPI = YES
-WITH_FAPI = YES
+WITH_FAPI = NO
+
+# Change to set maximum number of threads
+MAX_THREADS = 1024
+
+# Change to "YES" to enable DEBUG mode, NORMAL when empty
+DEBUG = YES
+
+
+
+
+### DO NOT TOUCH ###
+
+CFLAGS   = -Wall \
+           $(if $(DEBUG),-DDEBUG -g -O0,-O3)
+           
+CXXFLAGS = -Wall \
+           -DMAX_THREADS=$(MAX_THREADS) \
+           $(if $(DEBUG),-DDEBUG -g -O0,-O3) \
+           -fopenmp
+           
+FFLAGS = -std=f2003 -J../include/EPerf
+
+LLIB = -lrt -lsqlite3 -fopenmp
