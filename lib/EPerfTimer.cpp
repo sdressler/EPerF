@@ -10,7 +10,6 @@
 
 namespace ENHANCE {
 
-// TODO: KernelConfiguration
 // Start the time measurement of a specific kernel
 void EPerf::startTimer(const int KernelID, const int DeviceID) {
 

@@ -53,9 +53,8 @@ private:
                    )";
 
             executeInsertQuery(sql);
-
             sql = "CREATE TABLE experiments ( \
-                    id VARCHAR(36) PRIMARY KEY, \
+                    id INTEGER PRIMARY KEY, \
                     date INTEGER, \
                     name VARCHAR(255) \
                    )";
@@ -95,7 +94,7 @@ private:
                     tid INTEGER, \
                     data_in INTEGER, \
                     data_out INTEGER, \
-                    id_experiment VARCHAR(36), \
+                    id_experiment INTEGER, \
                     PRIMARY KEY( \
                         id_kernel, id_device, \
                         ts_start_s, ts_start_ns, \
