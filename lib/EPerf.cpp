@@ -19,12 +19,13 @@
 #include "../include/EPerf/EPerf.h"
 #include "../include/EPerf/EPerfSQLite.h"
 #include "../include/EPerf/EPerfC.h"
+#include "../include/EPerf/EPerfHelpers.h"
 
 namespace ENHANCE {
 
-uint64_t    EPerf::experiment_id   = 0;
-std::string EPerf::experiment_name = "";
-long int    EPerf::experiment_date = 0;
+uint64_t        EPerf::experiment_id        = 0;
+std::string     EPerf::experiment_name      = "";
+long int        EPerf::experiment_date      = 0;
 struct timespec EPerf::experiment_starttime = {0,0};
 
 EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
@@ -50,15 +51,28 @@ EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
 	boost::uuids::uuid u = gen();
 	id << u;
 */
+	EPerfSQLite db(dbFileName);
 
-	// TODO: Get the correct experiment ID
-	experiment_id   = 0;
+	experiment_id   = db.getLastExperimentID() + 1;
     experiment_name = expName;
     experiment_date = static_cast<long int>(std::time(NULL));
 
     clock_gettime(CLOCK_REALTIME, &experiment_starttime);
 
-    DMSG("ExpID: " << id.str());
+    DMSG("ExpID: " << experiment_id);
+
+    // Write the experiment
+    std::stringstream q;
+
+    q << "INSERT OR IGNORE INTO experiments (id, date, name, start_s, start_ns) VALUES("
+      << "'" << experiment_id   << "', "
+             << experiment_date << ", "
+      << "'" << experiment_name << "', "
+             << experiment_starttime.tv_sec << ", "
+             << experiment_starttime.tv_nsec << ")";
+
+    db.executeInsertQuery(q.str());
+
     DMSG("Initialized");
 
 }

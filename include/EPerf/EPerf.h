@@ -31,15 +31,6 @@
 
 #ifdef __cplusplus
 
-#ifdef DEBUG
-    #define \
-        DMSG(m) \
-        _Pragma("omp critical") \
-        std::cerr << "EPerF: " << m << "\n";
-#else
-    #define DMSG(m)
-#endif
-
 #include <map>
 #include <cmath>
 #include <string>

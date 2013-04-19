@@ -9,7 +9,8 @@ LLIB		+=
 
 OBJ_LIB		= EPerfDevice.o EPerfKernelConf.o EPerfKernel.o \
 			  EPerfData.o EPerfClock.o EPerfContainer.o \
-			  EPerfExperiment.o EPerf.o EPerfTimer.o
+			  EPerfExperiment.o EPerf.o EPerfTimer.o \
+			  EPerfSQLite.o
 
 ifeq ($(WITH_CAPI), YES)
     OBJ_CAPI = EPerfC.o EPerfCallbacks.o
