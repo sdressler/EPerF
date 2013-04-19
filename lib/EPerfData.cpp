@@ -47,7 +47,8 @@ std::vector<std::string> EPerfData::createSQLInsertObj() const {
     std::vector<std::string> x;
     std::stringstream q;
 
-    q   << "INSERT OR IGNORE INTO data "
+    //q   << "INSERT OR IGNORE INTO data "
+    q   << "INSERT INTO data "
         << "("
         <<      "id_kernel, id_device, "
         <<      "ts_start_s, "
@@ -67,7 +68,7 @@ std::vector<std::string> EPerfData::createSQLInsertObj() const {
 
     std::vector<int> clockval = timestamp.getIntegerPairs();
     q   << clockval[0] << ", " << clockval[1] << ", " << clockval[2] << ", " << clockval[3] << ", ";
-    
+
     std::vector<EPerfClock>::const_iterator it;
     for (it = clocks.begin(); it != clocks.end(); ++it) {
         clockval = it->getIntegerPairs();

@@ -12,7 +12,7 @@ WITH_FAPI = NO
 MAX_THREADS = 1024
 
 # Change to "YES" to enable DEBUG mode, NORMAL when empty
-DEBUG = YES
+DEBUG = 
 
 
 

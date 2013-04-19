@@ -99,7 +99,7 @@ private:
 
     std::string dbFileName;
     
-    static std::string experiment_id;
+    static uint64_t    experiment_id;
     static std::string experiment_name;
     static long int    experiment_date;
 
@@ -140,12 +140,13 @@ private:
     }
 
 //	int BDB_getDevice(Db *sbdbp, const Dbt *pkey, const Dbt *pvalue, Dbt *skey);
-
-	void resizeTemporaryDataObject();
+    void resizeTemporaryDataObject();
 
 public:
+    static struct timespec experiment_starttime;
 
-	static std::string& getExperimentID() { return experiment_id; }
+	//static std::string& getExperimentID() { return experiment_id; }
+	static uint64_t& getExperimentID() { return experiment_id; }
 
     /**
      *

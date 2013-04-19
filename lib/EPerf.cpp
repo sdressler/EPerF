@@ -22,9 +22,10 @@
 
 namespace ENHANCE {
 
-std::string EPerf::experiment_id   = "";
+uint64_t    EPerf::experiment_id   = 0;
 std::string EPerf::experiment_name = "";
 long int    EPerf::experiment_date = 0;
+struct timespec EPerf::experiment_starttime = {0,0};
 
 EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
 
@@ -43,14 +44,19 @@ EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
 	DMSG("Max Threads: " << max_threads);
 
 	// Create experiment UUID
+/*
 	std::stringstream id;
     boost::uuids::random_generator gen;
 	boost::uuids::uuid u = gen();
 	id << u;
+*/
 
-	experiment_id = id.str();
+	// TODO: Get the correct experiment ID
+	experiment_id   = 0;
     experiment_name = expName;
     experiment_date = static_cast<long int>(std::time(NULL));
+
+    clock_gettime(CLOCK_REALTIME, &experiment_starttime);
 
     DMSG("ExpID: " << id.str());
     DMSG("Initialized");

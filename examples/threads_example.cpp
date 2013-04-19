@@ -32,12 +32,12 @@ int main(void) {
     {
 
     #pragma omp for
-    for (int i = 0; i < THREADS; i++) {
+    for (int i = 0; i < 1000000; i++) {
 
         // Start Timer
         e.startTimer(0, 0);
 
-        sleep(1);
+        usleep(1);
 
         // Stop Timer
         e.stopTimer(0, 0);
