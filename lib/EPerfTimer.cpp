@@ -7,6 +7,7 @@
 
 #include <omp.h>
 #include "../include/EPerf/EPerf.h"
+#include "../include/EPerf/EPerfHelpers.h"
 
 namespace ENHANCE {
 

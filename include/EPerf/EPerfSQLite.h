@@ -7,6 +7,8 @@
 #include <stdexcept>
 
 #include <iostream>
+#include <sstream>
+#include <inttypes.h>
 
 namespace ENHANCE {
 class IEPerfSQLite {
@@ -127,6 +129,8 @@ public:
     }
 
     virtual ~EPerfSQLite() { sqlite3_close(db); }
+
+    uint64_t getLastExperimentID() const;
 
     void executeInsertQuery(const std::string &q) {
 
