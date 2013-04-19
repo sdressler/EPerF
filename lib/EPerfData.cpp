@@ -51,14 +51,10 @@ std::vector<std::string> EPerfData::createSQLInsertObj() const {
     q   << "INSERT INTO data "
         << "("
         <<      "id_kernel, id_device, "
-        <<      "ts_start_s, "
-        <<      "ts_start_ns, "
-        <<      "ts_stop_s, "
-        <<      "ts_stop_ns, "
-        <<      "cpuclock_start_s, "
-        <<      "cpuclock_start_ns, "
-        <<      "cpuclock_stop_s, "
-        <<      "cpuclock_stop_ns, "
+        <<      "ts_start, "
+        <<      "ts_stop, "
+        <<      "cpuclock_start, "
+        <<      "cpuclock_stop, "
         <<      "tid, data_in, data_out,"
         <<      "id_experiment"
         << ") "
@@ -66,13 +62,14 @@ std::vector<std::string> EPerfData::createSQLInsertObj() const {
         <<      KernelID << ", "
         <<      DeviceID << ", ";
 
-    std::vector<int> clockval = timestamp.getIntegerPairs();
-    q   << clockval[0] << ", " << clockval[1] << ", " << clockval[2] << ", " << clockval[3] << ", ";
+    std::vector<double> clockval = timestamp.getDoublePairs(EPerf::experiment_starttime);
+    q   << clockval[0] << ", " << clockval[1] << ", ";
 
     std::vector<EPerfClock>::const_iterator it;
+    struct timespec dummy = {0,0};
     for (it = clocks.begin(); it != clocks.end(); ++it) {
-        clockval = it->getIntegerPairs();
-        q << clockval[0] << ", " << clockval[1] << ", " << clockval[2] << ", " << clockval[3] << ", ";
+        clockval = it->getDoublePairs(dummy);
+        q   << clockval[0] << ", " << clockval[1] << ", ";
     }
 
       q <<      ThreadID << ", "
