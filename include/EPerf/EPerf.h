@@ -31,6 +31,15 @@
 
 #ifdef __cplusplus
 
+#ifdef DEBUG
+    #define \
+        DMSG(m) \
+        _Pragma("omp critical") \
+        std::cerr << "EPerF: " << m << "\n";
+#else
+    #define DMSG(m)
+#endif
+
 #include <map>
 #include <cmath>
 #include <string>
@@ -86,7 +95,7 @@ private:
     tDataVector data;
     std::vector<unsigned int> dataSizeVector;
 
-    inline pid_t getThreadID() { return syscall(__NR_gettid); }
+    inline pid_t getThreadID() { return syscall(SYS_gettid); }
 
     std::string dbFileName;
     
@@ -95,6 +104,8 @@ private:
     static long int    experiment_date;
 
 	unsigned long max_threads;
+	std::map<pid_t, uint64_t> thr_map;
+	uint64_t tid_relative;
 
 	/**
 	 * Captures the current time and converts it to double
