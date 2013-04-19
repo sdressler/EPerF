@@ -59,6 +59,7 @@ public:
 	double getTimeDifference() const;
 
     std::vector<int> getIntegerPairs() const;
+    std::vector<double> getDoublePairs(struct timespec &base) const;
 
 //	virtual tByteVectorMap convertToByteVectorMap() const;
 };

@@ -83,22 +83,16 @@ private:
             sql = "CREATE TABLE data ( \
                     id_kernel INTEGER, \
                     id_device INTEGER, \
-                    ts_start_s INTEGER, \
-                    ts_start_ns INTEGER, \
-                    ts_stop_s INTEGER, \
-                    ts_stop_ns INTEGER, \
-                    cpuclock_start_s INTEGER, \
-                    cpuclock_start_ns INTEGER, \
-                    cpuclock_stop_s INTEGER, \
-                    cpuclock_stop_ns INTEGER, \
+                    ts_start REAL, \
+                    ts_stop REAL, \
+                    cpuclock_start REAL, \
+                    cpuclock_stop REAL, \
                     tid INTEGER, \
                     data_in INTEGER, \
                     data_out INTEGER, \
                     id_experiment INTEGER, \
                     PRIMARY KEY( \
-                        id_kernel, id_device, \
-                        ts_start_s, ts_start_ns, \
-                        ts_stop_s, ts_stop_ns \
+                        id_kernel, id_device, tid, ts_start \
                     ) \
                    )";
 

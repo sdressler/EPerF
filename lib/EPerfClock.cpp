@@ -56,4 +56,16 @@ std::vector<int> EPerfClock::getIntegerPairs() const {
     return x;
 
 }
+
+std::vector<double> EPerfClock::getDoublePairs(struct timespec &base) const {
+
+    std::vector<double> x;
+
+    x.push_back((double)(start.tv_sec - base.tv_sec) * 1.0e9 + (double)(start.tv_nsec - base.tv_nsec));
+    x.push_back((double)(stop.tv_sec - base.tv_sec) + (double)(stop.tv_nsec - base.tv_nsec));
+
+    return x;
+
+}
+
 }
