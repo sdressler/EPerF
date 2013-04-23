@@ -40,7 +40,7 @@ class db_query:
         #conditions = []
         #ranges = dict()
         
-        order_query = " ORDER BY tid ASC, ts_start_s ASC, ts_start_ns ASC"
+        order_query = " ORDER BY tid ASC, ts_start"
         
         result_dict = dict()
         
@@ -48,7 +48,7 @@ class db_query:
             
             # Get the overall minimum for the selected experiment
             s_min = self.db_query(
-                "SELECT min(ts_start_s + ts_start_ns * 1.0e-9) " +
+                "SELECT min(ts_start) " +
                 "FROM data " +
                 "WHERE id_experiment = '" + s[0] + "'"
             )[0][0]
@@ -59,8 +59,8 @@ class db_query:
             base_query = (
                 "SELECT " +
                     "tid, " +
-                    "(ts_start_s + ts_start_ns * 1.0e-9) - " + s_min_str + ", " +
-                    "(ts_stop_s + ts_stop_ns * 1.0e-9) - " + s_min_str +
+                    "ts_start - " + s_min_str + ", " +
+                    "ts_stop - " + s_min_str +
                 " FROM data WHERE "
             )
             

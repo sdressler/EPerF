@@ -87,10 +87,10 @@ private:
             sql = "CREATE TABLE data ( \
                     id_kernel INTEGER, \
                     id_device INTEGER, \
-                    ts_start REAL, \
-                    ts_stop REAL, \
-                    cpuclock_start REAL, \
-                    cpuclock_stop REAL, \
+                    ts_start INTEGER, \
+                    ts_stop INTEGER, \
+                    cpuclock_start INTEGER, \
+                    cpuclock_stop INTEGER, \
                     tid INTEGER, \
                     data_in INTEGER, \
                     data_out INTEGER, \
