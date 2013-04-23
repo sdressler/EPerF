@@ -57,7 +57,7 @@ public:
 	inline void startAllTimers() {
 		timestamp.takeStartStamp();
 		clocks[0].takeStartStamp();
-//		clocks[1].takeStartStamp();
+		//clocks[1].takeStartStamp();
 		timerIsRunning = true;
 	}
 
@@ -66,7 +66,7 @@ public:
 	        throw std::runtime_error("Timer was not started!");
 	    }
 
-//		clocks[1].takeStopStamp();
+		//clocks[1].takeStopStamp();
 		clocks[0].takeStopStamp();
 		timestamp.takeStopStamp();
 

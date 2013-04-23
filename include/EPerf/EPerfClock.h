@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <inttypes.h>
 
 #ifdef __MACH__
     #include <mach/clock.h>
@@ -58,7 +59,7 @@ public:
 	
 	double getTimeDifference() const;
 
-    std::vector<int> getIntegerPairs() const;
+	std::pair<uint64_t, uint64_t> getIntegerPair() const;
     std::vector<double> getDoublePairs(struct timespec &base) const;
 
 //	virtual tByteVectorMap convertToByteVectorMap() const;

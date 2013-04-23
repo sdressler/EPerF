@@ -45,15 +45,21 @@ double EPerfClock::getTimeDifference() const {
 
 	return diff / 1.0e9;
 }
-    
-std::vector<int> EPerfClock::getIntegerPairs() const {
 
-    std::vector<int> x;
+//std::vector<int> EPerfClock::getIntegerPairs() const {
+std::pair<uint64_t, uint64_t> EPerfClock::getIntegerPair() const {
 
-    x.push_back(start.tv_sec); x.push_back(start.tv_nsec);
-    x.push_back(stop.tv_sec); x.push_back(stop.tv_nsec);
+    //std::vector<int> x;
 
-    return x;
+    //x.push_back(start.tv_sec); x.push_back(start.tv_nsec);
+    //x.push_back(stop.tv_sec); x.push_back(stop.tv_nsec);
+    uint64_t start_ns, stop_ns;
+
+    start_ns = (uint64_t)(start.tv_sec) * 1000000000 + (uint64_t)(start.tv_nsec);
+    stop_ns  = (uint64_t)(stop.tv_sec)  * 1000000000 + (uint64_t)(stop.tv_nsec);
+
+    return std::make_pair(start_ns, stop_ns);
+    //return x;
 
 }
 
