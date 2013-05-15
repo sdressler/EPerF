@@ -14,7 +14,6 @@ namespace ENHANCE {
 // Start the time measurement of a specific kernel
 void EPerf::startTimer(const int KernelID, const int DeviceID) {
 
-    uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
     pid_t sys_tid = getThreadID();
 
     #pragma omp critical
@@ -25,38 +24,33 @@ void EPerf::startTimer(const int KernelID, const int DeviceID) {
         }
     }
 
-    uint64_t tid = thr_map[sys_tid];
+    uint64_t id = thr_map[sys_tid];
 
-    if (tid > max_threads) { throw std::runtime_error("Thread overflow."); }
+    if (id > max_threads) { throw std::runtime_error("Thread overflow."); }
 
-    uint64_t position = tid + (ID * max_threads);
+    DMSG("TMR START K-ID: " << KernelID << " D-ID: " << DeviceID <<
+                  " T-ID: " << id << " (SYS-T-ID: " << sys_tid << ")");
 
-    DMSG("TMR START K" << KernelID << " D" << DeviceID <<
-                  " T" << tid << " (" << sys_tid << ")"
-                  " I" << ID << " P" << position);
-
-    data[position].push_back(EPerfData());
-    data[position].back().startAllTimers();
+    data[id].push_back(EPerfData());
+    data[id].back().startAllTimers();
 
 };
 
 // Stop the time measurement and save the measured time
 void EPerf::stopTimer(const int KernelID, const int DeviceID) {
 
-    uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
-    uint64_t tid = thr_map[getThreadID()];
-    uint64_t position = tid + (ID * max_threads);
+    pid_t sys_tid = getThreadID();
+    uint64_t id = thr_map[sys_tid];
 
-    DMSG("TMR STOP  K" << KernelID << " D" << DeviceID <<
-                      " T" << tid << " (" << getThreadID() << ")"
-                      " I" << ID << " P" << position);
+    DMSG("TMR STOP  K-ID: " << KernelID << " D-ID: " << DeviceID <<
+                  " T-ID: " << id << " (SYS-T-ID: " << sys_tid << ")");
 
-    EPerfData *edata = &(data[position].back());
+    EPerfData *edata = &(data[id].back());
 
     edata->stopAllTimers();
     edata->KernelID = KernelID;
     edata->DeviceID = DeviceID;
-    edata->ThreadID = tid;
+    edata->ThreadID = id;
 
 }
 
