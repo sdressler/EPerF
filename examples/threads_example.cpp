@@ -21,10 +21,10 @@ int main(void) {
 	EPerf e("thread.db", "Threads");
 
 	// Add kernel
-    e.addKernel(0, "Sleep");
+    e.addKernel(1024, "Sleep");
 
 	// Add device
-	e.addDevice(0, "CPU");
+	e.addDevice(1024, "CPU");
 
 	std::cout << "Starting\n";
 
@@ -32,15 +32,15 @@ int main(void) {
     {
 
     #pragma omp for
-    for (int i = 0; i < 1000000; i++) {
+    for (int i = 0; i < 64; i++) {
 
         // Start Timer
-        e.startTimer(0, 0);
+        e.startTimer(1024, 1024);
 
         usleep(1);
 
         // Stop Timer
-        e.stopTimer(0, 0);
+        e.stopTimer(1024, 1024);
     }
 
     }

@@ -87,6 +87,7 @@ private:
     std::vector<unsigned int> dataSizeVector;
 
     inline pid_t getThreadID() { return syscall(SYS_gettid); }
+    inline pid_t getThreadGroupID() { return syscall(SYS_getpid); }
 
     std::string dbFileName;
     
@@ -94,9 +95,28 @@ private:
     static std::string experiment_name;
     static long int    experiment_date;
 
-	unsigned long max_threads;
-	std::map<pid_t, uint64_t> thr_map;
-	uint64_t tid_relative;
+    typedef uint64_t t_eperf_id;
+    inline t_eperf_id getEPerfID(uint32_t t, uint16_t k, uint16_t d) {
+        return     (uint64_t)t
+               + (((uint64_t)k) << 32)
+               + (((uint64_t)d) << 48);
+    }
+
+    inline uint32_t getEPerfThreadID(t_eperf_id eperf_id) {
+        return (uint32_t)(eperf_id);
+    }
+
+    inline uint16_t getEPerfKernelID(t_eperf_id eperf_id) {
+        return (uint16_t)(eperf_id >> 32);
+    }
+    
+    inline uint16_t getEPerfDeviceID(t_eperf_id eperf_id) {
+        return (uint16_t)(eperf_id >> 48);
+    }
+
+	unsigned long max_units;
+	std::map<t_eperf_id, uint64_t> thr_map;
+	uint64_t id_relative;
 
 	/**
 	 * Captures the current time and converts it to double

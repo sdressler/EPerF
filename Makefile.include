@@ -8,8 +8,8 @@ FC  = gfortran
 WITH_CAPI = YES
 WITH_FAPI = YES
 
-# Change to set maximum number of threads
-MAX_THREADS = 1024
+# Change to set maximum number of measurement units
+MAX_UNITS = 1024
 
 # Change to "YES" to enable DEBUG mode, NORMAL when empty
 DEBUG =
@@ -21,7 +21,7 @@ CFLAGS   = -Wall \
            $(if $(DEBUG),-DDEBUG -g -O0,-O3)
            
 CXXFLAGS = -Wall \
-           -DMAX_THREADS=$(MAX_THREADS) \
+           -DMAX_UNITS=$(MAX_UNITS) \
            $(if $(DEBUG),-DDEBUG -g -O0,-O3) \
            -fopenmp
            

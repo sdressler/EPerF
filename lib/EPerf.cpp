@@ -39,10 +39,10 @@ EPerf::EPerf(const std::string &_dbFileName, const std::string &expName) {
     DMSG("DB: " << _dbFileName);
     DMSG("ExpName: " << expName);
 
-    max_threads = MAX_THREADS; // omp_get_num_procs();
-    tid_relative = 0;
+    max_units = MAX_UNITS; // omp_get_num_procs();
+    id_relative = 0;
 
-	DMSG("Max Threads: " << max_threads);
+	DMSG("Max Units: " << max_units);
 
 	// Create experiment UUID
 /*
@@ -83,7 +83,7 @@ void EPerf::finalize() { commitToDB(); }
 
 void EPerf::resizeTemporaryDataObject() {
 
-    size_t num_threads = max_threads; //omp_get_num_procs();
+    size_t num_threads = max_units; //omp_get_num_procs();
 
 	size_t k_size = kernels.size();
 	size_t d_size = devices.size();
@@ -154,16 +154,23 @@ double EPerf::convTimeSpecToDoubleSeconds(const struct timespec &t) {
 }
 
 void EPerf::addKernelDataVolumes(int KernelID, int DeviceID, int64_t inBytes, int64_t outBytes) {
+    
+    t_eperf_id eperf_id = getEPerfID(
+        (uint32_t)(getThreadID() - getThreadGroupID()),
+        (uint16_t)KernelID,
+        (uint16_t)DeviceID
+    );
 
-    uint64_t ID = (KernelID + 1) * (DeviceID + 1) - 1;
-    uint64_t tid = thr_map[getThreadID()];
-    uint64_t position = tid + (ID * max_threads);
+    uint64_t id = thr_map[eperf_id];
+    
+    DMSG("TMR KDV   K: " << getEPerfKernelID(eperf_id) <<
+                  " D: " << getEPerfDeviceID(eperf_id) <<
+                  " T: " << getEPerfThreadID(eperf_id) <<
+                  " EID: " << std::hex << eperf_id << std::dec <<
+                  " ID: " << id);
 
-    DMSG("Stop timer: " << KernelID << " " << DeviceID << " " << tid <<
-                    " " << ID << " " << position);
-
-    data[position].back().inBytes = inBytes;
-    data[position].back().outBytes = outBytes;
+    data[id].back().inBytes = inBytes;
+    data[id].back().outBytes = outBytes;
 
 }
 
