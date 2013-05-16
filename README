@@ -4,7 +4,7 @@ ENHANCE Performance Framework (ePerF)
 Author information
 ------------------
 
-* Author: Sebastian Dressler
+* Author: Sebastian Dreßler
 * Company: Zuse Institute Berlin
 * Mail: [lastname][at][zib][dot][de]
 
@@ -24,14 +24,12 @@ Requirements
 * C++ compiler (C / FORTRAN compiler for API support)
 * SQLite (>= 3.6)
 * OpenMP
-* boost::functional::hash (>= 1.42)
-* boost::uuid
 
 Usage
 -----
 
-First, have a look at Makefile.inc in order to change some configuration parameters.
-The, simply type
+First, have a look at Makefile.inc in order to change some configuration
+parameters. Then, simply type
 
     make (build lib + examples)
 	make doc (build doxygen documentation)
@@ -47,6 +45,10 @@ Note that before building the examples you should build the library.
 Changelog
 ---------
 
+* 2013-05-16 / 0.8 / Two major changes + LICENSE change to BSD (3-clause)
+    - Implemented new thread handling infrastructure
+    - Optimized the DB structure **WARNING:** old DB's are incomatible!
+
 * 2013-04-19 / 0.7 / Max. number of threads is now set in Makefile
 
 * 2012-12-15 / 0.6.4 / Two changes
@@ -57,7 +59,8 @@ Changelog
 
 * 2012-12-10 / 0.6.2 / Removed configure, replaced by Makefiles only
 
-* 2012-11-13 / 0.6.1 / Several bugfixes, removed KernelConfigurations (temporarily)
+* 2012-11-13 / 0.6.1 / Several bugfixes, removed KernelConfigurations
+                       (temporarily)
 
 * 2012-10-30 / 0.6 / Switched to SQLite3
 
@@ -66,7 +69,8 @@ Changelog
     - Optional DB filename can be provided
     - Improved write to DB
 
-* 2012-08-06 / 0.5.2 / Multiple thread env's now do not need multiple devices or kernels
+* 2012-08-06 / 0.5.2 / Multiple thread env's now do not need multiple devices
+                       or kernels
 
 * 2012-07-05 / 0.5.1 / Changed the style how configurations are handled
     - Now providing kernel configuration directly to startTimer
@@ -92,4 +96,5 @@ Changelog
 License
 -------
 
-ePerF is fully licensed under the LGPL. You can read the license text in the LICENSE file
+EPerF is licensed under the BSD License (3 clause). You can read the license
+text in the LICENSE file.
