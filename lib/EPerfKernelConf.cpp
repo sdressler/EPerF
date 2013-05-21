@@ -1,12 +1,16 @@
 #include "../include/EPerf/EPerfKernelConf.h"
 
-#include <boost/functional/hash.hpp>
+#include <stdexcept>
+//#include <boost/functional/hash.hpp>
 
 namespace ENHANCE {
 
 void EPerfKernelConf::insertKernelConfPair(std::string key, std::string value) {
 
+    throw std::runtime_error("Kernel conf used, but not available!");
+
     // Create a hash
+/*    
     boost::hash<std::string> hasher;
     std::size_t hash = hasher(key + value);
 
@@ -19,7 +23,7 @@ void EPerfKernelConf::insertKernelConfPair(std::string key, std::string value) {
         ss << key << value;
     }
     conf_hash = hasher(ss.str());
-
+*/
 }
 
 std::vector<std::string> EPerfKernelConf::createSQLInsertObj() const {
