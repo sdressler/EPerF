@@ -170,10 +170,11 @@ body {
 }
 */
 #experiments {
-    width: 100%;
+    /* width: 100%; */
 	color: #fff;
-	overflow-x: scroll;
+	overflow-x: none;
     white-space: nowrap;
+    z-index: -1;
 }
 
 .labels {

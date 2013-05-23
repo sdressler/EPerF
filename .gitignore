@@ -1,5 +1,6 @@
-.o
-.cproject
-.project
-.mod
-.pyc
+*.o
+*.cproject
+*.project
+*.mod
+*.pyc
+*sw*
