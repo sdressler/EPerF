@@ -95,7 +95,7 @@ function load_experiments_finalize() {
 			$(this).removeClass("selected");
 			$(this).css('color', '#fff');
 
-            $(color_input).parent().css('display', 'inline-block');       
+            $(color_input).parent().css('display', 'none');       
 //			$(color_input).minicolors('disabled', true);
 			
 		} else {
