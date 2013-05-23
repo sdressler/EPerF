@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from flask import Flask, render_template, g, request, jsonify
 
 from Analyzer import db_query

@@ -38,7 +38,7 @@ body {
 
 .container {
 	/* border: 1px dashed; */
-	float: left;
+	/*float: left;*/
 	display: inline-block;
 }
 
@@ -170,9 +170,10 @@ body {
 }
 */
 #experiments {
+    width: 100%;
 	color: #fff;
-	overflow: auto
-	white-space: nowrap;
+	overflow-x: scroll;
+    white-space: nowrap;
 }
 
 .labels {
