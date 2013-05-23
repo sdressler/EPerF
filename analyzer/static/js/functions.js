@@ -58,7 +58,7 @@ $(document).ready(function(){
         
     resize_data_content();
     
-    select_db("kmeans.db"); //TODO: REMOVE THIS
+    //select_db("kmeans.db"); //TODO: REMOVE THIS
     
     circle_dim = [$("#circle").width(), $("#circle").height()];
     
