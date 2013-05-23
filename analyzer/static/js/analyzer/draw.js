@@ -96,13 +96,39 @@ $("#chart_container")
 				delta = (event.pageX - prev_x_position) * max_x * 0.01 * inv_zoom_level;
 				
 				if (!isNaN(delta)) {
+                        
+                    e1 = old_x[0] - delta;
+                    e2 = old_x[1] - delta;
 					
 					if (zoom_left == true) {
-						x.domain([old_x[0] - delta, old_x[1]]);
+                        
+                        if (e1 < 0) {
+    						x.domain([0, old_x[1]]);
+                        } else {
+                            x.domain([e1, old_x[1]]);
+                        }
+
 					} else if (zoom_right == true) {
-						x.domain([old_x[0], old_x[1] - delta]);
+
+                        if (e2 > max_x) {
+						    x.domain([old_x[0], max_x]);
+                        } else {
+                            x.domain([old_x[0], e2]);
+                        }
+    
 					} else if (pan == true) {
-						x.domain([old_x[0] - delta, old_x[1] - delta]);
+
+                        if (e1 > 0 && e2 < max_x) {
+						    x.domain([e1, e2]);
+                        }
+
+                        if (e1 < 0) {
+                            x.domain([0,old_x[1]]);
+                        }
+
+                        if (e2 > max_x) {
+                            x.domain([old_x[0], max_x]);
+                        }
 					}
 					
 					plot();
