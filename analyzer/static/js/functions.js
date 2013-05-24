@@ -60,7 +60,7 @@ $(document).ready(function(){
         
     resize_data_content();
     
-//    select_db("kmeans.db"); //TODO: REMOVE THIS
+    select_db("kmeans.db"); //TODO: REMOVE THIS
 //    select_db("GLAT1.1.db");
     
     circle_dim = [$("#circle").width(), $("#circle").height()];

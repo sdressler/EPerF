@@ -220,27 +220,30 @@ function plot() {
         //lo = d3.bisectLeft(db_data[key], x.domain()[0]);
         //hi = d3.bisectRight(db_data[key], x.domain()[1]);
 
-        lo = bisect_l(db_data[key], x.domain()[0]);
-        hi = bisect_r(db_data[key], x.domain()[1]);
+        lo = bisect_l(db_data[key], x.domain()[0]) - 1;
+        hi = bisect_r(db_data[key], x.domain()[1]) + 1;
+
+        if (lo == -1) { lo = 0; }
+        if (hi > (db_data[key].length - 1)) { hi = db_data[key].length - 1; }
+
+        console.log([lo,hi]);
 
         /* This merges elements that are to close to each other */
         draw_data[key] = [];
 
-        if (lo != hi) {
-            draw_data[key].push([x(db_data[key][lo][0]),x(db_data[key][lo][1])]);
-            var start, stop;
-            var j = 0;
-            for (var i = lo + 1; i < hi; i++) {
+        draw_data[key].push([x(db_data[key][lo][0]),x(db_data[key][lo][1])]);
+        var start, stop;
+        var j = 0;
+        for (var i = lo + 1; i < hi; i++) {
 
-                start = x(db_data[key][i][0]);
-                stop  = x(db_data[key][i][1]);
+            start = x(db_data[key][i][0]);
+            stop  = x(db_data[key][i][1]);
 
-                if ((start - draw_data[key][j][1]) < min_width) {
-                    draw_data[key][j][1] = stop;
-                } else {
-                    draw_data[key].push([start,stop]);
-                    j++;
-                }
+            if ((start - draw_data[key][j][1]) < min_width) {
+                draw_data[key][j][1] = stop;
+            } else {
+                draw_data[key].push([start,stop]);
+                j++;
             }
         }
         key_index[key] = y(idx);
