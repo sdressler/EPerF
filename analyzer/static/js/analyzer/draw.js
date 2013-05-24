@@ -203,6 +203,9 @@ function update_scales() {
 	
 }
 
+var bisect_l = d3.bisector(function(d) { return d[0]; }).left;
+var bisect_r = d3.bisector(function(d) { return d[1]; }).right;
+
 function plot() {
 
 	// Only if data is available
@@ -213,28 +216,33 @@ function plot() {
     var idx = 0
 	// Preselect to match current plotting range
     $.each(db_data, function(key, obj) {
-	
-        lo = d3.bisectLeft(db_data[key], x.domain()[0]);
-        hi = d3.bisectRight(db_data[key], x.domain()[1]);
+
+        //lo = d3.bisectLeft(db_data[key], x.domain()[0]);
+        //hi = d3.bisectRight(db_data[key], x.domain()[1]);
+
+        lo = bisect_l(db_data[key], x.domain()[0]);
+        hi = bisect_r(db_data[key], x.domain()[1]);
 
         /* This merges elements that are to close to each other */
         draw_data[key] = [];
-        draw_data[key].push([x(db_data[key][lo][0]),x(db_data[key][lo][1])]);
-        var start, stop;
-        var j = 0;
-        for (var i = lo + 1; i < hi; i++) {
 
-            start = x(db_data[key][i][0]);
-            stop  = x(db_data[key][i][1]);
+        if (lo != hi) {
+            draw_data[key].push([x(db_data[key][lo][0]),x(db_data[key][lo][1])]);
+            var start, stop;
+            var j = 0;
+            for (var i = lo + 1; i < hi; i++) {
 
-            if ((start - draw_data[key][j][1]) < min_width) {
-                draw_data[key][j][1] = stop;
-            } else {
-                draw_data[key].push([start,stop]);
-                j++;
+                start = x(db_data[key][i][0]);
+                stop  = x(db_data[key][i][1]);
+
+                if ((start - draw_data[key][j][1]) < min_width) {
+                    draw_data[key][j][1] = stop;
+                } else {
+                    draw_data[key].push([start,stop]);
+                    j++;
+                }
             }
         }
-
         key_index[key] = y(idx);
         idx++;
 		

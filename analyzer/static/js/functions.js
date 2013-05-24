@@ -40,6 +40,8 @@ var plot_empty = true;
 var statistics_open = false;
 var statistics_width = 200;
 
+var key_range = {};
+
 /*
  * Initial routines
  */
@@ -58,7 +60,8 @@ $(document).ready(function(){
         
     resize_data_content();
     
-    //select_db("kmeans.db"); //TODO: REMOVE THIS
+//    select_db("kmeans.db"); //TODO: REMOVE THIS
+//    select_db("GLAT1.1.db");
     
     circle_dim = [$("#circle").width(), $("#circle").height()];
     
