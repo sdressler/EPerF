@@ -226,7 +226,7 @@ function plot() {
         if (lo == -1) { lo = 0; }
         if (hi > (db_data[key].length - 1)) { hi = db_data[key].length - 1; }
 
-        console.log([lo,hi]);
+        //console.log([lo,hi]);
 
         /* This merges elements that are to close to each other */
         draw_data[key] = [];
