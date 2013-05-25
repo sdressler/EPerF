@@ -111,7 +111,9 @@ function load_experiments_finalize() {
 		fetch_data_from_db_for_selections();
 		
 	});
-	
+
+    if (DEBUG) { $('[kid="0"][did="0"]').first().click(); }
+
 	resize_data_content();
 	
 	hide_overlay();

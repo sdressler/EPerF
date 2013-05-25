@@ -8,7 +8,7 @@
 function resize_data_content() {
 	
 	$("#chart_container")
-		.width(window.innerWidth - $("#statistics").width())
+		.width(window.innerWidth - $("#statistics").width() - 15)
 		.height(window.innerHeight -
 				$("#chart_container").offset().top -
 				$("#footer").outerHeight() - 10
@@ -26,7 +26,7 @@ function resize_data_content() {
 	
 	// Resize the chart
 	chart_width = $("#chart_container").width();
-	chart_height = $("#chart_container").height();
+	chart_height = $("#chart_container").height() - 20;
 	
 	d3.select("#chart_svg")
 		.remove();
@@ -38,139 +38,31 @@ function resize_data_content() {
 		.attr("height", "100%"); //chart_height);
 	
 	static_plot();
-	
+
+    /*
+              translatePos=d3.event.translate;
+              var value = zoomWidgetObj.value.target[1]*2;
+     
+              //detect the mousewheel event, then subtract/add a constant to the zoom level and transform it
+              if (d3.event.sourceEvent.type=='mousewheel' || d3.event.sourceEvent.type=='DOMMouseScroll'){
+                    if (d3.event.sourceEvent.wheelDelta){
+                        if (d3.event.sourceEvent.wheelDelta &gt; 0){
+                            value = value + 0.1;
+                        }else{
+                            value = value - 0.1;
+                        }
+                    }else{
+                        if (d3.event.sourceEvent.detail &gt; 0){
+                            value = value + 0.1;
+                        }else{
+                            value = value - 0.1;
+                        }
+                    }
+              }
+            transformVis(d3.event.translate,value);
+    */
+               
 }
-
-$("#chart_container")
-	.mouseup(function(event) {
-		zoom_left = false;
-		zoom_right = false;
-		pan = false;
-		prev_x_position = NaN;
-		$("body").css('cursor', 'auto');
-	})
-	
-	.mouseout(function(event) {
-		zoom_left = false;
-		zoom_right = false;
-		pan = false;
-		prev_x_position = NaN;
-		hide_circle();
-		$("body").css('cursor', 'auto');
-	})
-	
-	.mousemove(function(event) {
-		
-		rel_mouse_position = event.pageX / chart_width;
-		
-		//if (event.pageY > $("#data_content").position().top && $(".miniColors-selector").length == 0) {
-		if (true) {
-		
-			if (!plot_empty && !zoom_left && !zoom_right && !pan) {
-				
-				if (rel_mouse_position > 0.0 && rel_mouse_position < 0.4) {
-					$("body").css('cursor', 'ew-resize');
-					show_circle("Drag to zoom");
-					circle_follow(event);
-				} else if (rel_mouse_position > 0.6) {
-					$("body").css('cursor', 'ew-resize');
-					show_circle("Drag to zoom");
-					circle_follow(event);
-				} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
-					$("body").css('cursor', 'ew-resize');
-					show_circle("Drag to pan");
-					circle_follow(event);
-				} else {
-					$("body").css('cursor', 'auto');
-					hide_circle();
-				};
-				
-			} else if (zoom_left || true && zoom_right || true && pan || true) {
-				$("body").css('cursor', 'move');
-				
-				if (typeof x == "undefined") { return; }
-				
-				old_x = x.domain();
-				inv_zoom_level = (old_x[1] - old_x[0]) / max_x;
-				
-				delta = (event.pageX - prev_x_position) * max_x * 0.01 * inv_zoom_level;
-				
-				if (!isNaN(delta)) {
-                        
-                    e1 = old_x[0] - delta;
-                    e2 = old_x[1] - delta;
-					
-					if (zoom_left == true) {
-                        
-                        if (e1 < 0) {
-    						x.domain([0, old_x[1]]);
-                        } else {
-                            x.domain([e1, old_x[1]]);
-                        }
-
-					} else if (zoom_right == true) {
-
-                        if (e2 > max_x) {
-						    x.domain([old_x[0], max_x]);
-                        } else {
-                            x.domain([old_x[0], e2]);
-                        }
-    
-					} else if (pan == true) {
-
-                        if (e1 > 0 && e2 < max_x) {
-						    x.domain([e1, e2]);
-                        }
-
-                        if (e1 < 0) {
-                            x.domain([0,old_x[1]]);
-                        }
-
-                        if (e2 > max_x) {
-                            x.domain([old_x[0], max_x]);
-                        }
-					}
-					
-					plot();
-				}
-				
-				prev_x_position = event.pageX;
-				
-			} else {
-				$("body").css('cursor', 'auto');
-				hide_circle();
-			}
-		
-		} else {
-			$("body").css('cursor', 'auto');
-			hide_circle();
-			zoom_left = false;
-			zoom_right = false;
-			pan = false;
-			prev_x_position = NaN;
-		}
-	})
-	
-	.mousedown(function(event) {
-		
-		event.originalEvent.preventDefault();
-		
-		hide_circle();
-		
-		if (rel_mouse_position > 0.0 & rel_mouse_position < 0.4) {
-			zoom_left = true;
-		} else if (rel_mouse_position > 0.6) {
-			zoom_right = true;
-		} else if (rel_mouse_position > 0.45 && rel_mouse_position < 0.55) {
-			pan = true;
-		} else {
-			zoom_left = false;
-			zoom_right = false;
-			pan = false;
-			$("body").css('cursor', 'auto');
-		};
-		
-	})
 
 function clear_plot() {
 	
@@ -192,14 +84,27 @@ function update_scales() {
 	
 	// Only if data is available
 	if (typeof db_data == "undefined") { return; }
-	
+
+/*    
 	x = d3.scale.linear()
 		.domain([0, max_x])
 		.rangeRound([10, chart_width - 50]);
+*/
+
+    x = d3.time.scale()
+            .domain([0, max_x])
+            .rangeRound([10, chart_width - 50]);
 
 	y = d3.scale.linear()
 		.domain([0, Object.keys(db_data).length])
 	    .rangeRound([bottom_space - 20, chart_height - bottom_space - 20]);
+    
+    d3.select("#chart_svg")
+        .call(d3.behavior.zoom()
+            .x(x)
+            .on("zoom", function() {
+                plot();
+            }))
 	
 }
 
@@ -259,13 +164,13 @@ function plot() {
 		.data(x.ticks(num_ticks))
 		.enter().append("line")
 			.attr("class", "drawings")
-			.attr("x1", x)
-			.attr("x2", x)
+			.attr("x1", function(d) { return x(d) + 0.5; })
+			.attr("x2", function(d) { return x(d) + 0.5; })
 			.attr("y1", 0)
 			.attr("y2", chart_height - bottom_space)
 			.attr("id", "vgrid")
 			.style("stroke", "#bbb")
-			.style("stroke-width", "1px")
+			.style("stroke-width", "1.5px")
 			.style("stroke-dasharray", "5,5");
 	
 	bar_height = y(1) - y(0);

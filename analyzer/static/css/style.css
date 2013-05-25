@@ -1,3 +1,14 @@
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 11pt;
+	font-weight: 200;
+	background-color: #222;
+	padding: 0;
+	margin: 0;
+}
+
+/*
 body {
 	font-family: 'Open Sans', sans-serif;
 	font-size: 11pt;
@@ -37,8 +48,6 @@ body {
 }
 
 .container {
-	/* border: 1px dashed; */
-	/*float: left;*/
 	display: inline-block;
 }
 
@@ -164,13 +173,7 @@ body {
 	z-index: 0;
 }
 
-/*
-.chart rect {
-	fill: #B0BC00;
-}
-*/
 #experiments {
-    /* width: 100%; */
 	color: #fff;
 	overflow-x: none;
     white-space: nowrap;
@@ -210,7 +213,7 @@ body {
 	position: fixed;
 	background-color: #222;
 	margin: 5px;
-	height: 20px;
+	height: 30px;
 	color: #00B1E6;
 	font-weight: bold;
 	vertical-align: middle;
@@ -231,3 +234,16 @@ label {
 input {
 	vertical-align: middle;
 }
+
+#vline-tag {   
+  color: #fff;
+  position: absolute;           
+  text-align: center;           
+  padding: 4px;             
+  background: #000; 
+  border: 0px;
+  border-radius: 2px; 
+  pointer-events: none;
+  min-width: 50px;
+}
+*/

@@ -1,3 +1,5 @@
+var DEBUG = 1
+
 var x, y;
 
 var num_ticks = 20;
@@ -59,9 +61,11 @@ $(document).ready(function(){
     });
         
     resize_data_content();
-    
-//    select_db("kmeans.db"); //TODO: REMOVE THIS
-//    select_db("GLAT1.1.db");
+   
+    if (DEBUG) { 
+        select_db("kmeans.db"); //TODO: REMOVE THIS
+        //select_db("GLAT1.1.db");
+    }
     
     circle_dim = [$("#circle").width(), $("#circle").height()];
     
