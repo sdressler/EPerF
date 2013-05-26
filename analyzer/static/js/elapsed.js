@@ -1,29 +1,135 @@
-var e;
-
 function elapsd() {
+
+    var e = this;
 
     var experiments = $('#experiments');
     var drawing     = $('#drawing');
     var footer      = $('#footer');
+    var overlay     = $('#overlay');
+
+    var bisect_l = d3.bisector(function(d) { return d[0]; }).left;
+    var bisect_r = d3.bisector(function(d) { return d[1]; }).right;
+
+    var spinner = new Spinner({
+        color:'#00B1E6',
+        lines: 12,
+        length: 0,
+        width: 8,
+        radius: 14
+    });
+
+    overlayToggle = function(newState) {
+            
+        if (newState == 'show') {
+            overlay.show();
+            spinner.spin(document.getElementById("overlay"));
+        } else {
+            overlay.fadeOut();
+            spinner.stop();
+        }
+
+    }
 
     var min_width   = 2;
     var num_ticks   = 15;
 
+    var chart_top_space = 25;
+
+    var current_precision = 3;
+
+    var active_markers = {};
+    var cursor_sec;
+
 	var chart = d3.select('#drawing').append("svg:svg")	
 		.attr("class", "chart")
 		.attr("id", "chart")
-		.attr("width", "100%");
-	//	.attr("height", "100%");
+		.attr("width", "100%")
     var $_chart = $("#chart");
+
+        $_chart
+            .mousemove(function(ev) {
+                
+                d3.selectAll('.vline').remove();
+
+                if (!ev.ctrlKey) {
+                    $(this).css('cursor', 'pointer');
+                    return;
+                }
+                
+                $(this).css('cursor', 'none');
+
+                var pos = ev.pageX
+                        - parseInt(drawing.css('margin-left'))
+                        - parseInt(drawing.css('padding-left'))
+    
+                cursor_sec = x.invert(pos) / 1.0e9;
+
+                var precision;
+                if (current_precision < 3 || isNaN(current_precision)) {
+                    precision = 3;
+                } else {
+                    precision = current_precision;
+                }
+
+                d3.select("#drawing").append('div')
+                    .attr('class', 'chart vline tag')
+                    .attr('id', 'vline_tag')
+                    .style('left', ev.pageX)
+                    .style('top', $_chart.position().top - 5)
+                    .text(cursor_sec.toPrecision(precision) + "s")
+
+                d3.select('#chart').append('line')
+                    .attr('class', 'vline')
+                    .attr('id', 'vline')
+                    .attr('x1', pos + 0.5)
+                    .attr('x2', pos + 0.5)
+                    .attr('y1', 0)
+                    .attr('y2', $_chart.innerHeight())
+                    .style("stroke", "#fff")
+                    .style("stroke-width", "1.5px");
+
+            })
+            .click(function(ev) {
+                active_markers[cursor_sec] = true;
+                e.drawMarkers();
+            });
 
     var chart_seconds = d3.select('#drawing').append("svg:svg")
         .attr("class", "chart")
         .attr("id", "chart_seconds")
         .attr("width", "100%")
         .attr("height", "50");
+    
     var $_chart_seconds = $("#chart_seconds");
 
     var plot_empty = true;
+
+    this.colors = [
+        '#6895E7',
+        '#B468E7',
+        '#7FF26D',
+        '#FFCE73',
+
+        '#27509B',
+        '#6C279B',
+        '#3DAC2B',
+        '#BF8D30',
+
+        '#002F86',
+        '#500087',
+        '#149500',
+        '#A66C00',
+
+        '#3A77E7',
+        '#A13AE7',
+        '#55F23D',
+        '#FFBC40',
+
+        '#0049CE',
+        '#7B00CF',
+        '#1FE600',
+        '#FFA500'
+    ];
 
     this.resizeDocument = function() {
         drawing.outerHeight(
@@ -34,16 +140,25 @@ function elapsd() {
         );
 
         // Resize the charts SVG's
-        $_chart.innerHeight(drawing.innerHeight() - $_chart_seconds.innerHeight());
+        $_chart.innerHeight(
+              drawing.innerHeight()
+            - $_chart_seconds.innerHeight()
+            - chart_top_space
+        );
+
+        $_chart.css('margin-top', chart_top_space);
 
         // Update scales and replot
         if (plot_empty == false) {
-            e.updateScales();
-            e.replot();
+            this.updateScales();
+            this.replot();
         }
     };
 
     this.changeDB = function(db) {
+
+        overlayToggle('show');
+
         this.db = db;
 
         // Trigger selection creation
@@ -57,7 +172,6 @@ function elapsd() {
         
         this.exp_selection = {}; // Re-Initialize experiments object
 
-        var e             = this;
         var exp           = experiments;
         var exp_selection = this.exp_selection;
 
@@ -108,6 +222,9 @@ function elapsd() {
                             if (exp_loaded == exp_to_load) {
                                 redrawExperiments(exp, exp_selection);
                                 e.resizeDocument();
+
+                                overlayToggle('hide');
+
                             }
 
                         }
@@ -149,9 +266,9 @@ function elapsd() {
                     'text': value.kname + " - " + value.dname,
                     'eid': key,
                     'kid': kid,
-                    'did': did,
-                    'onclick': 'e.triggerSelect(this)'
-                }).appendTo("#exp-" + key);
+                    'did': did
+                }).appendTo("#exp-" + key)
+                  .click(function(sender) { e.triggerSelect(sender.target); });
             })
 
         });
@@ -167,11 +284,23 @@ function elapsd() {
         if (caller.hasClass('selected')) {
             // Already selected, undo    
             caller.removeClass('selected');
-            e.exp_selection[eid].exp_data[sid].selected = false;
+
+            this.exp_selection[eid].exp_data[sid].selected = false;
+            this.colors.push(this.exp_selection[eid].exp_data[sid].color);
+
         } else {
+
+            overlayToggle('show');
+
             // Select it
             caller.addClass('selected');
-            e.exp_selection[eid].exp_data[sid].selected = true;
+            this.exp_selection[eid].exp_data[sid].selected = true;
+
+            var color = this.colors.pop();
+
+            this.exp_selection[eid].exp_data[sid].color = color;
+            caller.css('border-left-color', color);
+
         }
 
         this.redrawFromSelection();
@@ -179,14 +308,16 @@ function elapsd() {
     };
 
     this.redrawFromSelection = function() {
-  
+
         /* Create the selection */
         var selection = [];
         $.each(this.exp_selection, function(ekey,evalue) {
             $.each(evalue.exp_data, function(dkey,dvalue) {
                 if (dvalue.selected) {
                     selection.push([
-                        ekey, dkey.split('-')[0], dkey.split('-')[1]
+                        ekey,
+                        dkey.split('-')[0],
+                        dkey.split('-')[1],
                     ]);
                 }
             });
@@ -200,8 +331,6 @@ function elapsd() {
             this.clearPlot();
             return;
         }
-
-        var e = this;
 
         /* Trigger the AJAX request to receive the data */
         $.ajax({
@@ -227,6 +356,8 @@ function elapsd() {
                 e.updateScales(true);
                 e.replot();
 
+                overlayToggle('hide');
+
             }
         });
     };
@@ -236,11 +367,9 @@ function elapsd() {
 	    // Only if data is available
     	if (typeof db_data == "undefined") { return; }
 
-        if (both) {
-            x = d3.scale.linear()
-                .domain([0, e.max_value])
-                .rangeRound([10, $_chart.innerWidth() - 20]);
-        }
+        x = d3.scale.linear()
+            .domain([0, e.max_value])
+            .rangeRound([10, $_chart.innerWidth() - 20]);
 
     	y = d3.scale.linear()
 	    	.domain([0, Object.keys(db_data).length])
@@ -249,6 +378,16 @@ function elapsd() {
         d3.select("#chart").call(d3.behavior.zoom()
             .x(x)
             .on("zoom", function() {
+                var translate = d3.event.translate;
+
+                current_precision = parseInt(Math.log(
+                    (x.domain()[0] + translate[0]) / 1.0e9 * d3.event.scale
+                ) / Math.LN10 + 1);
+/*
+                current_range = [
+                    (x.domain()[1] + translate[1]) / 1.0e9 * d3.event.scale
+                ];
+*/
                 e.replot();
             })
         );
@@ -266,6 +405,7 @@ function elapsd() {
         if (typeof db_data == "undefined") { return; }
     
         var draw_data = {};
+        var color_data = {};
         var key_index = {};
         var idx = 0;
 
@@ -300,10 +440,15 @@ function elapsd() {
             }
             key_index[key] = y(idx);
             idx++;
+
+            subkeys = key.split('-');
+            color_data[key] = e.exp_selection[
+                                  subkeys[0]
+                              ].exp_data[subkeys[1] + '-' + subkeys[2]].color;
             
         });
 
-        e.clearPlot();
+        this.clearPlot();
 
         // Draw the grid
         chart.selectAll("lines")
@@ -349,20 +494,58 @@ function elapsd() {
 
                         return w;
                     })
-                    .attr("height", bar_height - 5);
-/*
-            chart.selectAll(".rect-" + key).attr("fill", function() {
-                ckey = key.split("-");
-                return colors_per_key["color_"+ckey[0]+"-"+ckey[1]+"-"+ckey[2]];
-            });
-*/            
+                    .attr("height", bar_height - 5)
+                    .attr("fill", color_data[key]);
         });
-        
+
+        this.drawMarkers();
+
         plot_empty = false;
 
     }
 
-    var bisect_l = d3.bisector(function(d) { return d[0]; }).left;
-    var bisect_r = d3.bisector(function(d) { return d[1]; }).right;
+    this.drawMarkers = function() {
+
+        var precision;
+        if (current_precision < 3 || isNaN(current_precision)) {
+            precision = 3;
+        } else {
+            precision = current_precision;
+        }
+
+        d3.selectAll(".marker").remove();
+
+        $.each(active_markers, function(key,value) {
+
+            var pos = x(key * 1.0e9);
+
+            if (pos < 0) { return; }
+
+            d3.select("#drawing").append('div')
+                .attr('class', 'chart marker tag removeable')
+                .attr('id', 'vline_tag')
+                .attr('key', key)
+                .style('left', pos + 19)
+                .style('top', $_chart.position().top - 5)
+                .text(parseFloat(key).toPrecision(precision) + "s")
+                .on('click', function(ev) {
+                    delete active_markers[key];
+                    $("div[key='" + key + "']").remove();
+                    $("line[key='" + key + "']").remove();
+                })
+            
+            d3.select('#chart').append('line')
+                .attr('class', 'marker chart')
+                .attr('key', key)
+                .attr('x1', pos + 0.5)
+                .attr('x2', pos + 0.5)
+                .attr('y1', 0)
+                .attr('y2', $_chart.innerHeight())
+                .style("stroke", "#fff")
+                .style("stroke-width", "3px")
+                .style("stroke-dasharray", "5,5");
+
+        });
+    }
 
 };

@@ -8,16 +8,21 @@
 	<title>elaps'd Analyzer</title>
     
     <link rel="stylesheet" type="text/css" media="all" href="{{url_for('static', filename='css/style.css')}}" />
-
-<!--	
-	<link rel="stylesheet" type="text/css" media="all" href="{{url_for('static', filename='css/style.css')}}" />
-    <link rel="stylesheet" type="text/css" media="all" href="{{url_for('static', filename='js/colorpicker/jquery.minicolors.css')}}" />
-    -->    
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Ubuntu:400,500' rel='stylesheet' type='text/css'>
 	
 </head>
 <body>
+
+    <div id="overlay">
+        <div id="db_selector" class="container">
+            <div id="db_entries">
+            <div class="title">Select the DB you want to work with...</div>
+            {% for db in dbs %}
+                <div class="db_entry selectable" onclick="e.changeDB('{{ db }}')">{{ db }}</div>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
 
     <div class="section" id="experiments"></div>
     <div class="clear"></div>
@@ -25,62 +30,10 @@
     <div class="clear"></div>
     <div class="section" id="footer"></div>
 
-<!--    
-<div id="overlay" class="overlay">
-	<div id="overlay_content" class="section_title">Loading data ... please be patient</div>
-</div>
-
-<div id="circle">
-	<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-   		<circle id="circle_circle" cx="35" cy="35" r="30" stroke-width="2.5" fill="none" />
-   		<text id="circle_text" x="70" y="35" alignment-baseline="middle"></text>
-	</svg>
-</div>
-
-<div id="db_selector">
-
-	<div id="db_entries">
-	<div class="section_title">Select the DB you want to work with...</div>
-	{% for db in dbs %}
-		<div class="db_entry selectable">{{ db }}</div>
-	{% endfor %}
-	</div>
-</div>
-
-<div id="experiments_title" class="section_title">Experiments</div>
-<div id="experiments" class="section"></div>
-
-<div class="clear"></div>
-
-<div id="statistics" class="data_content">
-	<div id="statistics_btn">&nbsp;</div>
-	<div id="statistics_content">&nbsp;</div>
-</div>
-
-<div id="chart_container" class="data_content"></div>
-
-<div class="clear"></div>
-<div id="footer" class="footer">
-	<label><input type="checkbox" id="show_hints" checked="checked">Show hints</label>
-</div>
--->
-<!--
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-
-<script type="text/javascript" src="{{url_for('static', filename='js/colorpicker/jquery.minicolors.js') }}"></script>
-
-<script type="text/javascript" src="{{url_for('static', filename='js/analyzer/draw.js') }}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/analyzer/db.js') }}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/analyzer/experiment.js') }}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/analyzer/mouse.js') }}"></script>
-<script type="text/javascript" src="{{url_for('static', filename='js/functions.js') }}"></script>
-
-<script type="text/javascript" src="{{url_for('static', filename='js/eyecandy.js') }}"></script>
--->
-
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
+    <script type="text/javascript" src="{{url_for('static', filename='js/3rdparty/spin.min.js') }}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/elapsed.js') }}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/document.js') }}"></script>
 

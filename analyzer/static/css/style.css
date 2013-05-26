@@ -12,9 +12,22 @@ body {
     height: 100%;
 }
 
+#overlay {
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	background-color: #000;
+	display: none;
+	opacity:0.95;
+	z-index: 1000000;
+	color: #fff;
+}
+
 #experiments {
     white-space: nowrap;
-    overflow-x: scroll;
+	overflow-x: auto;
 }
 
 #drawing {
@@ -22,8 +35,12 @@ body {
 }
 
 #footer {
-    height: 50px;
+/*    height: 25px; */
     background-color: #444;
+}
+
+#db_selector {
+    position: fixed;
 }
 
 .section {
@@ -48,254 +65,41 @@ body {
 }
 
 .selectable {
-    padding-top: 2px;
+    margin-top: 2px;
+    margin-bottom: 2px;
 }
 
 .selected {
     color: #00B1E6;
+    padding-left: 5px;
+    border-left: solid 20px #fff;
 }
 
 .selectable:hover {
 	color: #00B1E6;
 	cursor: pointer;
-}
-
-/*
-body {
-	font-family: 'Open Sans', sans-serif;
-	font-size: 11pt;
-	font-weight: 200;
-	background-color: #222;
-	padding: 0;
-	margin: 0;
-}
-
-.overlay {
-	height: 100%;
-	width: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	background-color: #000;
-	display: block;
-	opacity:0.8;
-	z-index: 1000000;
-	color: #fff;
-}
-
-#overlay_content {
-	width: 100%;
-	position: fixed;
-}
-
-#db_selector {
-	height: 100%;
-	width: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	background-color: #222;
-	display: block;
-	z-index: 1000001;
-}
-
-.container {
-	display: inline-block;
-}
-
-.container.experiment {
-	background-color: #333;
-	padding: 8px;
-	margin: 4px;
-	border-radius: 5px;
-}
-
-.entry.experiment.title {
-	color: #00B1E6;
-	margin-bottom: 5px;
-	font-weight: 600;
-}
-
-.section {
-	margin: 5px;
-	float: left;
-}
-
-.section_title {
-	padding: 5px;
-	text-align: left;
-	color: #00B1E6;
-	font-weight: 600;
-	background-color: #222;
-}
-
-.section_body {
-	border: dotted 1px #00B1E6;
-	border-top: none;
-}
-
-.entry {
-	margin-top: 5px;
-	margin-right: 20px;
-	float: left;
-	display: block;
-}
-
-#db_entries {
-	background-color: #333;
-	position: relative;
-	overflow: auto;
-	margin: 0;
-	left: 0;
-}
-
-.db_entry {
-	cursor: pointer;
-	color: #fff;
-	margin: 5px;
-}
-
-.selectable {
-	font-weight: bold;
-}
-
-.selectable:hover {
-	color: #00B1E6;
-	cursor: pointer;
-}
-
-.eheading {
-	font-weight: bold;
-	padding-right: 0px;
-	width: 15px;
-}
-
-.data_content {
-	position: fixed;
-	background-color: #444;
-	padding: 0px;
-	margin: 0px;
-	z-index: 0;
-	overflow: none;
-}
-
-#chart_container {
-	z-index: 0;
-}
-
-#statistics_btn {
-	height: 40;
-	width: 28;
-	background-color: #00B1E6;
-	background-image:url('../png/chart.png');
-	background-repeat: no-repeat;
-	background-position: right center;
-	border-top-right-radius: 4px;
-	border-bottom-right-radius: 4px;
-}
-
-#statistics_btn:hover {
-	cursor: pointer;
-	width: 32;
-}
-
-#statistics_content {
-	position: fixed;
-	z-index: 9999;
-	background-color: #00B1E6;
-}
-
-#statistics {
-	z-index: 9999;
-	opacity: 0.9;
-}
-
-.clear {
-	clear: both;
 }
 
 .chart {
-	background-color: #222;
-	padding: 0;
-	margin: 0;
-	z-index: 0;
+    font-family: monospace;
+    font-size: 10pt;
 }
 
-#chart_svg {
-	z-index: 0;
+.tag {
+    position: fixed;
+    text-align: center;
+    min-width: 50px;
+    background-color: #888;
+    color: #000;
+    display: inline-block;
+    padding: 2px;
+
 }
 
-#experiments {
-	color: #fff;
-	overflow-x: none;
-    white-space: nowrap;
-    z-index: -1;
+.tag.removeable:hover {
+    padding-right: 20px;
+    background-image:url('/static/png/close.png');
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 15px 15px;
 }
-
-.labels {
-	font-size: 10pt;
-	font-weight: 400;
-}
-
-#circle {
-	position: fixed;
-	z-index: 1000;
-	width: 250;
-	height: 70;
-	pointer-events:none;
-}
-
-.drawings {
-	pointer-events:none;
-}
-
-#circle_circle {
-	stroke-dasharray: 2.5, 2.5;
-	stroke: #fff;
-	opacity: 0.8;
-	z-index: 0;
-}
-
-#circle_text {
-	font-weight: bold;
-	fill: #fff;
-}
-
-#footer {
-	position: fixed;
-	background-color: #222;
-	margin: 5px;
-	height: 30px;
-	color: #00B1E6;
-	font-weight: bold;
-	vertical-align: middle;
-}
-
-.miniColors-triggerWrap {
-	float: left;
-	margin-right: 5px;
-	margin-bottom: 5px;
-}
-
-label {
-	display: block;
-	display: block;
-	vertical-align: middle;
-}
-
-input {
-	vertical-align: middle;
-}
-
-#vline-tag {   
-  color: #fff;
-  position: absolute;           
-  text-align: center;           
-  padding: 4px;             
-  background: #000; 
-  border: 0px;
-  border-radius: 2px; 
-  pointer-events: none;
-  min-width: 50px;
-}
-*/
