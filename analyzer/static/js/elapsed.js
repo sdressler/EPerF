@@ -90,8 +90,12 @@ function elapsd() {
 
             })
             .click(function(ev) {
-                active_markers[cursor_sec] = true;
-                e.drawMarkers();
+
+                if (ev.ctrlKey) {
+                    active_markers[cursor_sec] = true;
+                    e.drawMarkers();
+                }
+
             });
 
     var chart_seconds = d3.select('#drawing').append("svg:svg")
@@ -157,7 +161,7 @@ function elapsd() {
 
     this.changeDB = function(db, sender) {
 
-        sender.hide();
+        $(sender).hide();
         overlayToggle('show');
 
         this.db = db;
@@ -384,11 +388,7 @@ function elapsd() {
                 current_precision = parseInt(Math.log(
                     (x.domain()[0] + translate[0]) / 1.0e9 * d3.event.scale
                 ) / Math.LN10 + 1);
-/*
-                current_range = [
-                    (x.domain()[1] + translate[1]) / 1.0e9 * d3.event.scale
-                ];
-*/
+                
                 e.replot();
             })
         );
@@ -404,14 +404,14 @@ function elapsd() {
 
         // Only if data is available
         if (typeof db_data == "undefined") { return; }
-    
-        var draw_data = {};
-        var color_data = {};
-        var key_index = {};
-        var idx = 0;
 
+        var draw_data = {};
+        var keys = [];
+    
         // Preselect to match current plotting range
         $.each(db_data, function(key, obj) {
+
+            var draw_data_entry = {};
 
             lo = bisect_l(db_data[key], x.domain()[0]) - 1;
             hi = bisect_r(db_data[key], x.domain()[1]) + 1;
@@ -422,9 +422,11 @@ function elapsd() {
             //console.log([lo,hi]);
 
             /* This merges elements that are to close to each other */
-            draw_data[key] = [];
+            //draw_key = parseInt(key.replace(/-/g, ""));
+            //draw_data[draw_key] = [];
 
-            draw_data[key].push([x(db_data[key][lo][0]),x(db_data[key][lo][1])]);
+            draw_data_entry.data = []
+            draw_data_entry.data.push([x(db_data[key][lo][0]),x(db_data[key][lo][1])]);
             var start, stop;
             var j = 0;
             for (var i = lo + 1; i < hi; i++) {
@@ -432,21 +434,25 @@ function elapsd() {
                 start = x(db_data[key][i][0]);
                 stop  = x(db_data[key][i][1]);
 
-                if ((start - draw_data[key][j][1]) < min_width) {
-                    draw_data[key][j][1] = stop;
+                if ((start - draw_data_entry.data[j][1]) < min_width) {
+                    draw_data_entry.data[j][1] = stop;
                 } else {
-                    draw_data[key].push([start,stop]);
+                    draw_data_entry.data.push([start,stop]);
                     j++;
                 }
             }
-            key_index[key] = y(idx);
-            idx++;
 
             subkeys = key.split('-');
-            color_data[key] = e.exp_selection[
-                                  subkeys[0]
-                              ].exp_data[subkeys[1] + '-' + subkeys[2]].color;
+            draw_data_entry.color = e.exp_selection[
+                                        subkeys[0]
+                                    ].exp_data[subkeys[1] + '-' + subkeys[2]].color;
+ 
+            draw_data_entry.key = key;
+            group_key = subkeys[0] + subkeys[1] + subkeys[2];
             
+            prefix_key = group_key + '-' + key;
+            keys.push(prefix_key);
+            draw_data[prefix_key] = draw_data_entry;
         });
 
         this.clearPlot();
@@ -479,14 +485,16 @@ function elapsd() {
                 });
         
         bar_height = y(1) - y(0);
-        
-        $.each(draw_data, function(key,value) {
+   
+        $.each(keys.sort(d3.ascending), function(index, key) {
 
-            chart.selectAll(".rect-" + key)
-                .data(value)
+            value = draw_data[key];
+
+            chart.selectAll(".rect-" + value.key)
+                .data(value.data)
                 .enter().append("rect")
-                    .attr("class", "drawings rect-" + key)
-                    .attr("y", function(d) { return key_index[key]; })
+                    .attr("class", "drawings rect-" + value.key)
+                    .attr("y", function(d) { return y(index); })
                     .attr("x", function(d) { return d[0]; })
                     .attr("width", function(d) {
                         w = d[1] - d[0];
@@ -496,7 +504,7 @@ function elapsd() {
                         return w;
                     })
                     .attr("height", bar_height - 5)
-                    .attr("fill", color_data[key]);
+                    .attr("fill", value.color);
         });
 
         this.drawMarkers();

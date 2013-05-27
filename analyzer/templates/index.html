@@ -18,7 +18,7 @@
             <div id="db_entries">
             <div class="title">Select the DB you want to work with...</div>
             {% for db in dbs %}
-                <div class="db_entry selectable" onclick="e.changeDB('{{ db }}')">{{ db }}</div>
+                <div class="db_entry selectable" onclick="e.changeDB('{{ db }}', '#db_selector')">{{ db }}</div>
             {% endfor %}
             </div>
         </div>
