@@ -155,8 +155,9 @@ function elapsd() {
         }
     };
 
-    this.changeDB = function(db) {
+    this.changeDB = function(db, sender) {
 
+        sender.hide();
         overlayToggle('show');
 
         this.db = db;
