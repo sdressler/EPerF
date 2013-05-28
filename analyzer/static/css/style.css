@@ -37,6 +37,7 @@ body {
 #footer {
 /*    height: 25px; */
     background-color: #444;
+    vertical-align: middle;
 }
 
 #db_selector {
@@ -102,4 +103,12 @@ body {
     background-repeat: no-repeat;
     background-position: right center;
     background-size: 15px 15px;
+}
+
+label, input[type="radio"] {
+    vertical-align: middle;
+}
+
+.option_set {
+    vertical-align: bottom;
 }

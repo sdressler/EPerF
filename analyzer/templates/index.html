@@ -28,7 +28,14 @@
     <div class="clear"></div>
     <div class="section" id="drawing"></div>
     <div class="clear"></div>
-    <div class="section" id="footer"></div>
+    <div class="section" id="footer">
+        <div class="option_set">
+            Thread-Interleave:
+            <input type="radio" name="thread_interleave" id="tinterleave_false" checked /><label for="tinterleave_false">Off</label>
+            <input type="radio" name="thread_interleave" id="tinterleave_true" /><label for="tinterleave_true">On</label>
+            <input type="radio" name="thread_interleave" id="tinterleave_line" /><label for="tinterleave_line">Line</label>
+        </div>
+    </div>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>

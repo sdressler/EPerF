@@ -30,6 +30,11 @@ function elapsd() {
 
     }
 
+    this.setThreadInterleave = function(interleave) {
+        this._threadInterleave = interleave;
+        this.replot();
+    }
+
     var min_width   = 2;
     var num_ticks   = 15;
 
@@ -51,7 +56,7 @@ function elapsd() {
                 
                 d3.selectAll('.vline').remove();
 
-                if (!ev.ctrlKey) {
+                if (!ev.ctrlKey || x == 'undefined') {
                     $(this).css('cursor', 'pointer');
                     return;
                 }
@@ -154,7 +159,7 @@ function elapsd() {
 
         // Update scales and replot
         if (plot_empty == false) {
-            this.updateScales();
+            this.updateScales('both');
             this.replot();
         }
     };
@@ -358,7 +363,7 @@ function elapsd() {
          
                 e.max_value = d3.max(max);
 
-                e.updateScales(true);
+                e.updateScales('both');
                 e.replot();
 
                 overlayToggle('hide');
@@ -367,18 +372,30 @@ function elapsd() {
         });
     };
 
-    this.updateScales = function(both) {
+    this.updateScales = function(scale) {
     
 	    // Only if data is available
     	if (typeof db_data == "undefined") { return; }
 
-        x = d3.scale.linear()
-            .domain([0, e.max_value])
-            .rangeRound([10, $_chart.innerWidth() - 20]);
+        if (scale == 'x' || scale == 'both') {
+            x = d3.scale.linear()
+                .domain([0, e.max_value])
+                .rangeRound([10, $_chart.innerWidth() - 20]);
+        }
 
-    	y = d3.scale.linear()
-	    	.domain([0, Object.keys(db_data).length])
-            .rangeRound([0, $_chart.innerHeight()]);
+        if (scale == 'y' || scale == 'both') {
+
+            var domain_max;
+            if (this._threadInterleave == 'line') {
+                domain_max = this._threads_per_group; 
+            } else {
+                domain_max = Object.keys(db_data).length;
+            }
+            
+            y = d3.scale.linear()
+                .domain([0, domain_max])
+                .rangeRound([0, $_chart.innerHeight()]);
+        }
         
         d3.select("#chart").call(d3.behavior.zoom()
             .x(x)
@@ -403,11 +420,13 @@ function elapsd() {
     this.replot = function() {
 
         // Only if data is available
-        if (typeof db_data == "undefined") { return; }
+        if ($.isEmptyObject(db_data)) { return; }   
 
         var draw_data = {};
         var keys = [];
-    
+   
+        e._threads_per_group = 1;
+
         // Preselect to match current plotting range
         $.each(db_data, function(key, obj) {
 
@@ -419,12 +438,7 @@ function elapsd() {
             if (lo == -1) { lo = 0; }
             if (hi > (db_data[key].length - 1)) { hi = db_data[key].length - 1; }
 
-            //console.log([lo,hi]);
-
             /* This merges elements that are to close to each other */
-            //draw_key = parseInt(key.replace(/-/g, ""));
-            //draw_data[draw_key] = [];
-
             draw_data_entry.data = []
             draw_data_entry.data.push([x(db_data[key][lo][0]),x(db_data[key][lo][1])]);
             var start, stop;
@@ -446,15 +460,29 @@ function elapsd() {
             draw_data_entry.color = e.exp_selection[
                                         subkeys[0]
                                     ].exp_data[subkeys[1] + '-' + subkeys[2]].color;
- 
+
             draw_data_entry.key = key;
-            group_key = subkeys[0] + subkeys[1] + subkeys[2];
+            draw_data_entry.tid = parseInt(subkeys[3]);
+
+            group_key = ""
+            if (e._threadInterleave == "true" ||
+                e._threadInterleave == "line")
+            {
+                group_key = subkeys[3];
+                e._threads_per_group = d3.max([
+                    e._threads_per_group,parseInt(subkeys[3])
+                ]);
+            } else {
+                group_key = subkeys[0] + subkeys[1] + subkeys[2];
+            }
             
-            prefix_key = group_key + '-' + key;
+            prefix_key = group_key + "-" + key;
+
             keys.push(prefix_key);
             draw_data[prefix_key] = draw_data_entry;
         });
 
+        this.updateScales('y');
         this.clearPlot();
 
         // Draw the grid
@@ -486,7 +514,7 @@ function elapsd() {
         
         bar_height = y(1) - y(0);
    
-        $.each(keys.sort(d3.ascending), function(index, key) {
+        $.each(keys.sort(), function(index, key) {
 
             value = draw_data[key];
 
@@ -494,7 +522,15 @@ function elapsd() {
                 .data(value.data)
                 .enter().append("rect")
                     .attr("class", "drawings rect-" + value.key)
-                    .attr("y", function(d) { return y(index); })
+                    .attr("y", function(d) {
+                    
+                        if (e._threadInterleave != 'line') {
+                            return y(index);
+                        }
+                       
+                        return y(value.tid); 
+
+                    })
                     .attr("x", function(d) { return d[0]; })
                     .attr("width", function(d) {
                         w = d[1] - d[0];
