@@ -356,11 +356,51 @@ function elapsd() {
 
                 /* Get maximum */
                 var max = [];
+
+                var max_eid = 0;
+                var max_kid = 0;
+                var max_did = 0;
+                var max_tid = 0;
                 
                 $.each(db_data, function(key,value) {
-                    max.push(d3.max(value.map(function(x) { return x[1]; })));
+
+                    subkeys = key.split("-");
+
+                    max_eid = d3.max([max_eid, parseInt(subkeys[0])]);
+                    max_kid = d3.max([max_kid, parseInt(subkeys[1])]);
+                    max_did = d3.max([max_did, parseInt(subkeys[2])]);
+                    max_tid = d3.max([max_tid, parseInt(subkeys[3])]);
+
+                    max.push(d3.max(value.map(function(x) {
+                        return x[1];
+                    })));
                 });
-         
+      
+                var precisions = [
+                    getPrecision(max_eid),
+                    getPrecision(max_kid),
+                    getPrecision(max_did),
+                    getPrecision(max_tid)
+                ];
+
+                $.each(db_data, function(key, value) {
+                    
+                    var subkeys = key.split("-");
+                    var new_key = "";
+
+                    $.each(subkeys, function(index, skey) {
+                        new_key += getPaddedNumString(skey, precisions[index]) + "-";
+                    });
+                    new_key = new_key.slice(0,-1);
+
+                    // Exchange keys
+                    if (new_key != key) {
+                        db_data[new_key] = db_data[key];
+                        delete db_data[key];
+                    }
+
+                });
+                
                 e.max_value = d3.max(max);
 
                 e.updateScales('both');
@@ -371,6 +411,16 @@ function elapsd() {
             }
         });
     };
+
+    getPrecision = function(number) {
+        if (number == 0) { number = 1; }
+        return parseInt(Math.log(number) / Math.LN10 + 1);
+    }
+
+    getPaddedNumString = function(strnum,digits) {
+        var pad = digits - strnum.length;
+        return Array(pad + 1).join("0") + strnum;
+    }
 
     this.updateScales = function(scale) {
     
@@ -472,11 +522,12 @@ function elapsd() {
                 e._threads_per_group = d3.max([
                     e._threads_per_group,parseInt(subkeys[3])
                 ]);
-            } else {
+            }/* else {
                 group_key = subkeys[0] + subkeys[1] + subkeys[2];
-            }
+                group_key = "";
+            }*/
             
-            prefix_key = group_key + "-" + key;
+            prefix_key = group_key + key;
 
             keys.push(prefix_key);
             draw_data[prefix_key] = draw_data_entry;
@@ -514,7 +565,7 @@ function elapsd() {
         
         bar_height = y(1) - y(0);
    
-        $.each(keys.sort(), function(index, key) {
+        $.each(keys.sort(d3.ascending), function(index, key) {
 
             value = draw_data[key];
 
@@ -524,11 +575,14 @@ function elapsd() {
                     .attr("class", "drawings rect-" + value.key)
                     .attr("y", function(d) {
                     
+                        var _y = 0;
                         if (e._threadInterleave != 'line') {
-                            return y(index);
+                            _y = y(index);
+                        } else {
+                            _y = y(value.tid);
                         }
-                       
-                        return y(value.tid); 
+
+                        return _y;
 
                     })
                     .attr("x", function(d) { return d[0]; })
