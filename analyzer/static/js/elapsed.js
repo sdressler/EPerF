@@ -36,6 +36,7 @@ function elapsd() {
     }
 
     var min_width   = 2;
+    var min_height  = 2;
     var num_ticks   = 15;
 
     var chart_top_space = 25;
@@ -564,6 +565,8 @@ function elapsd() {
                 });
         
         bar_height = y(1) - y(0);
+
+        if ((bar_height - 5) < min_height) { bar_height = min_height + 5; }
    
         $.each(keys.sort(d3.ascending), function(index, key) {
 
