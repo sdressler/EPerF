@@ -46,6 +46,8 @@ function elapsd() {
     var active_markers = {};
     var cursor_sec;
 
+    var current_selection = {};
+
 	var chart = d3.select('#drawing').append("svg:svg")	
 		.attr("class", "chart")
 		.attr("id", "chart")
@@ -321,24 +323,42 @@ function elapsd() {
     this.redrawFromSelection = function() {
 
         /* Create the selection */
-        var selection = [];
+        var new_selection = {};
         $.each(this.exp_selection, function(ekey,evalue) {
             $.each(evalue.exp_data, function(dkey,dvalue) {
                 if (dvalue.selected) {
+                    
+                    new_selection[ekey + "-" + dkey] = true;
+/*                    
                     selection.push([
                         ekey,
                         dkey.split('-')[0],
                         dkey.split('-')[1],
                     ]);
+*/                    
                 }
             });
         });
 
+        var load_selection = [];
+        $.each(new_selection, function(key,value) {
+
+            if (current_selection[key] == null) {
+                sel_key = key.split('-');
+                load_selection.push([
+                    parseInt(sel_key[0]),
+                    parseInt(sel_key[1]),
+                    parseInt(sel_key[2])    
+                ])
+            }
+
+        });
+
         /* Store the current selection */
-        this.selection = selection;
+        current_selection = new_selection;
 
         /* Maybe nothing was selected ?! */
-        if (selection.length == 0) {
+        if (load_selection.length == 0) {
             this.clearPlot();
             return;
         }
@@ -348,12 +368,15 @@ function elapsd() {
             type: 'POST',
             url: '/get_data',
             dataType: 'json',
-            data: { sel: selection },
+            data: { sel: load_selection },
             async: true,
             success: function(data) {
 
                 /* Store data */
-                db_data = data.result;
+                //db_data = data.result;
+                $.each(data.result, function(key,value) {
+                    db_data[key] = value;
+                })
 
                 /* Get maximum */
                 var max = [];
