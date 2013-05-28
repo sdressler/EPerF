@@ -301,6 +301,13 @@ function elapsd() {
             this.exp_selection[eid].exp_data[sid].selected = false;
             this.colors.push(this.exp_selection[eid].exp_data[sid].color);
 
+            xkey = eid + '-' + sid;
+            $.each(db_data, function(key,value) {
+                if (key.search(xkey) != -1) {
+                    delete db_data[key];
+                }
+            })
+
         } else {
 
             overlayToggle('show');
@@ -358,8 +365,13 @@ function elapsd() {
         current_selection = new_selection;
 
         /* Maybe nothing was selected ?! */
-        if (load_selection.length == 0) {
+        if (Object.keys(current_selection).length == 0) {
             this.clearPlot();
+            return;
+        }
+
+        if (load_selection.length == 0) {
+            this.replot();
             return;
         }
 
