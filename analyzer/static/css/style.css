@@ -25,6 +25,15 @@ body {
 	color: #fff;
 }
 
+#overlay_msg {
+    background-color: #222;
+    color: #00B1E6;
+    position: fixed;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+}
+
 #experiments {
     white-space: nowrap;
 	overflow-x: auto;
@@ -123,3 +132,4 @@ input[type="text"] {
 .distance {
     padding-right: 10px;
 }
+

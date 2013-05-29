@@ -1,5 +1,6 @@
 $(document).ready(function() {
     e = new elapsd();
+    e.resizeDocument();
 
     $("#overlay").show();
 

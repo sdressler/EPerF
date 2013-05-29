@@ -18,15 +18,23 @@ function elapsd() {
         radius: 14
     });
 
-    overlayToggle = function(newState) {
-            
+    overlayToggle = function(newState, msg) {
+
+        $("#overlay_msg").text(msg);
+
+        // Only update message if state is the same
+        if (newState == e._current_overlay_state || newState == null) { return; }    
+
         if (newState == 'show') {
             overlay.show();
             spinner.spin(document.getElementById("overlay"));
+            e._current_overlay_state = 'show';
         } else {
             overlay.fadeOut();
             spinner.stop();
+            e._current_overlay_state = 'hide';
         }
+
 
     }
 
@@ -173,6 +181,9 @@ function elapsd() {
 
         $_chart.css('margin-top', chart_top_space);
 
+        // Replace overlay message
+        $("#overlay_msg").css('top', $(window).innerHeight() / 2 + 100);
+
         // Update scales and replot
         if (plot_empty == false) {
             this.updateScales('both');
@@ -183,7 +194,7 @@ function elapsd() {
     this.changeDB = function(db, sender) {
 
         $(sender).hide();
-        overlayToggle('show');
+        overlayToggle('show', 'Switching to ' + db);
 
         this.db = db;
 
@@ -323,7 +334,7 @@ function elapsd() {
 
         } else {
 
-            overlayToggle('show');
+            overlayToggle('show', 'Loading selected data.');
 
             // Select it
             caller.addClass('selected');
@@ -347,15 +358,7 @@ function elapsd() {
         $.each(this.exp_selection, function(ekey,evalue) {
             $.each(evalue.exp_data, function(dkey,dvalue) {
                 if (dvalue.selected) {
-                    
                     new_selection[ekey + "-" + dkey] = true;
-/*                    
-                    selection.push([
-                        ekey,
-                        dkey.split('-')[0],
-                        dkey.split('-')[1],
-                    ]);
-*/                    
                 }
             });
         });
@@ -383,12 +386,14 @@ function elapsd() {
             return;
         }
 
+        /* Nothing to reload, but we should trigger a redraw */
         if (load_selection.length == 0) {
-            this.replot();
+            this.changeDisplay();
             return;
         }
 
         /* Trigger the AJAX request to receive the data */
+        overlayToggle(null, 'Data request pending.');
         $.ajax({
             type: 'POST',
             url: '/get_data',
@@ -471,15 +476,27 @@ function elapsd() {
                 });
                 
                 e.max_value = d3.max(max);
-
-                e.updateScales('both');
-                e.replot();
-
-                overlayToggle('hide');
+                e.changeDisplay();
 
             }
         });
     };
+
+    this.changeDisplay = function() {
+
+        overlayToggle('show', 'Changing View.');
+
+        // Prepare Draw Data
+        e._full_draw_data = e.prepareDrawData(db_data);
+
+        // Update scales
+        e.updateScales('both');
+
+        e.replot();
+        
+        overlayToggle('hide');
+    
+    }
 
     getPrecision = function(number) {
         if (number == 0) { number = 1; }
@@ -538,21 +555,18 @@ function elapsd() {
         d3.selectAll(".drawings").remove();
     }
 
-    this.replot = function() {
+    this.prepareDrawData = function(data) {
 
-        // Only if data is available
-        if ($.isEmptyObject(db_data)) { return; }   
-
-        var draw_data = [];
-        var sorted_keys = Object.keys(db_data).sort(d3.ascending);
+        var prepared_draw_data = [];
+        var sorted_keys = Object.keys(data).sort(d3.ascending);
 
         this._thread_groups = {};
         var group_id = 0;
        
-        var total_threads = 0; 
+        var total_threads = 0;
+
         $.each(sorted_keys, function(idx,key) {
             var y_idx  = 0;
-            var found = false;
 
             var subkeys = key.split('-');
             var group_key = subkeys[0] + subkeys[1] + subkeys[2];
@@ -571,8 +585,11 @@ function elapsd() {
                 thread_group.threads++;
 
             if (e._thread_limit) {
+            
+                var found = false;
+
                 for (i = 0; i < thread_group.y_ends.length; i++) {
-                    if (x(db_data[key][0][0]) > thread_group.y_ends[i]) {
+                    if (data[key][0][0] > thread_group.y_ends[i]) {
                         y_idx = i;
                         found = true;
                         break;
@@ -583,99 +600,76 @@ function elapsd() {
                     thread_group.y_ends.push(0);
                     y_idx = thread_group.y_ends.length - 1;
                 }
+
+                thread_group.y_ends[y_idx] = data[key][data[key].length - 1][1];
+                thread_group.threads = thread_group.y_ends.length;
+
             } else {
                 y_idx = subkeys[3]; 
             }
 
-            var lo = bisect_l(db_data[key], x.domain()[0]) - 1;
-            var hi = bisect_r(db_data[key], x.domain()[1]) + 1;
-
-            if (lo == -1) { lo = 0; }
-            if (hi > (db_data[key].length - 1)) { hi = db_data[key].length - 1; }
-
-            /* This merges elements that are to close to each other */
-            draw_data_data = [[x(db_data[key][lo][0]),x(db_data[key][lo][1])]];
-            var start, stop;
-            var j = 0;
-            for (var i = lo + 1; i < hi; i++) {
-
-                start = x(db_data[key][i][0]);
-                stop  = x(db_data[key][i][1]);
-
-                if ((start - draw_data_data[j][1]) < min_width) {
-                    draw_data_data[j][1] = stop;
-                } else {
-                    draw_data_data.push([start,stop]);
-                    j++;
-                }
-            }
-
-            if (e._thread_limit) {
-                thread_group.y_ends[y_idx] = draw_data_data[draw_data_data.length - 1][1];
-                thread_group.effective_threads = thread_group.y_ends.length;
-            }
-
-            draw_data.push({
-                'data': draw_data_data,
+            prepared_draw_data.push({
+                'data': data[key],
                 'y_idx': parseInt(y_idx),
                 'group_key': group_key,
                 'num_threads': 0,
                 'color': e.exp_selection[subkeys[0]].exp_data[subkeys[1] + '-' + subkeys[2]].color
             });
-
-/*
- *            subkeys = key.split('-');
- *
- *            draw_data_entry.key = key;
- *
- *            var raw_tid = parseInt(subkeys[3]);
- *            draw_data_entry.tid = raw_tid;
- *
- *            group_key = ""
- *            if (e._threadInterleave == "true" ||
- *                e._threadInterleave == "line")
- *            {
- *                group_key = subkeys[3];
- *                e._threads_per_group = d3.max([
- *                    e._threads_per_group,parseInt(subkeys[3])
- *                ]);
- *            } else {
- *                group_key = subkeys[0] + subkeys[1] + subkeys[2];
- *            }
- *           
- *            if (e._groups[group_key] == null) {
- *                e._groups[group_key] = {
- *                    'id': group_id,
- *                    'threads' : 1
- *                };
- *                group_id++;
- *            } else {
- *                e._groups[group_key].threads++;
- *            }
- *
- *            //draw_data_entry.index = e._groups[group_key].threads - 1;
- *
- *            prefix_key = group_key + key;
- *
- *            keys.push(prefix_key);
- *            draw_data[prefix_key] = draw_data_entry;
- */
             
         });
 
         this._total_num_threads = 0;
         $.each(this._thread_groups, function(key,value) {
-            var num_threads;
-            if (e._thread_limit) {
-                num_threads = value.effective_threads;
-            } else {
-                num_threads = value.threads;
-            }
-            e._total_num_threads += num_threads;
-            value.num_threads = num_threads;
+            e._total_num_threads += value.threads;;
+            value.num_threads = value.threads;
         });
 
-        this.updateScales('y');
+        return prepared_draw_data;
+
+    }
+
+    this.replot = function() {
+
+        // Only if data is available
+        if ($.isEmptyObject(this._full_draw_data)) { return; }   
+
+        var draw_data = [];
+        $.each(this._full_draw_data, function(key,value) {
+
+            var obj = e._full_draw_data[key];
+            var data = obj.data;
+
+            var lo = bisect_l(data, x.domain()[0]) - 1;
+            var hi = bisect_r(data, x.domain()[1]) + 1;
+
+            if (lo == -1) { lo = 0; }
+            if (hi > (data.length - 1)) { hi = data.length - 1; }
+
+            /* This merges elements that are to close to each other */
+            data_array = [[x(data[lo][0]),x(data[lo][1])]];
+            var start, stop;
+            var j = 0;
+            for (var i = lo + 1; i < hi; i++) {
+
+                start = x(data[i][0]);
+                stop  = x(data[i][1]);
+
+                if ((start - data_array[j][1]) < min_width) {
+                    data_array[j][1] = stop;
+                } else {
+                    data_array.push([start,stop]);
+                    j++;
+                }
+            }
+            
+            draw_data.push({
+                'data': data_array,
+                'y_idx': obj.y_idx,
+                'group_key': obj.group_key,
+                'color': obj.color
+            });
+        });
+        
         this.clearPlot();
 
         // Draw the grid
@@ -735,63 +729,8 @@ function elapsd() {
                 .attr("fill", value.color);
                 
         });
-/*
-        chart.selectAll("drawings")
-            .data(draw_data)
-            .enter().append("rect")
-            .attr("class", "drawings")
-            .attr("y", function(d,i) { console.log(d); return y(d[2]); })
-            .attr("x", function(d,i) { return d[0]; })
-            .attr("width", function(d) {
-                w = d[1] - d[0];
-                 
-                if (w < min_width) { return min_width; }
-
-                return w;
-            })
-            .attr("height", bar_height - 5)
-            .attr("fill", "#fff");
-*/            
 
 /*
- *        $.each(keys.sort(d3.ascending), function(index, key) {
- *
- *            value = draw_data[key];
- *
- *            chart.selectAll(".rect-" + value.key)
- *                .data(value.data)
- *                .enter().append("rect")
- *                    .attr("class", "drawings")
- *                    .attr("id", "rect-" + value.key)
- *                    .attr("y", function(d) {
- *           
- *                        console.log(value);
- *
- *                        var cutoff = Number.MAX_VALUE;
- *                        var _y = y(value.index);
- *                        [>
- *                        if (e._thread_limit > 0) {
- *                            cutoff = e._thread_limit;
- *                        }
- *                        var _y = 0;
- *                        if (e._threadInterleave != 'line') {
- *                            _y = y(index % cutoff);
- *                        } else {
- *                            _y = y(value.tid % cutoff);
- *                        }
- *                        return _y;
- *
- *                    })
- *                    .attr("x", function(d) { return d[0]; })
- *                    .attr("width", function(d) {
- *                        w = d[1] - d[0];
- *                        
- *                        if (w < min_width) { return min_width; }
- *
- *                        return w;
- *                    })
- *                    .attr("height", bar_height - 5)
- *                    .attr("fill", value.color)
  *                    .on("mousemove", function() {
  *
  *                        var rect_key = d3.event.target.id;
@@ -814,12 +753,9 @@ function elapsd() {
  *                    .on("mouseout", function() {
  *                        $_tag.hide();
  *                    });
- *
- *        });
  */
 
         this.drawMarkers();
-
         plot_empty = false;
 
     }
@@ -829,14 +765,6 @@ function elapsd() {
     }
 
     this.drawMarkers = function() {
-/*
-        var precision;
-        if (current_precision < 3 || isNaN(current_precision)) {
-            precision = 3;
-        } else {
-            precision = current_precision;
-        }
-*/
 
         var precision = this.precision();
 
@@ -865,7 +793,8 @@ function elapsd() {
     $("#threads_max").change(function(ev) {
        
         e._thread_limit = $(this).is(':checked');
-        e.replot();
+        e.changeDisplay();
+        //e.replot();
 
     });
 
