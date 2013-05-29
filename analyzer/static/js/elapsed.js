@@ -182,7 +182,9 @@ function elapsd() {
         $_chart.css('margin-top', chart_top_space);
 
         // Replace overlay message
-        $("#overlay_msg").css('top', $(window).innerHeight() / 2 + 100);
+        $("#overlay_msg")
+            .css('top', $(window).innerHeight() / 2 + 100)
+            .hide();
 
         // Update scales and replot
         if (plot_empty == false) {
@@ -194,6 +196,8 @@ function elapsd() {
     this.changeDB = function(db, sender) {
 
         $(sender).hide();
+        $("#overlay_msg").show();
+
         overlayToggle('show', 'Switching to ' + db);
 
         this.db = db;
