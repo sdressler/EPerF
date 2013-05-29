@@ -27,6 +27,8 @@ function elapsd() {
 
         if (newState == 'show') {
             overlay.show();
+            $("#overlay_msg").show();
+
             spinner.spin(document.getElementById("overlay"));
             e._current_overlay_state = 'show';
         } else {
@@ -40,7 +42,7 @@ function elapsd() {
 
     this.setThreadInterleave = function(interleave) {
         this._threadInterleave = interleave;
-        this.replot();
+        this.changeDisplay();
     }
 
     var min_width   = 2;
@@ -49,6 +51,7 @@ function elapsd() {
 
     var chart_top_space = 25;
 
+    this._precision = 3;
     this.precision = function(value) {
         if (value == null) {
             return this._precision;
@@ -196,7 +199,6 @@ function elapsd() {
     this.changeDB = function(db, sender) {
 
         $(sender).hide();
-        $("#overlay_msg").show();
 
         overlayToggle('show', 'Switching to ' + db);
 
@@ -495,6 +497,20 @@ function elapsd() {
 
         // Update scales
         e.updateScales('both');
+     
+        if (this._threadInterleave != 'line') { 
+            this._bar_height = y.range()[1] / this._total_num_threads;
+        } else {
+            var max_thread_num = 0;
+            $.each(this._thread_groups, function(key,value) {
+                max_thread_num = Math.max(max_thread_num, value.threads);
+            })
+            this._bar_height = y.range()[1] / max_thread_num;
+        }
+
+        if ((this._bar_height - this._bar_space) < min_height) {
+            this._bar_height = min_height + this._bar_space;
+        }
 
         e.replot();
         
@@ -527,7 +543,7 @@ function elapsd() {
         if (scale == 'y' || scale == 'both') {
 
             var domain_max = 1;
-            if (this._thread_groups != null) {
+            if (this._thread_groups != null && this._threadInterleave != 'line') {
                 domain_max = Object.keys(this._thread_groups).length;
             } else {
                 domain_max = 1;
@@ -562,6 +578,7 @@ function elapsd() {
     this.prepareDrawData = function(data) {
 
         var prepared_draw_data = [];
+
         var sorted_keys = Object.keys(data).sort(d3.ascending);
 
         this._thread_groups = {};
@@ -616,7 +633,6 @@ function elapsd() {
                 'data': data[key],
                 'y_idx': parseInt(y_idx),
                 'group_key': group_key,
-                'num_threads': 0,
                 'color': e.exp_selection[subkeys[0]].exp_data[subkeys[1] + '-' + subkeys[2]].color
             });
             
@@ -628,9 +644,27 @@ function elapsd() {
             value.num_threads = value.threads;
         });
 
+        /* This adjusts the y-position */
+        var groups = Object.keys(this._thread_groups).length;
+        $.each(prepared_draw_data, function(key,value) {
+            var gid = e._thread_groups[value.group_key].group_id;
+            var num_threads = e._thread_groups[value.group_key].num_threads;
+
+            if (e._threadInterleave == 'true') {
+                value.y_idx = (value.y_idx / num_threads) * groups + (gid / num_threads);
+            } else if (e._threadInterleave == 'line') {
+                value.y_idx = (value.y_idx / num_threads); // Line Interleave
+            } else {
+                value.y_idx = value.y_idx / num_threads + gid; // Original
+            }
+
+        });
+            
         return prepared_draw_data;
 
     }
+       
+    this._bar_space = 5;
 
     this.replot = function() {
 
@@ -702,25 +736,13 @@ function elapsd() {
                 .text(function(value) {
                     return d3.round(value / 1.0e9, 9) + " s";
                 });
-      
-        var bar_space = 5;
-        var bar_height = y.range()[1] / this._total_num_threads;
-
-        if ((bar_height - bar_space) < min_height) { bar_height = min_height + bar_space; }
 
         $.each(draw_data, function(idx,value) {
-            
-            var gid = e._thread_groups[value.group_key].group_id;
-            var num_threads = e._thread_groups[value.group_key].num_threads;
-
             chart.selectAll("drawings")
                 .data(value.data)
                 .enter().append("rect")
                 .attr("class", "drawings")
-                .attr("y", function() {
-                    var _y = value.y_idx / num_threads + gid;
-                    return y(_y);
-                })
+                .attr("y", y(value.y_idx))
                 .attr("x", function(d) { return d[0]; })
                 .attr("width", function(d) {
                     w = d[1] - d[0];
@@ -729,7 +751,7 @@ function elapsd() {
     
                     return w;
                 })
-                .attr("height", bar_height - bar_space)
+                .attr("height", e._bar_height - e._bar_space)
                 .attr("fill", value.color);
                 
         });
