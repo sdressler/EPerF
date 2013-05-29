@@ -41,7 +41,19 @@ function elapsd() {
 
     var chart_top_space = 25;
 
-    var current_precision = 3;
+    this.precision = function(value) {
+        if (value == null) {
+            return this._precision;
+        } else {
+            if (value < 3) {
+                this._precision = 3;
+            } else if (value > 9) {
+                this._precision = 9;
+            } else {
+                this._precision = value;
+            }
+        }
+    }
 
     var active_markers = {};
     var cursor_sec;
@@ -60,7 +72,7 @@ function elapsd() {
                 d3.selectAll('.vline').remove();
 
                 if (!ev.ctrlKey || x == 'undefined') {
-                    $(this).css('cursor', 'pointer');
+                    $(this).css('cursor', 'crosshair');
                     return;
                 }
                 
@@ -72,19 +84,11 @@ function elapsd() {
     
                 cursor_sec = x.invert(pos) / 1.0e9;
 
-                var precision;
-                if (current_precision < 3 || isNaN(current_precision)) {
-                    precision = 3;
-                } else {
-                    precision = current_precision;
-                }
-
-                d3.select("#drawing").append('div')
-                    .attr('class', 'chart vline tag')
-                    .attr('id', 'vline_tag')
-                    .style('left', ev.pageX)
-                    .style('top', $_chart.position().top - 5)
-                    .text(cursor_sec.toPrecision(precision) + "s")
+                $_tag
+                    .show()
+                    .css('left', ev.pageX)
+                    .css('top', $_chart.position().top - 5)
+                    .text(e.numberToString(cursor_sec) + "s");
 
                 d3.select('#chart').append('line')
                     .attr('class', 'vline')
@@ -113,6 +117,15 @@ function elapsd() {
         .attr("height", "50");
     
     var $_chart_seconds = $("#chart_seconds");
+
+    d3.select("#drawing").append('div')
+        .attr('class', 'chart tag')
+        .attr('id', 'tag')
+//        .style('left', ev.pageX)
+//        .style('top', $_chart.position().top - 5)
+//        .text(cursor_sec.toPrecision(precision) + "s")
+
+    $_tag = $("#tag");
 
     var plot_empty = true;
 
@@ -488,9 +501,10 @@ function elapsd() {
             .on("zoom", function() {
                 var translate = d3.event.translate;
 
-                current_precision = parseInt(Math.log(
-                    (x.domain()[0] + translate[0]) / 1.0e9 * d3.event.scale
-                ) / Math.LN10 + 1);
+                var low = (x.domain()[0] + d3.event.translate[0]) / 1.0e9;
+                var hi  = (x.domain()[1] + d3.event.translate[1]) / 1.0e9;
+
+                e.precision(Math.round(1 / Math.sqrt(hi - low)));
                 
                 e.replot();
             })
@@ -610,7 +624,8 @@ function elapsd() {
             chart.selectAll(".rect-" + value.key)
                 .data(value.data)
                 .enter().append("rect")
-                    .attr("class", "drawings rect-" + value.key)
+                    .attr("class", "drawings")
+                    .attr("id", "rect-" + value.key)
                     .attr("y", function(d) {
                     
                         var _y = 0;
@@ -632,7 +647,30 @@ function elapsd() {
                         return w;
                     })
                     .attr("height", bar_height - 5)
-                    .attr("fill", value.color);
+                    .attr("fill", value.color)
+                    .on("mousemove", function() {
+
+                        var rect_key = d3.event.target.id;
+                        var key = rect_key.replace("rect-", "");
+
+                        var x_pos = $(d3.event.target).position().left;
+                        var y_pos = parseInt($(d3.event.target).attr("width")) + x_pos;
+
+                        $_tag
+                            .show()
+                            .css('left', d3.event.pageX)
+                            .css('top', d3.event.pageY + $_tag.outerHeight())
+                            .text(
+                                (x.invert(x_pos - $_chart.position().left) / 1.0e9).toPrecision(e.precision()) + "s " +
+                                (x.invert(y_pos - $_chart.position().left) / 1.0e9).toPrecision(e.precision()) + "s " +
+                                db_data[key].length
+                            );
+
+                    })
+                    .on("mouseout", function() {
+                        $_tag.hide();
+                    });
+
         });
 
         this.drawMarkers();
@@ -641,14 +679,21 @@ function elapsd() {
 
     }
 
-    this.drawMarkers = function() {
+    this.numberToString = function(value) {
+        return String(value.toFixed(e.precision()));
+    }
 
+    this.drawMarkers = function() {
+/*
         var precision;
         if (current_precision < 3 || isNaN(current_precision)) {
             precision = 3;
         } else {
             precision = current_precision;
         }
+*/
+
+        var precision = this.precision();
 
         d3.selectAll(".marker").remove();
 
@@ -657,19 +702,6 @@ function elapsd() {
             var pos = x(key * 1.0e9);
 
             if (pos < 0) { return; }
-
-            d3.select("#drawing").append('div')
-                .attr('class', 'chart marker tag removeable')
-                .attr('id', 'vline_tag')
-                .attr('key', key)
-                .style('left', pos + 19)
-                .style('top', $_chart.position().top - 5)
-                .text(parseFloat(key).toPrecision(precision) + "s")
-                .on('click', function(ev) {
-                    delete active_markers[key];
-                    $("div[key='" + key + "']").remove();
-                    $("line[key='" + key + "']").remove();
-                })
             
             d3.select('#chart').append('line')
                 .attr('class', 'marker chart')
