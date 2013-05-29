@@ -21,14 +21,13 @@ function elapsd() {
     overlayToggle = function(newState, msg) {
 
         $("#overlay_msg").text(msg);
+        $("#overlay_msg").show();
 
         // Only update message if state is the same
         if (newState == e._current_overlay_state || newState == null) { return; }    
 
         if (newState == 'show') {
             overlay.show();
-            $("#overlay_msg").show();
-
             spinner.spin(document.getElementById("overlay"));
             e._current_overlay_state = 'show';
         } else {
