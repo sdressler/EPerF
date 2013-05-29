@@ -30,12 +30,14 @@
     <div class="clear"></div>
     <div class="section" id="footer">
         <div class="option_set">
-            Thread-Interleave:
+            <label for="thread_interleave">Thread-Interleave:&nbsp;</label>
             <input type="radio" name="thread_interleave" id="tinterleave_false" checked /><label for="tinterleave_false">Off</label>
             <input type="radio" name="thread_interleave" id="tinterleave_true" /><label for="tinterleave_true">On</label>
-            <input type="radio" name="thread_interleave" id="tinterleave_line" /><label for="tinterleave_line">Line</label>
+            <input type="radio" name="thread_interleave" id="tinterleave_line" /><label for="tinterleave_line" class="distance">Line</label>
+            <input type="checkbox" id="threads_max" /><label for="threads_max">Condense Threads</label>
         </div>
     </div>
+    <div class="clear"></div>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>

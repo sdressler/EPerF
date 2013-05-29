@@ -397,11 +397,31 @@ function elapsd() {
             async: true,
             success: function(data) {
 
-                /* Store data */
-                //db_data = data.result;
+                var prefix_key = Object.keys(data.result)[0].split('-');
+                    prefix_key = prefix_key[0] + "-" + prefix_key[1] + "-" + prefix_key[2];
+
+                /* Make Thread IDs consecutive in any case */
+                var tids = []
                 $.each(data.result, function(key,value) {
-                    db_data[key] = value;
-                })
+                    tids.push(parseInt(key.split('-')[3]));
+                });
+
+                var suffixes = {}
+                $.each(tids.sort(d3.ascending), function(idx,val) {
+                    suffixes[val] = idx;
+                });
+
+                /* Store and rewrite TID if necessary */
+                $.each(data.result, function(key,value) {
+                    var suffix_key = key.split('-')[3];
+
+                    if (suffix_key != suffixes[suffix_key]) {
+                        new_key = prefix_key + "-" + suffixes[suffix_key];
+                        db_data[new_key] = value;
+                    } else {
+                        db_data[key] = value;
+                    }
+                });
 
                 /* Get maximum */
                 var max = [];
@@ -471,6 +491,7 @@ function elapsd() {
         return Array(pad + 1).join("0") + strnum;
     }
 
+
     this.updateScales = function(scale) {
     
 	    // Only if data is available
@@ -484,13 +505,13 @@ function elapsd() {
 
         if (scale == 'y' || scale == 'both') {
 
-            var domain_max;
-            if (this._threadInterleave == 'line') {
-                domain_max = this._threads_per_group; 
+            var domain_max = 1;
+            if (this._thread_groups != null) {
+                domain_max = Object.keys(this._thread_groups).length;
             } else {
-                domain_max = Object.keys(db_data).length;
+                domain_max = 1;
             }
-            
+
             y = d3.scale.linear()
                 .domain([0, domain_max])
                 .rangeRound([0, $_chart.innerHeight()]);
@@ -522,25 +543,58 @@ function elapsd() {
         // Only if data is available
         if ($.isEmptyObject(db_data)) { return; }   
 
-        var draw_data = {};
-        var keys = [];
-   
-        e._threads_per_group = 1;
+        var draw_data = [];
+        var sorted_keys = Object.keys(db_data).sort(d3.ascending);
 
-        // Preselect to match current plotting range
-        $.each(db_data, function(key, obj) {
+        this._thread_groups = {};
+        var group_id = 0;
+       
+        var total_threads = 0; 
+        $.each(sorted_keys, function(idx,key) {
+            var y_idx  = 0;
+            var found = false;
 
-            var draw_data_entry = {};
+            var subkeys = key.split('-');
+            var group_key = subkeys[0] + subkeys[1] + subkeys[2];
 
-            lo = bisect_l(db_data[key], x.domain()[0]) - 1;
-            hi = bisect_r(db_data[key], x.domain()[1]) + 1;
+            if (e._thread_groups[group_key] == null) {
+                e._thread_groups[group_key] = {
+                    "group_id": group_id,
+                    "threads": 0,
+                    "effective_threads": 0,
+                    "y_ends": []
+                }
+                group_id++;
+            }
+
+            var thread_group = e._thread_groups[group_key];
+                thread_group.threads++;
+
+            if (e._thread_limit) {
+                for (i = 0; i < thread_group.y_ends.length; i++) {
+                    if (x(db_data[key][0][0]) > thread_group.y_ends[i]) {
+                        y_idx = i;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    thread_group.y_ends.push(0);
+                    y_idx = thread_group.y_ends.length - 1;
+                }
+            } else {
+                y_idx = subkeys[3]; 
+            }
+
+            var lo = bisect_l(db_data[key], x.domain()[0]) - 1;
+            var hi = bisect_r(db_data[key], x.domain()[1]) + 1;
 
             if (lo == -1) { lo = 0; }
             if (hi > (db_data[key].length - 1)) { hi = db_data[key].length - 1; }
 
             /* This merges elements that are to close to each other */
-            draw_data_entry.data = []
-            draw_data_entry.data.push([x(db_data[key][lo][0]),x(db_data[key][lo][1])]);
+            draw_data_data = [[x(db_data[key][lo][0]),x(db_data[key][lo][1])]];
             var start, stop;
             var j = 0;
             for (var i = lo + 1; i < hi; i++) {
@@ -548,39 +602,77 @@ function elapsd() {
                 start = x(db_data[key][i][0]);
                 stop  = x(db_data[key][i][1]);
 
-                if ((start - draw_data_entry.data[j][1]) < min_width) {
-                    draw_data_entry.data[j][1] = stop;
+                if ((start - draw_data_data[j][1]) < min_width) {
+                    draw_data_data[j][1] = stop;
                 } else {
-                    draw_data_entry.data.push([start,stop]);
+                    draw_data_data.push([start,stop]);
                     j++;
                 }
             }
 
-            subkeys = key.split('-');
-            draw_data_entry.color = e.exp_selection[
-                                        subkeys[0]
-                                    ].exp_data[subkeys[1] + '-' + subkeys[2]].color;
+            if (e._thread_limit) {
+                thread_group.y_ends[y_idx] = draw_data_data[draw_data_data.length - 1][1];
+                thread_group.effective_threads = thread_group.y_ends.length;
+            }
 
-            draw_data_entry.key = key;
-            draw_data_entry.tid = parseInt(subkeys[3]);
+            draw_data.push({
+                'data': draw_data_data,
+                'y_idx': parseInt(y_idx),
+                'group_key': group_key,
+                'num_threads': 0,
+                'color': e.exp_selection[subkeys[0]].exp_data[subkeys[1] + '-' + subkeys[2]].color
+            });
 
-            group_key = ""
-            if (e._threadInterleave == "true" ||
-                e._threadInterleave == "line")
-            {
-                group_key = subkeys[3];
-                e._threads_per_group = d3.max([
-                    e._threads_per_group,parseInt(subkeys[3])
-                ]);
-            }/* else {
-                group_key = subkeys[0] + subkeys[1] + subkeys[2];
-                group_key = "";
-            }*/
+/*
+ *            subkeys = key.split('-');
+ *
+ *            draw_data_entry.key = key;
+ *
+ *            var raw_tid = parseInt(subkeys[3]);
+ *            draw_data_entry.tid = raw_tid;
+ *
+ *            group_key = ""
+ *            if (e._threadInterleave == "true" ||
+ *                e._threadInterleave == "line")
+ *            {
+ *                group_key = subkeys[3];
+ *                e._threads_per_group = d3.max([
+ *                    e._threads_per_group,parseInt(subkeys[3])
+ *                ]);
+ *            } else {
+ *                group_key = subkeys[0] + subkeys[1] + subkeys[2];
+ *            }
+ *           
+ *            if (e._groups[group_key] == null) {
+ *                e._groups[group_key] = {
+ *                    'id': group_id,
+ *                    'threads' : 1
+ *                };
+ *                group_id++;
+ *            } else {
+ *                e._groups[group_key].threads++;
+ *            }
+ *
+ *            //draw_data_entry.index = e._groups[group_key].threads - 1;
+ *
+ *            prefix_key = group_key + key;
+ *
+ *            keys.push(prefix_key);
+ *            draw_data[prefix_key] = draw_data_entry;
+ */
             
-            prefix_key = group_key + key;
+        });
 
-            keys.push(prefix_key);
-            draw_data[prefix_key] = draw_data_entry;
+        this._total_num_threads = 0;
+        $.each(this._thread_groups, function(key,value) {
+            var num_threads;
+            if (e._thread_limit) {
+                num_threads = value.effective_threads;
+            } else {
+                num_threads = value.threads;
+            }
+            e._total_num_threads += num_threads;
+            value.num_threads = num_threads;
         });
 
         this.updateScales('y');
@@ -612,66 +704,119 @@ function elapsd() {
                 .text(function(value) {
                     return d3.round(value / 1.0e9, 9) + " s";
                 });
-        
-        bar_height = y(1) - y(0);
+      
+        var bar_space = 5;
+        var bar_height = y.range()[1] / this._total_num_threads;
 
-        if ((bar_height - 5) < min_height) { bar_height = min_height + 5; }
-   
-        $.each(keys.sort(d3.ascending), function(index, key) {
+        if ((bar_height - bar_space) < min_height) { bar_height = min_height + bar_space; }
 
-            value = draw_data[key];
+        $.each(draw_data, function(idx,value) {
+            
+            var gid = e._thread_groups[value.group_key].group_id;
+            var num_threads = e._thread_groups[value.group_key].num_threads;
 
-            chart.selectAll(".rect-" + value.key)
+            chart.selectAll("drawings")
                 .data(value.data)
                 .enter().append("rect")
-                    .attr("class", "drawings")
-                    .attr("id", "rect-" + value.key)
-                    .attr("y", function(d) {
-                    
-                        var _y = 0;
-                        if (e._threadInterleave != 'line') {
-                            _y = y(index);
-                        } else {
-                            _y = y(value.tid);
-                        }
-
-                        return _y;
-
-                    })
-                    .attr("x", function(d) { return d[0]; })
-                    .attr("width", function(d) {
-                        w = d[1] - d[0];
-                        
-                        if (w < min_width) { return min_width; }
-
-                        return w;
-                    })
-                    .attr("height", bar_height - 5)
-                    .attr("fill", value.color)
-                    .on("mousemove", function() {
-
-                        var rect_key = d3.event.target.id;
-                        var key = rect_key.replace("rect-", "");
-
-                        var x_pos = $(d3.event.target).position().left;
-                        var y_pos = parseInt($(d3.event.target).attr("width")) + x_pos;
-
-                        $_tag
-                            .show()
-                            .css('left', d3.event.pageX)
-                            .css('top', d3.event.pageY + $_tag.outerHeight())
-                            .text(
-                                (x.invert(x_pos - $_chart.position().left) / 1.0e9).toPrecision(e.precision()) + "s " +
-                                (x.invert(y_pos - $_chart.position().left) / 1.0e9).toPrecision(e.precision()) + "s " +
-                                db_data[key].length
-                            );
-
-                    })
-                    .on("mouseout", function() {
-                        $_tag.hide();
-                    });
-
+                .attr("class", "drawings")
+                .attr("y", function() {
+                    var _y = value.y_idx / num_threads + gid;
+                    return y(_y);
+                })
+                .attr("x", function(d) { return d[0]; })
+                .attr("width", function(d) {
+                    w = d[1] - d[0];
+                     
+                    if (w < min_width) { return min_width; }
+    
+                    return w;
+                })
+                .attr("height", bar_height - bar_space)
+                .attr("fill", value.color);
+                
         });
+/*
+        chart.selectAll("drawings")
+            .data(draw_data)
+            .enter().append("rect")
+            .attr("class", "drawings")
+            .attr("y", function(d,i) { console.log(d); return y(d[2]); })
+            .attr("x", function(d,i) { return d[0]; })
+            .attr("width", function(d) {
+                w = d[1] - d[0];
+                 
+                if (w < min_width) { return min_width; }
+
+                return w;
+            })
+            .attr("height", bar_height - 5)
+            .attr("fill", "#fff");
+*/            
+
+/*
+ *        $.each(keys.sort(d3.ascending), function(index, key) {
+ *
+ *            value = draw_data[key];
+ *
+ *            chart.selectAll(".rect-" + value.key)
+ *                .data(value.data)
+ *                .enter().append("rect")
+ *                    .attr("class", "drawings")
+ *                    .attr("id", "rect-" + value.key)
+ *                    .attr("y", function(d) {
+ *           
+ *                        console.log(value);
+ *
+ *                        var cutoff = Number.MAX_VALUE;
+ *                        var _y = y(value.index);
+ *                        [>
+ *                        if (e._thread_limit > 0) {
+ *                            cutoff = e._thread_limit;
+ *                        }
+ *                        var _y = 0;
+ *                        if (e._threadInterleave != 'line') {
+ *                            _y = y(index % cutoff);
+ *                        } else {
+ *                            _y = y(value.tid % cutoff);
+ *                        }
+ *                        return _y;
+ *
+ *                    })
+ *                    .attr("x", function(d) { return d[0]; })
+ *                    .attr("width", function(d) {
+ *                        w = d[1] - d[0];
+ *                        
+ *                        if (w < min_width) { return min_width; }
+ *
+ *                        return w;
+ *                    })
+ *                    .attr("height", bar_height - 5)
+ *                    .attr("fill", value.color)
+ *                    .on("mousemove", function() {
+ *
+ *                        var rect_key = d3.event.target.id;
+ *                        var key = rect_key.replace("rect-", "");
+ *
+ *                        var x_pos = $(d3.event.target).position().left;
+ *                        var y_pos = parseInt($(d3.event.target).attr("width")) + x_pos;
+ *
+ *                        $_tag
+ *                            .show()
+ *                            .css('left', d3.event.pageX)
+ *                            .css('top', d3.event.pageY + $_tag.outerHeight())
+ *                            .text(
+ *                                (x.invert(x_pos - $_chart.position().left) / 1.0e9).toPrecision(e.precision()) + "s " +
+ *                                (x.invert(y_pos - $_chart.position().left) / 1.0e9).toPrecision(e.precision()) + "s " +
+ *                                db_data[key].length
+ *                            );
+ *
+ *                    })
+ *                    .on("mouseout", function() {
+ *                        $_tag.hide();
+ *                    });
+ *
+ *        });
+ */
 
         this.drawMarkers();
 
@@ -716,5 +861,12 @@ function elapsd() {
 
         });
     }
+
+    $("#threads_max").change(function(ev) {
+       
+        e._thread_limit = $(this).is(':checked');
+        e.replot();
+
+    });
 
 };

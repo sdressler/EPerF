@@ -104,10 +104,22 @@ body {
     background-size: 15px 15px;
 }
 
-label, input[type="radio"] {
+label, input {
     vertical-align: middle;
 }
 
+input[type="text"] {
+    border: dotted 1px #888;
+    background-color: #444;
+    color: #00B1E6;
+    padding: 2px;
+    margin: 2px;
+}
+
 .option_set {
-    vertical-align: bottom;
+    vertical-align: middle;
+}
+
+.distance {
+    padding-right: 10px;
 }
