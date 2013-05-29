@@ -82,8 +82,9 @@ function elapsd() {
                 
                 d3.selectAll('.vline').remove();
 
-                if (!ev.ctrlKey || x == 'undefined') {
+                if (!ev.ctrlKey || x == 'undefined' || x == null) {
                     $(this).css('cursor', 'crosshair');
+                    $_tag.hide();
                     return;
                 }
                 
@@ -793,7 +794,6 @@ function elapsd() {
     this.drawMarkers = function() {
 
         var precision = this.precision();
-
         d3.selectAll(".marker").remove();
 
         $.each(active_markers, function(key,value) {
@@ -801,6 +801,19 @@ function elapsd() {
             var pos = x(key * 1.0e9);
 
             if (pos < 0) { return; }
+       
+            d3.select("#drawing").append('div')
+                .attr('class', 'chart marker tag removeable')
+                .attr('id', 'vline_tag')
+                .attr('key', key)
+                .style('left', pos + 19)
+                .style('top', $_chart.position().top - 5)
+                .text(parseFloat(key).toFixed(precision) + "s")
+                .on('click', function(ev) {
+                    delete active_markers[key];
+                    $("div[key='" + key + "']").remove();
+                    $("line[key='" + key + "']").remove();
+                });
             
             d3.select('#chart').append('line')
                 .attr('class', 'marker chart')
@@ -817,11 +830,8 @@ function elapsd() {
     }
 
     $("#threads_max").change(function(ev) {
-       
         e._thread_limit = $(this).is(':checked');
         e.changeDisplay();
-        //e.replot();
-
     });
 
 };
