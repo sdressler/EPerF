@@ -499,17 +499,15 @@ function elapsd() {
         // Update scales
         e.updateScales('both');
      
-//        if (this._threadInterleave != 'line') { 
+        if (this._threadInterleave != 'line') { 
             this._bar_height = y.range()[1] / this._total_num_threads;
-/*            
         } else {
             var max_thread_num = 0;
             $.each(this._thread_groups, function(key,value) {
                 max_thread_num = Math.max(max_thread_num, value.threads);
-            })
+            });
             this._bar_height = y.range()[1] / max_thread_num;
         }
-*/
 
         if ((this._bar_height - this._bar_space) < min_height) {
             this._bar_height = min_height + this._bar_space;
@@ -519,7 +517,7 @@ function elapsd() {
         
         overlayToggle('hide');
     
-    }
+    };
 
     getPrecision = function(number) {
         if (number == 0) { number = 1; }
