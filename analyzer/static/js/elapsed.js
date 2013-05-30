@@ -23,26 +23,22 @@ function elapsd() {
         $("#overlay_msg").text(msg);
         $("#overlay_msg").show();
 
-        // Only update message if state is the same
-        if (newState == e._current_overlay_state || newState == null) { return; }    
-
         if (newState == 'show') {
             overlay.show();
             spinner.spin(document.getElementById("overlay"));
             e._current_overlay_state = 'show';
-        } else {
+        } else if (newState == 'hide') {
             overlay.fadeOut();
             spinner.stop();
             e._current_overlay_state = 'hide';
         }
 
-
-    }
+    };
 
     this.setThreadInterleave = function(interleave) {
         this._threadInterleave = interleave;
         this.changeDisplay();
-    }
+    };
 
     var min_width   = 2;
     var min_height  = 2;
@@ -52,9 +48,8 @@ function elapsd() {
 
     this._precision = 3;
     this.precision = function(value) {
-        if (value == null) {
-            return this._precision;
-        } else {
+
+        if (value !== null) {
             if (value < 3) {
                 this._precision = 3;
             } else if (value > 9) {
@@ -63,7 +58,9 @@ function elapsd() {
                 this._precision = value;
             }
         }
-    }
+
+        return this._precision;
+    };
 
     var active_markers = {};
     var cursor_sec;
@@ -76,12 +73,11 @@ function elapsd() {
 		.attr("width", "100%")
     var $_chart = $("#chart");
 
-        $_chart
-            .mousemove(function(ev) {
+        $_chart.mousemove(function(ev) {
                 
                 d3.selectAll('.vline').remove();
 
-                if (!ev.ctrlKey || x == 'undefined' || x == null) {
+                if (!ev.ctrlKey || typeof x == 'undefined') {
                     $(this).css('cursor', 'crosshair');
                     $_tag.hide();
                     return;
@@ -91,25 +87,24 @@ function elapsd() {
 
                 var pos = ev.pageX
                         - parseInt(drawing.css('margin-left'))
-                        - parseInt(drawing.css('padding-left'))
+                        - parseInt(drawing.css('padding-left'));
     
                 cursor_sec = x.invert(pos) / 1.0e9;
 
-                $_tag
-                    .show()
-                    .css('left', ev.pageX)
-                    .css('top', $_chart.position().top - 5)
-                    .text(e.numberToString(cursor_sec) + "s");
+                $_tag.show()
+                     .css('left', ev.pageX)
+                     .css('top', $_chart.position().top - 5)
+                     .text(e.numberToString(cursor_sec) + "s");
 
                 d3.select('#chart').append('line')
-                    .attr('class', 'vline')
-                    .attr('id', 'vline')
-                    .attr('x1', pos + 0.5)
-                    .attr('x2', pos + 0.5)
-                    .attr('y1', 0)
-                    .attr('y2', $_chart.innerHeight())
-                    .style("stroke", "#fff")
-                    .style("stroke-width", "1.5px");
+                  .attr('class', 'vline')
+                  .attr('id', 'vline')
+                  .attr('x1', pos + 0.5)
+                  .attr('x2', pos + 0.5)
+                  .attr('y1', 0)
+                  .attr('y2', $_chart.innerHeight())
+                  .style("stroke", "#fff")
+                  .style("stroke-width", "1.5px");
 
             })
             .click(function(ev) {
@@ -122,19 +117,16 @@ function elapsd() {
             });
 
     var chart_seconds = d3.select('#drawing').append("svg:svg")
-        .attr("class", "chart")
-        .attr("id", "chart_seconds")
-        .attr("width", "100%")
-        .attr("height", "50");
+                          .attr("class", "chart")
+                          .attr("id", "chart_seconds")
+                          .attr("width", "100%")
+                          .attr("height", "50");
     
     var $_chart_seconds = $("#chart_seconds");
 
     d3.select("#drawing").append('div')
-        .attr('class', 'chart tag')
-        .attr('id', 'tag')
-//        .style('left', ev.pageX)
-//        .style('top', $_chart.position().top - 5)
-//        .text(cursor_sec.toPrecision(precision) + "s")
+                         .attr('class', 'chart tag')
+                         .attr('id', 'tag');
 
     $_tag = $("#tag");
 
@@ -185,15 +177,15 @@ function elapsd() {
         $_chart.css('margin-top', chart_top_space);
 
         // Replace overlay message
-        $("#overlay_msg")
-            .css('top', $(window).innerHeight() / 2 + 100)
-            .hide();
+        $("#overlay_msg").css('top', $(window).innerHeight() / 2 + 100)
+                         .hide();
 
         // Update scales and replot
-        if (plot_empty == false) {
+        if (plot_empty === false) {
             this.updateScales('both');
             this.replot();
         }
+
     };
 
     this.changeDB = function(db, sender) {
@@ -252,12 +244,11 @@ function elapsd() {
                         async: true,
                         success: function(data) {
                             $.each(data.result, function(index, value) {
-                                exp_selection[exp_id]
-                                    .exp_data[value[0] + '-' + value[2]] = {
-                                        'kname': value[1],
-                                        'dname': value[3],
-                                        'selected': false
-                                    }
+                                exp_selection[exp_id].exp_data[value[0] + '-' + value[2]] = {
+                                    'kname': value[1],
+                                    'dname': value[3],
+                                    'selected': false
+                                };
                             });
                             
                             exp_loaded++;
@@ -312,14 +303,13 @@ function elapsd() {
                     'did': did
                 }).appendTo("#exp-" + key)
                   .click(function(sender) { e.triggerSelect(sender.target); });
-            })
-
+            });
         });
-    };
+    }
 
-    this.triggerSelect = function(caller) {
+    this.triggerSelect = function(_caller) {
 
-        var caller = $(caller);
+        var caller = $(_caller);
 
         var eid = caller.attr('eid');
         var sid = caller.attr('kid') + '-' + caller.attr('did');
@@ -336,7 +326,7 @@ function elapsd() {
                 if (key.search(xkey) != -1) {
                     delete db_data[key];
                 }
-            })
+            });
 
         } else {
 
@@ -372,13 +362,13 @@ function elapsd() {
         var load_selection = [];
         $.each(new_selection, function(key,value) {
 
-            if (current_selection[key] == null) {
+            if (!(key in current_selection)) {
                 sel_key = key.split('-');
                 load_selection.push([
-                    parseInt(sel_key[0]),
-                    parseInt(sel_key[1]),
-                    parseInt(sel_key[2])    
-                ])
+                    parseInt(sel_key[0], 10),
+                    parseInt(sel_key[1], 10),
+                    parseInt(sel_key[2], 10)    
+                ]);
             }
 
         });
@@ -387,13 +377,13 @@ function elapsd() {
         current_selection = new_selection;
 
         /* Maybe nothing was selected ?! */
-        if (Object.keys(current_selection).length == 0) {
+        if (Object.keys(current_selection).length === 0) {
             this.clearPlot();
             return;
         }
 
         /* Nothing to reload, but we should trigger a redraw */
-        if (load_selection.length == 0) {
+        if (load_selection.length === 0) {
             this.changeDisplay();
             return;
         }
@@ -412,12 +402,12 @@ function elapsd() {
                     prefix_key = prefix_key[0] + "-" + prefix_key[1] + "-" + prefix_key[2];
 
                 /* Make Thread IDs consecutive in any case */
-                var tids = []
+                var tids = [];
                 $.each(data.result, function(key,value) {
-                    tids.push(parseInt(key.split('-')[3]));
+                    tids.push(parseInt(key.split('-')[3], 10));
                 });
 
-                var suffixes = {}
+                var suffixes = {};
                 $.each(tids.sort(d3.ascending), function(idx,val) {
                     suffixes[val] = idx;
                 });
@@ -446,10 +436,10 @@ function elapsd() {
 
                     subkeys = key.split("-");
 
-                    max_eid = d3.max([max_eid, parseInt(subkeys[0])]);
-                    max_kid = d3.max([max_kid, parseInt(subkeys[1])]);
-                    max_did = d3.max([max_did, parseInt(subkeys[2])]);
-                    max_tid = d3.max([max_tid, parseInt(subkeys[3])]);
+                    max_eid = d3.max([max_eid, parseInt(subkeys[0], 10)]);
+                    max_kid = d3.max([max_kid, parseInt(subkeys[1], 10)]);
+                    max_did = d3.max([max_did, parseInt(subkeys[2], 10)]);
+                    max_tid = d3.max([max_tid, parseInt(subkeys[3], 10)]);
 
                     max.push(d3.max(value.map(function(x) {
                         return x[1];
@@ -519,12 +509,12 @@ function elapsd() {
     
     };
 
-    getPrecision = function(number) {
-        if (number == 0) { number = 1; }
-        return parseInt(Math.log(number) / Math.LN10 + 1);
+    function getPrecision(number) {
+        if (number === 0) { number = 1; }
+        return parseInt(Math.log(number) / Math.LN10 + 1, 10);
     }
 
-    getPaddedNumString = function(strnum,digits) {
+    function getPaddedNumString(strnum,digits) {
         var pad = digits - strnum.length;
         return Array(pad + 1).join("0") + strnum;
     }
@@ -536,9 +526,10 @@ function elapsd() {
     	if (typeof db_data == "undefined") { return; }
 
         if (scale == 'x' || scale == 'both') {
-            x = d3.scale.linear()
-                .domain([0, e.max_value])
-                .rangeRound([10, $_chart.innerWidth() - 20]);
+            x = d3.scale
+                  .linear()
+                  .domain([0, e.max_value])
+                  .rangeRound([10, $_chart.innerWidth() - 20]);
         }
 
         if (scale == 'y' || scale == 'both') {
@@ -550,9 +541,10 @@ function elapsd() {
                 domain_max = 1;
             }
 */
-            y = d3.scale.linear()
-                .domain([0, 1])
-                .rangeRound([0, $_chart.innerHeight()]);
+            y = d3.scale
+                  .linear()
+                  .domain([0, 1])
+                  .rangeRound([0, $_chart.innerHeight()]);
         }
         
         d3.select("#chart").call(d3.behavior.zoom()
@@ -569,12 +561,12 @@ function elapsd() {
             })
         );
 
-    }
+    };
 
     this.clearPlot = function() {
         // Cleanup everything
         d3.selectAll(".drawings").remove();
-    }
+    };
 
     this.prepareDrawData = function(data) {
 
@@ -593,13 +585,13 @@ function elapsd() {
             var subkeys = key.split('-');
             var group_key = subkeys[0] + subkeys[1] + subkeys[2];
 
-            if (e._thread_groups[group_key] == null) {
+            if (!(group_key in e._thread_groups)) {
                 e._thread_groups[group_key] = {
                     "group_id": group_id,
                     "threads": 0,
                     "effective_threads": 0,
                     "y_ends": []
-                }
+                };
                 group_id++;
             }
 
@@ -632,7 +624,7 @@ function elapsd() {
 
             prepared_draw_data.push({
                 'data': data[key],
-                'y_idx': parseInt(y_idx),
+                'y_idx': parseInt(y_idx, 10),
                 'group_key': group_key,
                 'color': e.exp_selection[subkeys[0]].exp_data[subkeys[1] + '-' + subkeys[2]].color
             });
@@ -644,7 +636,7 @@ function elapsd() {
         var group_thread_nums = {};
 
         $.each(this._thread_groups, function(key,value) {
-            e._total_num_threads += value.threads;;
+            e._total_num_threads += value.threads;
             value.num_threads = value.threads;
             group_thread_nums[value.group_id] = value.threads;
             max_num_threads = Math.max(max_num_threads, value.threads);
@@ -770,48 +762,48 @@ function elapsd() {
 
         // Draw the grid
         chart.selectAll("lines")
-            .data(x.ticks(num_ticks))
-            .enter().append("line")
-                .attr("class", "drawings")
-                .attr("x1", function(d) { return x(d) + 0.5; })
-                .attr("x2", function(d) { return x(d) + 0.5; })
-                .attr("y1", 0)
-                .attr("y2", $_chart.innerHeight())
-                .attr("id", "vgrid")
-                .style("stroke", "#bbb")
-                .style("stroke-width", "1.5px")
-                .style("stroke-dasharray", "5,5");
+             .data(x.ticks(num_ticks))
+             .enter()
+             .append("line")
+             .attr("class", "drawings")
+             .attr("x1", function(d) { return x(d) + 0.5; })
+             .attr("x2", function(d) { return x(d) + 0.5; })
+             .attr("y1", 0)
+             .attr("y2", $_chart.innerHeight())
+             .attr("id", "vgrid")
+             .style("stroke", "#bbb")
+             .style("stroke-width", "1.5px")
+             .style("stroke-dasharray", "5,5");
 
         chart_seconds.selectAll(".seconds")
-            .data(x.ticks(num_ticks))
-            .enter().append("text")
-                .attr("class", "labels seconds drawings")
-                .attr("x", x)
-                .attr("y", $_chart_seconds.height() / 2)
-                .attr("dy", -3)
-                .attr("text-anchor", "middle")
-                .attr("fill", "#fff")
-                .text(function(value) {
-                    return d3.round(value / 1.0e9, 9) + " s";
-                });
+                     .data(x.ticks(num_ticks))
+                     .enter()
+                     .append("text")
+                     .attr("class", "labels seconds drawings")
+                     .attr("x", x)
+                     .attr("y", $_chart_seconds.height() / 2)
+                     .attr("dy", -3)
+                     .attr("text-anchor", "middle")
+                     .attr("fill", "#fff")
+                     .text(function(value) {
+                         return d3.round(value / 1.0e9, 9) + " s";
+                     });
 
         $.each(draw_data, function(idx,value) {
             chart.selectAll("drawings")
-                .data(value.data)
-                .enter().append("rect")
-                .attr("class", "drawings")
-                .attr("y", y(value.y_idx))
-                .attr("x", function(d) { return d[0]; })
-                .attr("width", function(d) {
-                    w = d[1] - d[0];
-                     
-                    if (w < min_width) { return min_width; }
-    
-                    return w;
-                })
-                .attr("height", e._bar_height - e._bar_space)
-                .attr("fill", value.color);
-                
+                 .data(value.data)
+                 .enter()
+                 .append("rect")
+                 .attr("class", "drawings")
+                 .attr("y", y(value.y_idx))
+                 .attr("x", function(d) { return d[0]; })
+                 .attr("width", function(d) {
+                     w = d[1] - d[0];
+                     if (w < min_width) { return min_width; }
+                     return w;
+                 })
+                 .attr("height", e._bar_height - e._bar_space)
+                 .attr("fill", value.color);
         });
 
 /*
@@ -842,11 +834,11 @@ function elapsd() {
         this.drawMarkers();
         plot_empty = false;
 
-    }
+    };
 
     this.numberToString = function(value) {
         return String(value.toFixed(e.precision()));
-    }
+    };
 
     this.drawMarkers = function() {
 
@@ -859,36 +851,38 @@ function elapsd() {
 
             if (pos < 0) { return; }
        
-            d3.select("#drawing").append('div')
-                .attr('class', 'chart marker tag removeable')
-                .attr('id', 'vline_tag')
-                .attr('key', key)
-                .style('left', pos + 19)
-                .style('top', $_chart.position().top - 5)
-                .text(parseFloat(key).toFixed(precision) + "s")
-                .on('click', function(ev) {
-                    delete active_markers[key];
-                    $("div[key='" + key + "']").remove();
-                    $("line[key='" + key + "']").remove();
-                });
+            d3.select("#drawing")
+              .append('div')
+              .attr('class', 'chart marker tag removeable')
+              .attr('id', 'vline_tag')
+              .attr('key', key)
+              .style('left', pos + 19)
+              .style('top', $_chart.position().top - 5)
+              .text(parseFloat(key).toFixed(precision) + "s")
+              .on('click', function(ev) {
+                  delete active_markers[key];
+                  $("div[key='" + key + "']").remove();
+                  $("line[key='" + key + "']").remove();
+              });
             
-            d3.select('#chart').append('line')
-                .attr('class', 'marker chart')
-                .attr('key', key)
-                .attr('x1', pos + 0.5)
-                .attr('x2', pos + 0.5)
-                .attr('y1', 0)
-                .attr('y2', $_chart.innerHeight())
-                .style("stroke", "#fff")
-                .style("stroke-width", "3px")
-                .style("stroke-dasharray", "5,5");
+            d3.select('#chart')
+              .append('line')
+              .attr('class', 'marker chart')
+              .attr('key', key)
+              .attr('x1', pos + 0.5)
+              .attr('x2', pos + 0.5)
+              .attr('y1', 0)
+              .attr('y2', $_chart.innerHeight())
+              .style("stroke", "#fff")
+              .style("stroke-width", "3px")
+              .style("stroke-dasharray", "5,5");
 
         });
-    }
+    };
 
     $("#threads_max").change(function(ev) {
         e._thread_limit = $(this).is(':checked');
         e.changeDisplay();
     });
 
-};
+}

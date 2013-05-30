@@ -12,11 +12,11 @@ $(document).ready(function() {
     /* Create event handler for thread interleaving */
     $("input:radio[name=thread_interleave]").change(function(ev) {
         e.setThreadInterleave(ev.target.id.split('_')[1]);
-    })
+    });
 
     url_params = window.location.search.substring(1).split('&');
     $.each(url_params, function(index, value) {
-        param = value.split('=')
+        param = value.split('=');
 
         if (param[0] == '_debugmode' && param[1] == 'true') {
             e.changeDB("cup3_32_vacuum_16.db", db_selector);
