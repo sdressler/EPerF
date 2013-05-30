@@ -40,13 +40,24 @@ body {
 }
 
 #drawing {
+    float: left;
     margin: 10px;
+    margin-left: 0px;
+}
+
+#statistics {
+    float: left;
+    margin: 10px;
+    margin-left: 0px;
 }
 
 #footer {
 /*    height: 25px; */
+    height: 25px;
     background-color: #444;
     vertical-align: middle;
+    width: 100%;
+    position: fixed;
 }
 
 #db_selector {
@@ -90,7 +101,7 @@ body {
 	cursor: pointer;
 }
 
-.chart {
+.chart,.stat_text {
     font-family: monospace;
     font-size: 10pt;
 }
@@ -101,7 +112,7 @@ body {
     min-width: 50px;
     background-color: #888;
     color: #000;
-    display: inline-block;
+    display: none;
     padding: 2px;
 }
 
@@ -125,11 +136,13 @@ input[type="text"] {
     margin: 2px;
 }
 
-.option_set {
-    vertical-align: middle;
-}
-
-.distance {
-    padding-right: 10px;
+.wrap {
+    background-color: #333;
+    margin: 5px;
+    padding: 5px;
+    padding-bottom: 10px;
+    padding-left: 8px;
+    padding-right: 8px;
+	border-radius: 4px;
 }
 

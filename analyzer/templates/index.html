@@ -27,15 +27,23 @@
 
     <div class="section" id="experiments"></div>
     <div class="clear"></div>
+    <div class="section" id="statistics"></div>
     <div class="section" id="drawing"></div>
     <div class="clear"></div>
     <div class="section" id="footer">
         <div class="option_set">
-            <label for="thread_interleave">Thread-Interleave:&nbsp;</label>
-            <input type="radio" name="thread_interleave" id="tinterleave_false" checked /><label for="tinterleave_false">Off</label>
-            <input type="radio" name="thread_interleave" id="tinterleave_true" /><label for="tinterleave_true">On</label>
-            <input type="radio" name="thread_interleave" id="tinterleave_line" /><label for="tinterleave_line" class="distance">Line</label>
-            <input type="checkbox" id="threads_max" /><label for="threads_max">Condense Threads</label>
+            <span class="wrap">
+                <input type="checkbox" id="statistics_check" /><label for="statistics_check">Statistics</label>
+            </span>
+            <span class="wrap">
+                <label for="thread_interleave">Thread-Interleave:&nbsp;</label>
+                <input type="radio" name="thread_interleave" id="tinterleave_false" checked /><label for="tinterleave_false">Off</label>
+                <input type="radio" name="thread_interleave" id="tinterleave_true" /><label for="tinterleave_true">On</label>
+                <input type="radio" name="thread_interleave" id="tinterleave_line" /><label for="tinterleave_line">Line</label>
+            </span>
+            <span class="wrap">
+                <input type="checkbox" id="threads_max" /><label for="threads_max">Condense Threads</label>
+            </span>
         </div>
     </div>
     <div class="clear"></div>

@@ -70,7 +70,7 @@ function elapsd() {
 	var chart = d3.select('#drawing').append("svg:svg")	
 		.attr("class", "chart")
 		.attr("id", "chart")
-		.attr("width", "100%")
+		.attr("width", "100%");
     var $_chart = $("#chart");
 
         $_chart.mousemove(function(ev) {
@@ -124,6 +124,13 @@ function elapsd() {
     
     var $_chart_seconds = $("#chart_seconds");
 
+    var statistics = d3.select('#statistics')
+                       .append("svg:svg")
+                       .attr("id", "statistics_svg")
+                       .attr("width", "100%");
+    var $_statistics = $("#statistics_svg");
+                         
+
     d3.select("#drawing").append('div')
                          .attr('class', 'chart tag')
                          .attr('id', 'tag');
@@ -160,31 +167,47 @@ function elapsd() {
     ];
 
     this.resizeDocument = function() {
-        drawing.outerHeight(
-              $(window).innerHeight()
-            - experiments.outerHeight()
-            - footer.outerHeight()
-            - 20
-        );
 
-        // Resize the charts SVG's
+        var body_height = $("body").height();
+        var body_width  = $("body").width();
+
+        if (typeof this._statistics_width == 'undefined') {
+            this._statistics_width = 0;
+        }
+
+        $("#footer").css('top', body_height - $("#footer").outerHeight());
+        $("#drawing").innerHeight(
+            body_height -
+            $("#footer").outerHeight() -
+            $("#experiments").outerHeight() -
+            parseInt($("#drawing").css('margin-top'),10) -
+            parseInt($("#drawing").css('margin-bottom'),10));
+
+        $("#statistics").innerHeight($("#drawing").innerHeight());
+        $("#statistics").innerWidth(this._statistics_width);
+
+        $("#drawing").innerWidth(
+            body_width - $("#statistics").innerWidth() -
+            parseInt($("#drawing").css('margin-right'),10) -
+            parseInt($("#statistics").css('margin-right'),10));
+
         $_chart.innerHeight(
-              drawing.innerHeight()
-            - $_chart_seconds.innerHeight()
-            - chart_top_space
-        );
+            $("#drawing").innerHeight() -
+            $_chart_seconds.innerHeight() -
+            chart_top_space);
+
+        $_statistics.innerHeight($_chart.innerHeight());
+        $_statistics.css('top', $_chart.css('top'));
 
         $_chart.css('margin-top', chart_top_space);
+        $_statistics.css('margin-top', chart_top_space);
 
         // Replace overlay message
-        $("#overlay_msg").css('top', $(window).innerHeight() / 2 + 100)
-                         .hide();
+        $("#overlay_msg").css('top', $(window).innerHeight() / 2 + 100).hide();
 
         // Update scales and replot
-        if (plot_empty === false) {
-            this.updateScales('both');
-            this.replot();
-        }
+        this.updateScales('both');
+        this.replot();
 
     };
 
@@ -488,20 +511,6 @@ function elapsd() {
 
         // Update scales
         e.updateScales('both');
-     
-        if (this._threadInterleave != 'line') { 
-            this._bar_height = y.range()[1] / this._total_num_threads;
-        } else {
-            var max_thread_num = 0;
-            $.each(this._thread_groups, function(key,value) {
-                max_thread_num = Math.max(max_thread_num, value.threads);
-            });
-            this._bar_height = y.range()[1] / max_thread_num;
-        }
-
-        if ((this._bar_height - this._bar_space) < min_height) {
-            this._bar_height = min_height + this._bar_space;
-        }
         
         e.replot();
         
@@ -533,18 +542,26 @@ function elapsd() {
         }
 
         if (scale == 'y' || scale == 'both') {
-/*
-            var domain_max = 1;
-            if (this._thread_groups != null && this._threadInterleave != 'line') {
-                domain_max = Object.keys(this._thread_groups).length;
-            } else {
-                domain_max = 1;
-            }
-*/
+            
             y = d3.scale
                   .linear()
                   .domain([0, 1])
                   .rangeRound([0, $_chart.innerHeight()]);
+         
+            if (this._threadInterleave != 'line') { 
+                this._bar_height = y.range()[1] / this._total_num_threads;
+            } else {
+                var max_thread_num = 0;
+                $.each(this._thread_groups, function(key,value) {
+                    max_thread_num = Math.max(max_thread_num, value.threads);
+                });
+                this._bar_height = y.range()[1] / max_thread_num;
+            }
+
+            if ((this._bar_height - this._bar_space) < min_height) {
+                this._bar_height = min_height + this._bar_space;
+            }
+
         }
         
         d3.select("#chart").call(d3.behavior.zoom()
@@ -685,7 +702,7 @@ function elapsd() {
 
         });
 
-        // Remove gaps
+        // Remove gaps if necessary
         if (e._threadInterleave == 'true' && groups > 1) {
             var _y_obj = {};
             $.each(prepared_draw_data, function(key,value) {
@@ -709,6 +726,30 @@ function elapsd() {
             });
 
         }
+
+        /* This collect statistical data */
+        this._statistics_data = {};
+        $.each(prepared_draw_data, function(key,value) {
+
+            var run_time = 0;
+            $.each(value.data, function(idx,x) {
+                run_time += x[1] - x[0];
+            });
+
+            var wall_time = value.data[value.data.length - 1][1] - value.data[0][0];
+
+            if (!(value.y_idx in e._statistics_data)) {
+                e._statistics_data[value.y_idx] = {
+                    'num_calls': value.data.length,
+                    'run_time': run_time / 1.0e9,
+                    'wall_time': wall_time / 1.0e9
+                };
+            } else {
+                e._statistics_data[value.y_idx].num_calls += value.data.length;
+                e._statistics_data[value.y_idx].run_time += run_time / 1.0e9;
+                e._statistics_data[value.y_idx].wall_time += wall_time / 1.0e9;
+            }
+        });
 
         return prepared_draw_data;
 
@@ -806,6 +847,40 @@ function elapsd() {
                  .attr("fill", value.color);
         });
 
+        d3.selectAll(".stat_text").remove();
+        //for (i = 0; i < this._total_num_threads; i++) {
+        $.each(this._statistics_data, function(key,value) {
+            text = d3.select("#statistics_svg")
+              .append("text")
+              .attr("class", "labels stat_text")
+              .attr("x", 10)
+              .attr("fill", "#fff");
+
+            text.append("tspan")
+                .attr("x", 0)
+                .attr("dy", 0)
+                .text("Calls: " + value.num_calls);
+
+            text.append("tspan")
+                .attr("x", 0)
+                .attr("dy", "1em")
+                .text("Run-Time: " + value.run_time + " s");
+            
+            text.append("tspan")
+                .attr("x", 0)
+                .attr("dy", "1em")
+                .text("Wall-Time: " + value.wall_time + " s");
+
+            text.append("tspan")
+                .attr("x", 0)
+                .attr("dy", "1em")
+                .text("Mean Duration: " + (value.run_time / value.num_calls).toFixed(9) + " s");
+
+            text.attr("y", y(key) + (e._bar_height - $(text[0]).height() + chart_top_space) / 2);
+
+        });
+
+
 /*
  *                    .on("mousemove", function() {
  *
@@ -883,6 +958,15 @@ function elapsd() {
     $("#threads_max").change(function(ev) {
         e._thread_limit = $(this).is(':checked');
         e.changeDisplay();
+    });
+
+    $("#statistics_check").change(function(ev) {
+        if ($(this).is(':checked')) {
+            e._statistics_width = 250;
+        } else {
+            e._statistics_width = 0;
+        }
+        e.resizeDocument();
     });
 
 }

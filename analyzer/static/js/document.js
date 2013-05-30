@@ -19,7 +19,7 @@ $(document).ready(function() {
         param = value.split('=');
 
         if (param[0] == '_debugmode' && param[1] == 'true') {
-            e.changeDB("cup3_32_vacuum_16.db", db_selector);
+            e.changeDB("GLAT1.1.db", db_selector);
         }
     });
 
