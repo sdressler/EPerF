@@ -112,8 +112,8 @@ body {
     min-width: 50px;
     background-color: #888;
     color: #000;
-    display: none;
     padding: 2px;
+    left: 0;
 }
 
 .tag.removeable:hover {

@@ -46,10 +46,14 @@ function elapsd() {
 
     var chart_top_space = 25;
 
-    this._precision = 3;
     this.precision = function(value) {
 
-        if (value !== null) {
+        // Initialize
+        if (typeof this._precision == 'undefined') {
+            this._precision = 3;
+        }
+
+        if (typeof value != 'undefined') {
             if (value < 3) {
                 this._precision = 3;
             } else if (value > 9) {
@@ -85,10 +89,8 @@ function elapsd() {
                 
                 $(this).css('cursor', 'none');
 
-                var pos = ev.pageX
-                        - parseInt(drawing.css('margin-left'))
-                        - parseInt(drawing.css('padding-left'));
-    
+                var pos = ev.pageX - $_chart.position().left;
+   
                 cursor_sec = x.invert(pos) / 1.0e9;
 
                 $_tag.show()
@@ -438,12 +440,19 @@ function elapsd() {
                 /* Store and rewrite TID if necessary */
                 $.each(data.result, function(key,value) {
                     var suffix_key = key.split('-')[3];
+                        
+                    var start = d3.min(value.map(function(x) { return x[0]; }));
+                    var stop = d3.max(value.map(function(x) { return x[0]; }));
 
                     if (suffix_key != suffixes[suffix_key]) {
                         new_key = prefix_key + "-" + suffixes[suffix_key];
                         db_data[new_key] = value;
+                        db_data[new_key].start = start;
+                        db_data[new_key].stop = stop;
                     } else {
                         db_data[key] = value;
+                        db_data[key].start = start;
+                        db_data[key].stop = stop;
                     }
                 });
 
@@ -486,7 +495,8 @@ function elapsd() {
                     });
                     new_key = new_key.slice(0,-1);
 
-                    // Exchange keys
+
+                    // Exchange keys and add min/max
                     if (new_key != key) {
                         db_data[new_key] = db_data[key];
                         delete db_data[key];
@@ -513,6 +523,41 @@ function elapsd() {
         e.updateScales('both');
         
         e.replot();
+
+        d3.selectAll(".stat_text").remove();
+        var num_groups = Object.keys(this._thread_groups).length;
+        //for (i = 0; i < this._total_num_threads; i++) {
+        $.each(this._thread_groups, function(key,value) {
+            text = d3.select("#statistics_svg")
+              .append("text")
+              .attr("class", "labels stat_text")
+              .attr("x", 10)
+              .attr("fill", "#fff");
+
+            text.append("tspan")
+                .attr("x", 0)
+                .attr("dy", 0)
+                .text("Wall-Time: " +
+                      ((value.stop - value.start) / 1.0e9).toFixed(9) + " s");
+/*
+            text.append("tspan")
+                .attr("x", 0)
+                .attr("dy", "1em")
+                .text("Run-Time: " + value.run_time + " s");
+            
+            text.append("tspan")
+                .attr("x", 0)
+                .attr("dy", "1em")
+                .text("Wall-Time: " + value.wall_time + " s");
+
+            text.append("tspan")
+                .attr("x", 0)
+                .attr("dy", "1em")
+                .text("Mean Duration: " + (value.run_time / value.num_calls).toFixed(9) + " s");
+*/
+            text.attr("y", y(value.group_id / num_groups) + 10); // + (e._bar_height - $(text[0]).height() + chart_top_space) / 2);
+
+        });
         
         overlayToggle('hide');
     
@@ -570,7 +615,7 @@ function elapsd() {
                 var translate = d3.event.translate;
 
                 var low = (x.domain()[0] + d3.event.translate[0]) / 1.0e9;
-                var hi  = (x.domain()[1] + d3.event.translate[1]) / 1.0e9;
+                var hi  = (x.domain()[1] + d3.event.translate[0]) / 1.0e9;
 
                 e.precision(Math.round(1 / Math.sqrt(hi - low)));
                 
@@ -586,6 +631,8 @@ function elapsd() {
     };
 
     this.prepareDrawData = function(data) {
+
+        overlayToggle('show', 'Preparing Data.');
 
         var prepared_draw_data = [];
 
@@ -607,7 +654,9 @@ function elapsd() {
                     "group_id": group_id,
                     "threads": 0,
                     "effective_threads": 0,
-                    "y_ends": []
+                    "y_ends": [],
+                    "start": 0,
+                    "stop": 0
                 };
                 group_id++;
             }
@@ -639,6 +688,9 @@ function elapsd() {
                 y_idx = subkeys[3]; 
             }
 
+            thread_group.start = Math.min(thread_group.start, data[key].start);
+            thread_group.stop  = Math.max(thread_group.start, data[key].stop);
+            
             prepared_draw_data.push({
                 'data': data[key],
                 'y_idx': parseInt(y_idx, 10),
@@ -728,7 +780,8 @@ function elapsd() {
         }
 
         /* This collect statistical data */
-        this._statistics_data = {};
+        //this._statistics_data = {};
+        /*
         $.each(prepared_draw_data, function(key,value) {
 
             var run_time = 0;
@@ -750,6 +803,7 @@ function elapsd() {
                 e._statistics_data[value.y_idx].wall_time += wall_time / 1.0e9;
             }
         });
+        */
 
         return prepared_draw_data;
 
@@ -847,39 +901,6 @@ function elapsd() {
                  .attr("fill", value.color);
         });
 
-        d3.selectAll(".stat_text").remove();
-        //for (i = 0; i < this._total_num_threads; i++) {
-        $.each(this._statistics_data, function(key,value) {
-            text = d3.select("#statistics_svg")
-              .append("text")
-              .attr("class", "labels stat_text")
-              .attr("x", 10)
-              .attr("fill", "#fff");
-
-            text.append("tspan")
-                .attr("x", 0)
-                .attr("dy", 0)
-                .text("Calls: " + value.num_calls);
-
-            text.append("tspan")
-                .attr("x", 0)
-                .attr("dy", "1em")
-                .text("Run-Time: " + value.run_time + " s");
-            
-            text.append("tspan")
-                .attr("x", 0)
-                .attr("dy", "1em")
-                .text("Wall-Time: " + value.wall_time + " s");
-
-            text.append("tspan")
-                .attr("x", 0)
-                .attr("dy", "1em")
-                .text("Mean Duration: " + (value.run_time / value.num_calls).toFixed(9) + " s");
-
-            text.attr("y", y(key) + (e._bar_height - $(text[0]).height() + chart_top_space) / 2);
-
-        });
-
 
 /*
  *                    .on("mousemove", function() {
@@ -926,12 +947,12 @@ function elapsd() {
 
             if (pos < 0) { return; }
        
-            d3.select("#drawing")
+            tag = d3.select("#drawing")
               .append('div')
               .attr('class', 'chart marker tag removeable')
               .attr('id', 'vline_tag')
               .attr('key', key)
-              .style('left', pos + 19)
+              .style('left', pos + $("#chart").position().left - 1)
               .style('top', $_chart.position().top - 5)
               .text(parseFloat(key).toFixed(precision) + "s")
               .on('click', function(ev) {
