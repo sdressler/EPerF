@@ -400,7 +400,7 @@ function elapsd() {
 
         /* Trigger the AJAX request to receive the data */
         overlayToggle(null, 'Data request pending.');
-        $.ajax({
+        var xhr = $.ajax({
             type: 'POST',
             url: '/get_data',
             dataType: 'json',
@@ -486,6 +486,7 @@ function elapsd() {
 
             }
         });
+
     };
 
     this.changeDisplay = function() {
@@ -498,8 +499,9 @@ function elapsd() {
         // Update scales
         e.updateScales('both');
      
-        if (this._threadInterleave != 'line') { 
+//        if (this._threadInterleave != 'line') { 
             this._bar_height = y.range()[1] / this._total_num_threads;
+/*            
         } else {
             var max_thread_num = 0;
             $.each(this._thread_groups, function(key,value) {
@@ -507,11 +509,12 @@ function elapsd() {
             })
             this._bar_height = y.range()[1] / max_thread_num;
         }
+*/
 
         if ((this._bar_height - this._bar_space) < min_height) {
             this._bar_height = min_height + this._bar_space;
         }
-
+        
         e.replot();
         
         overlayToggle('hide');
@@ -541,16 +544,16 @@ function elapsd() {
         }
 
         if (scale == 'y' || scale == 'both') {
-
+/*
             var domain_max = 1;
             if (this._thread_groups != null && this._threadInterleave != 'line') {
                 domain_max = Object.keys(this._thread_groups).length;
             } else {
                 domain_max = 1;
             }
-
+*/
             y = d3.scale.linear()
-                .domain([0, domain_max])
+                .domain([0, 1])
                 .rangeRound([0, $_chart.innerHeight()]);
         }
         
@@ -639,30 +642,87 @@ function elapsd() {
         });
 
         this._total_num_threads = 0;
+        var max_num_threads = 0;
+        var group_thread_nums = {};
+
         $.each(this._thread_groups, function(key,value) {
             e._total_num_threads += value.threads;;
             value.num_threads = value.threads;
+            group_thread_nums[value.group_id] = value.threads;
+            max_num_threads = Math.max(max_num_threads, value.threads);
         });
 
         /* This adjusts the y-position */
         var groups = Object.keys(this._thread_groups).length;
+        var offset = 0;
+        var prev_gid = 0;
+        var _y = 0;
         $.each(prepared_draw_data, function(key,value) {
+
             var gid = e._thread_groups[value.group_key].group_id;
             var num_threads = e._thread_groups[value.group_key].num_threads;
 
-            if (e._threadInterleave == 'true') {
-                value.y_idx = (value.y_idx / num_threads) * groups + (gid / num_threads);
-            } else if (e._threadInterleave == 'line') {
-                value.y_idx = (value.y_idx / num_threads); // Line Interleave
+            _y = value.y_idx;
+
+            if (e._threadInterleave == 'true' && groups > 1) {
+
+                /* This should create a spacing between consecutive threads,
+                 * spacing should have a length of "groups - 1", but beware of
+                 * thread groups which do not contain the same amount of threads
+                 * */
+                if (gid != prev_gid) {
+                    offset++;
+                    prev_gid = gid;
+                }
+
+                _y = (_y * groups + offset); // / e._total_num_threads;
+
+            } else if (e._threadInterleave == 'line' && groups > 1) {
+
+                _y /= max_num_threads;
+
             } else {
-                value.y_idx = value.y_idx / num_threads + gid; // Original
+
+                if (gid != prev_gid) {
+                    offset += group_thread_nums[prev_gid];
+                    prev_gid = gid;
+                }
+
+                _y = (_y + offset) / e._total_num_threads; // Original
             }
 
+            value.y_idx = _y;
+
         });
-            
+
+        // Remove gaps
+        if (e._threadInterleave == 'true' && groups > 1) {
+            var _y_obj = {};
+            $.each(prepared_draw_data, function(key,value) {
+                _y_obj[value.y_idx] = 0; 
+            });
+
+            var _y_arr = [];
+            $.each(_y_obj, function(key) {
+                _y_arr.push(parseInt(key,10));
+            });
+            _y_arr = _y_arr.sort(d3.ascending);
+
+            _y_obj = {};
+            for (i = 0; i < _y_arr.length; i++) {
+                _y_obj[_y_arr[i]] = i;
+            }
+
+            // Rewrite y_idx
+            $.each(prepared_draw_data, function(key,value) {
+                value.y_idx = _y_obj[value.y_idx] / e._total_num_threads;
+            });
+
+        }
+
         return prepared_draw_data;
 
-    }
+    };
        
     this._bar_space = 5;
 
